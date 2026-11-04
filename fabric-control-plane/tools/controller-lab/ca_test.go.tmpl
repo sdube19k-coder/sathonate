@@ -1,0 +1,6 @@
+package ca
+import("testing";"strings"; hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1")
+func TestSMPSecurityCABootstrapBlocksWithoutSecretBridge(t *testing.T){
+ err:=(&ConfigValidator{}).ValidateCA(&hlf.FabricCA{})
+ if err==nil||!strings.Contains(err.Error(),"protected registry Secret delivery"){t.Fatal("CA bootstrap blocker not enforced")}
+}

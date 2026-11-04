@@ -1,0 +1,96 @@
+// Candidate-only CA registry delivery. Credentials never enter chart values.
+package smpsecurity
+import(
+ "bytes"
+ "context"
+ "encoding/json"
+ "io"
+ "os"
+ "path/filepath"
+ hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ "k8s.io/client-go/kubernetes"
+ "sigs.k8s.io/yaml"
+)
+const RegistryAnnotation="sathonate.io/ca-registry-secret"
+type registryIdentity struct {
+ Name string `json:"name"`
+ Pass string `json:"pass"`
+ Type string `json:"type"`
+ Affiliation string `json:"affiliation"`
+ Attrs map[string]any `json:"attrs"`
+}
+type registryConfig struct {MaxEnrollments int `json:"maxenrollments"`;Identities []registryIdentity `json:"identities"`}
+type registryBundle struct {CA registryConfig `json:"ca"`;TLS registryConfig `json:"tlsCA"`}
+func parseRegistry(raw []byte)(registryBundle,error){
+ var bundle registryBundle
+ if len(raw)==0||len(raw)>65536{return bundle,denied}
+ decoder:=json.NewDecoder(bytes.NewReader(raw));decoder.DisallowUnknownFields()
+ if decoder.Decode(&bundle)!=nil{return bundle,denied}
+ var extra any;if decoder.Decode(&extra)!=io.EOF{return bundle,denied}
+ for _,config:=range []registryConfig{bundle.CA,bundle.TLS}{
+  if config.MaxEnrollments!= -1 || len(config.Identities)!=1{return bundle,denied}
+  id:=config.Identities[0]
+  if id.Name!="registrar"||len(id.Pass)<32||len(id.Pass)>128||id.Type!="client"||id.Affiliation!=""{return bundle,denied}
+  // The issuer can register node/admin/client identities, not delegate, revoke,
+  // create intermediates or administer affiliations.
+  expected:=map[string]any{"hf.Registrar.Roles":"peer,orderer,admin,client","hf.Registrar.DelegateRoles":"","hf.Registrar.Attributes":"","hf.Revoker":false,"hf.IntermediateCA":false,"hf.GenCRL":false,"hf.AffiliationMgr":false}
+  a,_:=json.Marshal(id.Attrs);b,_:=json.Marshal(expected);if !bytes.Equal(a,b){return bundle,denied}
+ }
+ if bundle.CA.Identities[0].Pass==bundle.TLS.Identities[0].Pass{return bundle,denied}
+ return bundle,nil
+}
+func CAReference(ca *hlf.FabricCA) error {
+ if Namespace(ca.Namespace)!=nil||!name.MatchString(ca.Annotations[RegistryAnnotation])||ca.Spec.CredentialStore==hlf.CredentialStoreVault{return denied}
+ for _,config:=range []hlf.FabricCAItemConf{ca.Spec.CA,ca.Spec.TLSCA}{if config.CA!=nil||len(config.Registry.Identities)!=0||config.Intermediate.ParentServer.URL!=""{return denied}}
+ // Prevent a second configuration/credential channel through arbitrary env.
+ if len(ca.Spec.Env)!=0||ca.Spec.Debug||ca.Spec.Database.Type!="sqlite3"||ca.Spec.Database.Datasource!="fabric-ca-server.db"{return denied}
+ return nil
+}
+func RegistryReference(ctx context.Context,client kubernetes.Interface,ca *hlf.FabricCA)(string,error){
+ if CAReference(ca)!=nil{return "",denied}
+ ref:=ca.Annotations[RegistryAnnotation]
+ secret,err:=client.CoreV1().Secrets(ca.Namespace).Get(ctx,ref,metav1.GetOptions{})
+ if err!=nil||secret.Labels["sathonate.io/namespace"]!=ca.Namespace||secret.Immutable==nil||!*secret.Immutable||len(secret.Data)!=1{return "",denied}
+ if _,err=parseRegistry(secret.Data["registry.json"]);err!=nil{return "",denied}
+ return ref,nil
+}
+// RenderRegistryConfig runs only as the chart's init container. The output must
+// be a memory-backed emptyDir, never a PVC or ordinary persistent artifact.
+func RenderRegistryConfig(mainRaw,tlsRaw,registryRaw []byte)([]byte,[]byte,error){
+ bundle,err:=parseRegistry(registryRaw);if err!=nil{return nil,nil,denied}
+ output:=[][]byte{}
+ for i,raw:=range [][]byte{mainRaw,tlsRaw}{
+  if len(raw)>1<<20{return nil,nil,denied}
+  var config map[string]any
+  if yaml.UnmarshalStrict(raw,&config)!=nil||config==nil{return nil,nil,denied}
+  // Refuse accidentally rendering over an already credential-bearing template.
+  prior,ok:=config["registry"].(map[string]any)
+  if !ok{return nil,nil,denied}
+  if ids,exists:=prior["identities"];exists&&ids!=nil{if list,ok:=ids.([]any);!ok||len(list)!=0{return nil,nil,denied}}
+  r:=bundle.CA;if i==1{r=bundle.TLS}
+  encoded,_:=json.Marshal(r);var registry map[string]any;json.Unmarshal(encoded,&registry)
+  config["registry"]=registry
+  config["debug"]=false
+  if db,ok:=config["db"].(map[string]any);ok {
+   if db["type"]!="sqlite3"||db["datasource"]!="fabric-ca-server.db"{return nil,nil,denied}
+   suffix:="root";if i==1{suffix="tls"};db["datasource"]="/var/hyperledger/smp-ca/"+suffix+".db"
+  }
+  if bccsp,ok:=config["bccsp"].(map[string]any);ok{if sw,ok:=bccsp["sw"].(map[string]any);ok{suffix:="root";if i==1{suffix="tls"};sw["filekeystore"]=map[string]any{"keystore":"/var/hyperledger/smp-ca/"+suffix+"-msp/keystore"}}}
+  if i==0{config["cafiles"]=[]string{"/smp/runtime/tls-ca.yaml"}}
+  rendered,err:=yaml.Marshal(config);if err!=nil{return nil,nil,denied};output=append(output,rendered)
+ }
+ return output[0],output[1],nil
+}
+func RegistryInit() error {
+ read:=func(path string)([]byte,error){f,e:=os.Open(path);if e!=nil{return nil,denied};defer f.Close();raw,e:=io.ReadAll(io.LimitReader(f,(1<<20)+1));if e!=nil||len(raw)>1<<20{return nil,denied};return raw,nil}
+ main,e:=read("/smp/public-ca/ca.yaml");if e!=nil{return denied}
+ tls,e:=read("/smp/public-tls/fabric-ca-server-config.yaml");if e!=nil{return denied}
+ raw,e:=read("/smp/registry/registry.json");if e!=nil{return denied}
+ a,b,e:=RenderRegistryConfig(main,tls,raw);if e!=nil{return denied}
+ for name,value:=range map[string][]byte{"ca.yaml":a,"tls-ca.yaml":b}{
+  f,e:=os.OpenFile(filepath.Join("/smp/runtime",name),os.O_WRONLY|os.O_CREATE|os.O_EXCL,0600);if e!=nil{return denied}
+  _,e=f.Write(value);closeErr:=f.Close();if e!=nil||closeErr!=nil{return denied}
+ }
+ return nil
+}

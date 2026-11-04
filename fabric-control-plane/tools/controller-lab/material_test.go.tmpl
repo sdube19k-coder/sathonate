@@ -1,0 +1,47 @@
+package smpsecurity
+import(
+ "context"
+ "encoding/json"
+ "net/http"
+ "net/http/httptest"
+ "strings"
+ "testing"
+ corev1 "k8s.io/api/core/v1"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ "k8s.io/apimachinery/pkg/types"
+ "k8s.io/client-go/kubernetes"
+ "k8s.io/client-go/rest"
+)
+func TestSMPSecurityChartKeysNeverReachHelm(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate")
+ owner:=&metav1.ObjectMeta{Name:"node",Namespace:"smp-candidate",UID:types.UID("fixture-owner")}
+ stored:=map[string]corev1.Secret{}
+ server:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
+  w.Header().Set("Content-Type","application/json");p:=r.URL.Path
+  if r.Method=="GET"{if s,ok:=stored[p];ok{json.NewEncoder(w).Encode(s)}else{w.WriteHeader(404);w.Write([]byte(`{"kind":"Status","apiVersion":"v1","reason":"NotFound","code":404}`))};return}
+  if r.Method!="POST"&&r.Method!="PUT"{t.Error("unexpected material mutation")}
+  var s corev1.Secret;json.NewDecoder(r.Body).Decode(&s);stored["/api/v1/namespaces/smp-candidate/secrets/"+s.Name]=s;json.NewEncoder(w).Encode(s)
+ }));defer server.Close();client,_:=kubernetes.NewForConfig(&rest.Config{Host:server.URL,ContentConfig:rest.ContentConfig{ContentType:"application/json"}})
+ chart:=map[string]any{"key":"private-canary","tlsrootcert":"public-root","tls":map[string]any{"key":"tls-private-canary","cert":"public-cert"},"opsTLS":map[string]any{"key":"ops-private-canary","cert":"public-cert"}}
+ if ProtectChart(context.Background(),client,owner,"FabricPeer",&chart)!=nil{t.Fatal("protected chart failed")}
+ raw,_:=json.Marshal(chart);if strings.Contains(string(raw),"private-canary"){t.Fatal("private key reached Helm values")}
+ if len(stored)!=4{t.Fatal("missing protected material")}
+ chart["key"]="private-canary";chart["tls"].(map[string]any)["key"]="tls-private-canary";chart["opsTLS"].(map[string]any)["key"]="ops-private-canary"
+ s:=stored["/api/v1/namespaces/smp-candidate/secrets/node-idkey"];s.Labels=nil;stored["/api/v1/namespaces/smp-candidate/secrets/node-idkey"]=s
+ if ProtectChart(context.Background(),client,owner,"FabricPeer",&chart)==nil{t.Fatal("unowned key Secret adopted")}
+ owner.Namespace="foreign";if ProtectChart(context.Background(),client,owner,"FabricPeer",&chart)==nil{t.Fatal("foreign material accepted")}
+ if _,e:=GenerateChannel([]byte(`{"namespace":"foreign"}`));e==nil{t.Fatal("foreign genesis accepted")}
+}
+func TestSMPSecurityAuxiliaryTrustAndNamespace(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate");cert,key,root:=material(t,9)
+ labels:=map[string]string{"sathonate.io/namespace":"smp-candidate","sathonate.io/owner":"contract"}
+ pair:=corev1.Secret{ObjectMeta:metav1.ObjectMeta{Labels:labels},Data:map[string][]byte{"tls.crt":cert,"tls.key":key}}
+ trust:=corev1.Secret{ObjectMeta:metav1.ObjectMeta{Labels:labels},Data:map[string][]byte{"cacert.pem":root}}
+ requests:=0
+ server:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){requests++;w.Header().Set("Content-Type","application/json");if strings.HasSuffix(r.URL.Path,"contract-tls-ops"){json.NewEncoder(w).Encode(pair)}else if strings.HasSuffix(r.URL.Path,"contract-tlsrootcert"){json.NewEncoder(w).Encode(trust)}else{w.WriteHeader(404)}}));defer server.Close()
+ client,_:=kubernetes.NewForConfig(&rest.Config{Host:server.URL})
+ if Auxiliary(context.Background(),client,"smp-candidate","contract",false)!=nil{t.Fatal("valid auxiliary identity refused")}
+ count:=requests;if Auxiliary(context.Background(),client,"foreign","contract",false)==nil||requests!=count{t.Fatal("foreign auxiliary request reached API")}
+ pair.Data["tls.key"]=[]byte("private-canary");e:=Auxiliary(context.Background(),client,"smp-candidate","contract",false);if e==nil||strings.Contains(e.Error(),"private-canary"){t.Fatal("invalid key accepted or echoed")}
+ pair.Data["tls.key"]=key;trust.Labels=nil;if Auxiliary(context.Background(),client,"smp-candidate","contract",false)==nil{t.Fatal("unowned trust accepted")}
+}

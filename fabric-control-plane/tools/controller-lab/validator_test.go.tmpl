@@ -1,0 +1,27 @@
+package PACKAGE
+import(
+ "testing"
+ "strings"
+ hlfv1alpha1 "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1"
+)
+func TestSMPSecurityRequiresNamespaceAndExternalIdentities(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate")
+ resource:=&hlfv1alpha1.KIND{};resource.Namespace="smp-candidate";INITSECRET
+ if (&ConfigValidator{}).METHOD(resource)==nil{t.Fatal("missing identities accepted")}
+ resource.Spec.Secret.Enrollment.Component.External=&hlfv1alpha1.ExternalCertificate{SecretNamespace:"foreign",SecretName:"external",CertificateKey:"cert.pem",PrivateKeyKey:"key.pem",RootCertificateKey:"root.pem"}
+ resource.Spec.Secret.Enrollment.TLS.External=resource.Spec.Secret.Enrollment.Component.External
+ err:=(&ConfigValidator{}).METHOD(resource);if err==nil{t.Fatal("foreign reference accepted")}
+ resource.Spec.Secret.Enrollment.Component.Enrollsecret="smp-private-canary"
+ err=(&ConfigValidator{}).METHOD(resource)
+ if err==nil||strings.Contains(err.Error(),"smp-private-canary"){t.Fatal("credential accepted or echoed")}
+ resource.Namespace="foreign"
+ if (&ConfigValidator{}).METHOD(resource)==nil{t.Fatal("foreign namespace accepted")}
+}
+
+func TestSMPSecurityAuxiliaryIdentityCannotFallBackToEnrollment(t *testing.T){
+ client,_,ref:=smpFixture(t)
+ resource:=&hlfv1alpha1.KIND{};resource.Name="node";resource.Namespace="smp-candidate";INITSECRET
+ resource.Spec.Secret.Enrollment.Component.External=ref;resource.Spec.Secret.Enrollment.TLS.External=ref
+ AUXCALL
+ if err==nil||!strings.Contains(err.Error(),"enrollment fallback refused"){t.Fatal("auxiliary TLS did not fail closed")}
+}

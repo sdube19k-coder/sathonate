@@ -1,0 +1,22 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": { "id": "local-fabric", "name": "Sathonate Kubernetes Network" },
+  "spec": {
+    "environment": "development", "fabricVersion": "2.5.15",
+    "deployment": { "engine": "bevel", "runtime": "kubernetes", "provider": "local", "targetRef": "smp-qualification" },
+    "ordering": { "consensus": "raft", "channelCapability": "V2_0" },
+    "organizations": [
+      { "id": "org1", "mspId": "Org1MSP", "identityProviderRef": "org1-ca" },
+      { "id": "org2", "mspId": "Org2MSP", "identityProviderRef": "org2-ca" }
+    ],
+    "nodes": [
+      { "id": "orderer1", "role": "orderer", "organizationRef": "org1", "placementRef": "kind-node", "failureDomain": "local-host" },
+      { "id": "orderer2", "role": "orderer", "organizationRef": "org1", "placementRef": "kind-node", "failureDomain": "local-host" },
+      { "id": "orderer3", "role": "orderer", "organizationRef": "org1", "placementRef": "kind-node", "failureDomain": "local-host" },
+      { "id": "peer1", "role": "peer", "organizationRef": "org1", "placementRef": "kind-node", "failureDomain": "local-host" },
+      { "id": "peer2", "role": "peer", "organizationRef": "org2", "placementRef": "kind-node", "failureDomain": "local-host" }
+    ],
+    "channels": [{ "id": "sathonate", "organizationRefs": ["org1", "org2"], "ordererRefs": ["orderer1", "orderer2", "orderer3"], "peerRefs": ["peer1", "peer2"] }]
+  }
+}

@@ -1,0 +1,499 @@
+{
+  "schema": "sathonate.sprint2-committed-local-qualification/v1",
+  "date": "2026-10-25",
+  "overallStatus": "BLOCKED",
+  "eligibleForClosure": false,
+  "productionEnabled": false,
+  "awsEnabled": false,
+  "consoleRevision": "6a50eaf2454a3ad643dfd2dcd03a0d93bb74e456",
+  "runtimeImplementationInputs": {
+    "schema": "sathonate.sprint2-build-inputs/v1",
+    "baseline": "aed4145402da9ea9b18c3adc64980e3903eaea88",
+    "implementationFiles": {
+      "cmd/fabric-acceptance/main.go": "2576d9e4768818f7de436d7cab14a9366776b564e7f60ff875eead33fed4121e",
+      "cmd/fabric-api/main.go": "87b48b70935f5508640782a1bae71e1b20143ce9ef8ca2583114b38b0ddcb10b",
+      "cmd/fabric-cloud-prepare/main.go": "2ebc728a2a0894497cbbf8f030205ec5ca6a61978585a66ec97917c562c8df8c",
+      "cmd/fabric-eks/main.go": "c1a3cabd0c7e5002bc91d2dff29b4369ce1f4741a65bd810011fffbad59071a3",
+      "cmd/fabric-local-token/main.go": "a5d6bad295b500a57134910c74b3c29ec95475897ab06370fabedbef4ac0aac8",
+      "cmd/fabric-maintenance/main.go": "ab762dfb7a295de7e33ea9533f48e3215005159cdc06f63002ba32a3fe50612d",
+      "cmd/fabric-membership/main.go": "9c68db14db500fcae8df9db22532314c4c1238923a5977d6e3339d7373b66801",
+      "cmd/fabric-worker/main.go": "b1ff56d83a073cd0ff8e621e63e4fc97b1c3d43e48a4a1703ecae7a198d97da7",
+      "cmd/fabricctl/main.go": "a7383b977b2b9bc8bf6c91fea54924806e424372c1eac1e8c67bbc76e168e0dc",
+      "cmd/local-chaincode/main.go": "8fd301c4bdb33403b85a03a67cf5f0d9862419a905a71e1f431c36d763b9f09c",
+      "go.mod": "7a6ed3c6d05069de231d870a07940d8f0ca501b97e4eeb0614f3c5c05e2ec27d",
+      "go.sum": "0677a1e0fda0f3843304df178452a84dc9d7b8d5d86c01d24ba04b4324486d81",
+      "internal/acceptance/harness.go": "df72fa26deb95de22f61f8b04ed24cdfcbefc4378d5a383024eac19199066e14",
+      "internal/certificateprototype/prototype.go": "cdc3beb49e1ad2f192eb2fedf6f74124499941172802e622d6ad50bd091dae01",
+      "internal/cloud/compiler.go": "cdd1349b627c4e22f20cc2fbab7642655afccc46c1bd89627c2df14fa5081154",
+      "internal/cloud/config.go": "32e0c3182e8c0195eb4afcb06560e2147419d6380c8dc6db06ad508e3f3d57f0",
+      "internal/cloud/operator.go": "66ba2c8092e602cb13a003965cdbdc71f7b5dea6846d1de99bd19695d1b1b664",
+      "internal/cloud/package.go": "34e04a802a71d9512ab3c53531964256f0e7f33bb686a5e15c5afc4b087cbc1d",
+      "internal/cloud/postgres_readiness.go": "84190c8d09df5d444d22c7845adea8d0a95cb53d68cd05f36c23253b6086f599",
+      "internal/cloud/preflight.go": "9bb5917b1dda54a76094582aaac78f92a48913cf5a4d9e0b30c3ca9a7632519a",
+      "internal/cloud/readiness.go": "82a40ba5a9b5f4191c6c61cb208d94dbd9b95b8fae94176cd89015edbc2f8094",
+      "internal/deployment/cleanup.go": "9391c0dd5bbd1619f0da14fd34952c477b1c9e3a54a024bdc3ef2d21a50dd1ed",
+      "internal/deployment/eks.go": "77342dcbb1ec607eb568f56a628cf72dbca4574e1c9a97ea7bf3ff28cb882fbb",
+      "internal/deployment/evidence.go": "cc140cd79f917dcda15a804e7026ce0f6701551d6fc413f60f990780ba8baa09",
+      "internal/deployment/history.go": "98379d15fb65b3def1846fe843fcfbf8b58732263f1dd63a7e1040f279644370",
+      "internal/deployment/isolation.go": "0c2154f30dbceb9c481aabc7f31d79289d7bd8282c092a567537a4b341e5c1b5",
+      "internal/deployment/kubernetes.go": "c71d5a29fc9b2f472062708cdac076db600c27027838f9f70f25faadee7495c5",
+      "internal/deployment/manager.go": "1b43ec029d4b04ca1a475f5f06188bcc10330a3ffddb5486f4a2a95504db3165",
+      "internal/deployment/recovery.go": "6a1edaa81f664989166cb57723d0e06e109a567cb3b9a4d984d8c3c650f387ee",
+      "internal/deployment/runner.go": "60049810863ee754dd46e073d4baa5716344784f7d57ee364aaeafa224cc5e75",
+      "internal/deployment/secure_profile.go": "8d00eead6e899981f148da3a4ddbd6db737a762b96aa20437e74f4cd333b445e",
+      "internal/deployment/secure_runner.go": "736c7816429ea3ef7de98ed672ceebe63c3631711588627b783d502986b2fcc3",
+      "internal/domain/cloud.go": "7947e6b30b77d00c88dc645eecd8d1c3a45c1631d3bac1990b68deb4c0558fb5",
+      "internal/domain/secure_profile.go": "0ed65f1a1ffc33608398021650799dbd929de1e5dce517e5224a5c2a571ea8ee",
+      "internal/domain/spec.go": "cabdeff6d4a719203737818075d81d61192f4ea3913be82f93fd92abcba0c28a",
+      "internal/domain/validate.go": "2f36d96cf721eaa77f86c8492398b76b09f7893d0ad7a411693479cdf71231ce",
+      "internal/drafts/store.go": "02da0baecefa10a82965335aff8c7649cbe4e609dcd70b61cc836fadb35e0e5e",
+      "internal/drafts/transform.go": "02608ca7ecd1e709c8c9650b820e5ae285b08b629f6928c5fcc836065c376dba",
+      "internal/engine/engine.go": "2161cffb077198b1b5312cfdae838d0e20b5a02cebbdacb6ba51d52f594c433a",
+      "internal/httpapi/api.go": "bde9804fd483b3d98b62fd1d4cdacbcf486219b376b3bfe853a06e7c21396272",
+      "internal/httpapi/cloud.go": "918db5041260721a7214973747bb92e3cc4c01631c06a369247c52a2065422db",
+      "internal/httpapi/deployment.go": "661f46e04f805e6ad2a9d0c158a3efa6dd92556c890bd043ac141121ce5d41be",
+      "internal/httpapi/local.go": "a5199408142c22a7407d13df0c41529c2ba2d00ba801e6b880512579c0751331",
+      "internal/httpapi/maintenance.go": "cea6e3b4ab4e25ba88c6ccdf503062b2075fab7325b2048f75f2b8a332f6b622",
+      "internal/httpapi/readiness.go": "0ba891dead1796a657e1eaa0cf940d6679d234f811a2c52d26e32e407935cea0",
+      "internal/httpapi/repository.go": "2e9b167f31844586cc9e66bee2d9ea32ce1c63584bcfb9154fc7e932a59f1d27",
+      "internal/identity/local_tokens.go": "721116a867c43430ada6a9b9d43efcf407406773afe46ebf7d82f81977624d70",
+      "internal/identity/membership.go": "847af0b3ea14dfc3993108c050b6b22f71a80dd4152028eef61868bba3a981b2",
+      "internal/identity/okta.go": "b2722e6985bea6e1e8c111df61414d2cdc83178c1d6b7f8729c1eee57713f1d3",
+      "internal/kubernetesfabric/arguments.go": "70595b3c4e172a441479d0f7642f963a6ee6714c022e1dbda6f11ddb48d9b542",
+      "internal/kubernetesfabric/authorized_material.go": "25de39943c41bb27c6c25d17515dd390e164ebd36683edd16f255c3ee5f40f28",
+      "internal/kubernetesfabric/credentials.go": "2559e11a9649ea36e8abe85f86ad3c56df5989a35b1eb09cc667ae5e9514c322",
+      "internal/kubernetesfabric/profile.go": "c4149844e24a7c337bbae8bd3b406b82d4e27c730f2de8db6c9c6bd90cb2138a",
+      "internal/kubernetesfabric/runtime.go": "10a170562597ecbb1166971e0f23925cc00de27f01be4efa47cbf0539aa5773b",
+      "internal/kubernetesfabric/secure_issuer.go": "452dab68a8fd53932fd6174b5eae62b918309ee4927c7a088055161b4ac9d4ce",
+      "internal/kubernetesfabric/worker.go": "feca36e45e2c01c618d238c6d10a68cf060e041e160f1a43bba6ef0e58e5293c",
+      "internal/localfabric/config.go": "0bd6db81d1bae42fef7aeeff4011a5b6459c7d9cd9bc73e08555699c0556654a",
+      "internal/localfabric/contract.go": "d0e5ddb42349d351c1ef3bf69962ded9febf7d3068ad36a9dcd90f95084aa39b",
+      "internal/localfabric/credentials.go": "f8e719f99f01f50afb786d7057aae80d0ebddead71a1177339cea6f7dd5f7a50",
+      "internal/localfabric/health.go": "54594ce11923524a0d6ecde81f06c9cd919f89643edcd4affcce556137e27491",
+      "internal/localfabric/manager.go": "d5b2191881dbdf5a6f9f8e5c15aa3f2bfadf1028392f33978f414bd0bb56b6ce",
+      "internal/localfabric/private_unix.go": "841906625aee3a1142a73f7ef5a780d3557a313b46fd63d94624aad10ef05342",
+      "internal/localfabric/private_windows.go": "502da0cf90528fb4c1c1c5517d06f718c3b1e8115d6abc92eb487ac5b7778e75",
+      "internal/maintenance/backup.go": "367465da15a49295a7e2831ef491e1d81e944a40b921151d162a9a4ca6ee2878",
+      "internal/maintenance/postgres.go": "e022ea6aeb1c566dc4117d794e1e0dfe4cdbf7d53a7cc9eae69554e26050e173",
+      "internal/maintenance/private_unix.go": "999371ad586e4b66ab104077aa2fa8b3b04e69c7df64ea373bb1617f1dc7cecb",
+      "internal/maintenance/private_windows.go": "36bb2afde94e3784f74f8b1585a34be78d596a319e7232e71f35b077d99c0537",
+      "internal/maintenance/rotation.go": "5884d1592e785759ce518ec1fd9d3592316ef9c8b7998abdd1ea69c370e14e0e",
+      "internal/operations/postgres.go": "9feca6acdadc1e0dd7aa459fe3b2b2bf4e8912a7d5a9a7955fee31be7e876ad3",
+      "internal/operations/recovery.go": "5e4062413f1bb36f9c6fa8fa455fff760611330ebe13edc18fc62b573a41eebc",
+      "internal/operations/store.go": "31929d4358d901b9f5d71818dc1d0970ae6f1f09104546d27a5e46a19fc54ea6",
+      "internal/persistence/oidc_memberships.go": "1d191b59ec3ab86eef26e427f7f20aad2595b4c9ca1969580c3fc1d49bcb70d2",
+      "internal/persistence/postgres.go": "51a60eb8bc6c5b56e59b4155ef11324f3cf53fc2c47f9733581fdf16ea801bc5",
+      "internal/planner/plan.go": "74c88faea4a5b7af494e20ad62b6eac983ba1161fc5c6facaa857b4b43d78193",
+      "internal/readiness/readiness.go": "963a7a9eab8887560d691f98fcbd12dbee5069e7dfe643929982f590b4a84702",
+      "internal/redact/text.go": "e5dbf7fa228a7f2143a8878a775c870754018764d82333acd26f4f5468dc6a0e",
+      "tools/kubernetes/Dockerfile.secure": "e91360805d8af2fea0f570643a12f904ed4e1d76550755f0dc210910969d2ee3"
+    },
+    "workerBinarySHA256": "d70da33e918f7c1cd8457cdc595673348980610e274e4a2bd8a6719ff99ce7fc",
+    "controllerBinarySHA256": "e1347172346b64af8a9e96408cc3255f8db089c2b866edc3cbc56cd9c15deaf1",
+    "productionEnabled": false,
+    "awsEnabled": false
+  },
+  "tests": {
+    "go": {
+      "sha256": "510c6e62499df8c899c3d94133a107b3cb646a32654050f9c88d05e176c39c84",
+      "status": "PASS",
+      "incompletePackages": [],
+      "passed": 216,
+      "failed": [],
+      "skipped": [
+        "TestProtectedCAConfigOnDocker",
+        "TestPostgresMaintenanceRecoveryAndCAS",
+        "TestOperationDeploymentRLSUnderRestrictedRole",
+        "TestPreparedCloudSubmissionIsAtomic",
+        "TestPostgresOIDCMembershipAuthorityAndOwnership",
+        "TestPostgresTenantIsolationAndRevisions",
+        "TestProductionPostgresTLSAndRoleOnDocker",
+        "TestEKSWorkerLifecycleOnKind",
+        "TestLocalWorkerRegressionOnKind",
+        "TestEKSPostgresRecoveryRetryCancellation",
+        "TestPostgresHistorySnapshotDoesNotRecoverJobsOrCrossScope",
+        "TestPostgresJobAndNetworkStateSurviveRestart",
+        "TestPostgresOIDCReadOnlyAuthorization",
+        "TestSecureApplicationAPIOnDisposableKind"
+      ],
+      "packageFailures": []
+    },
+    "candidate": {
+      "sha256": "24b6520f8e63f7d701bac0e7a1b78d129ca566e9f21bb3f381a292e3c70753cf",
+      "status": "PASS",
+      "incompletePackages": [],
+      "passed": 18,
+      "failed": [],
+      "skipped": [],
+      "packageFailures": []
+    },
+    "postgres": {
+      "sha256": "298c499bd28a3b81ca34223a49048cb3a8c7c103f80560b1c672de6fc6d7905a",
+      "status": "PASS",
+      "incompletePackages": [],
+      "passed": 37,
+      "failed": [],
+      "skipped": [
+        "TestProductionPostgresTLSAndRoleOnDocker"
+      ],
+      "packageFailures": []
+    },
+    "atomicPython": {
+      "sha256": "cbdcd9ff849513eae4a2ca11e8cadca63aca59997498e7e053c4731b7ce7f3bf",
+      "status": "PASS",
+      "count": 13
+    },
+    "lifecyclePython": {
+      "sha256": "a5cf6ef6be88774cd872993bcd079e99f60505c28caa718baa5f965570d263d5",
+      "status": "PASS",
+      "count": 10
+    },
+    "evidencePython": {
+      "sha256": "1e4c23a300f16cf3d87287b6ac6166fae6754e07da3441d1dc9bf88fd7b70ebc",
+      "status": "PASS",
+      "count": 3
+    },
+    "newEvidencePython": {
+      "sha256": "37cd37af0422c59fa511ad8aeedb2075f7c09188e55439a3186c7c34001e6522",
+      "status": "PASS",
+      "count": 6
+    },
+    "postgresTLS": {
+      "sha256": "261ea094a6788556aec9c1f564eb999c230409d5c571c3621b7fb83039f7012b",
+      "status": "PASS"
+    },
+    "dockerCA": {
+      "sha256": "06d1194823b194b58bea3977fac13d35b24861f9f97ce156883754c4527125b6",
+      "status": "PASS"
+    },
+    "vet": {
+      "status": "PASS",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "finalSourceRuntime": {
+    "schema": "sathonate.sprint2-qualification/v1",
+    "status": "SPRINT2_LOCAL_SECURITY_PASS_EXTERNAL_GATES_BLOCKED",
+    "apiToFabric": "PASS",
+    "uiToFabric": "NOT_RERUN_SPRINT2",
+    "cluster": "smp-sprint1-0d0c1b96",
+    "awsEnabled": false,
+    "productionEnabled": false,
+    "checks": {
+      "publicResourcesNoCredentials": "PASS",
+      "helmHistoryNoCredentials": "PASS",
+      "runtimeLogsNoCredentials": "PASS",
+      "sourceAndEvidenceNoActualCredentials": "PASS",
+      "controllerIssuerForeignAndClusterDenials": "PASS",
+      "foreignResourcePreserved": "PASS",
+      "bothLivePeerCertificatesVerified": "PASS",
+      "privilegedAdmissionDenied": "PASS",
+      "containerLimitAdmissionDenied": "PASS",
+      "effectiveCrossNamespaceIngressDenied": "PASS",
+      "effectiveCrossNamespaceEgressDenied": "PASS",
+      "ownFabricConnectivity": "PASS",
+      "fabricServiceAccountTokenMountsAbsent": "PASS",
+      "defaultServiceAccountTokenDisabled": "PASS"
+    },
+    "startedAt": 1792897282.7108073,
+    "networkPolicyFixture": {
+      "provider": "Calico",
+      "version": "v3.31.4",
+      "manifestURL": "https://raw.githubusercontent.com/projectcalico/calico/v3.31.4/manifests/calico.yaml",
+      "manifestSHA256": "6e89ee080d6dae58c620c47e3fcb7a9bfc40748422c868c924b7482dd5145ce2",
+      "images": {
+        "quay.io/calico/cni:v3.31.4": "quay.io/calico/cni@sha256:a43a7dd4ed67adad4535fc948b483dac0a3c905bae64b007fae05e4d0867a02b",
+        "quay.io/calico/kube-controllers:v3.31.4": "quay.io/calico/kube-controllers@sha256:8a41b637f143971a95ce78234ece53e43201361bd38bad7fc65508f5798306d0",
+        "quay.io/calico/node:v3.31.4": "quay.io/calico/node@sha256:972f29ffd956ca83688b41ef5c696b633c6c63529bc63e2b058413fd4fff0cd0"
+      },
+      "enforcement": "PASS"
+    },
+    "apiTestExitCode": 0,
+    "apiEvidenceSHA256": "6dcf0f59154a775eb378d900052b1f1ecd58a54f61f388994474d79c3c638d63",
+    "images": {
+      "sathonate/controller-candidate:atomic": "sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c",
+      "hyperledger/fabric-ca:1.5.15": "hyperledger/fabric-ca@sha256:61ed7bd64819ef935833c747cce9e5dbd1c05dc516f930e70f4ca8355cdc3975",
+      "hyperledger/fabric-peer:2.5.15": "hyperledger/fabric-peer@sha256:b046b46c05cfe8ecd68def9e001990d59d96a25dfac58b4f4892cedf54e2ba20",
+      "hyperledger/fabric-orderer:2.5.15": "hyperledger/fabric-orderer@sha256:26bd18aabe441b05d7b03e1356200bbb7261cc5bdecb676ddc7e4578c77e6e04",
+      "sathonate/smp-smoke:local": "sathonate/smp-smoke@sha256:85bc9e7966dc9d439c69c623cf8a721156fa10ef6acd7c4a10c1902dfc4cb7fc",
+      "sathonate/fabric-worker:sprint2": "sathonate/fabric-worker@sha256:d6709ac439d6b9a9ed70c06a55429b400dc5f63ebd71f25bb9ea2efac9f31f8a"
+    },
+    "sourceEvidenceFilesInspected": 271,
+    "inspection": {
+      "helmReleases": 12,
+      "logStreams": 10,
+      "knownPrivateValues": 84
+    },
+    "retainedNetwork": {
+      "readOnly": true,
+      "readyDeployments": 8,
+      "total": 8,
+      "ready": true
+    },
+    "disposableClusterRemoved": true,
+    "finishedAt": 1792897792.0321083
+  },
+  "apiToFabric": {
+    "apiToFabric": "PASS",
+    "authenticatedTenantProject": true,
+    "authenticationMode": "okta",
+    "awsEnabled": false,
+    "checkedAt": "2026-10-25T03:09:35.0868273Z",
+    "committedAndReadOnBothPeers": true,
+    "crossProjectDenied": true,
+    "crossTenantDenied": true,
+    "duplicateOperationReused": true,
+    "failedWorkerRetriedThroughAPI": true,
+    "initialOperationId": "op_3a19bab56d0c3fb26db0cd5d8bde34f0",
+    "mode": "secure-local",
+    "namespace": "smp-s-a75adb141308d0e79f4f8c9de01e0a76",
+    "operationId": "op_07351e704a1a7f28dedf3e5398e0a0bf",
+    "processArguments": {
+      "samples": 227,
+      "caCommands": 41,
+      "protectedCLICommands": 19,
+      "credentialsAbsent": true
+    },
+    "productionEnabled": false,
+    "schema": "sathonate.sprint1-api/v1",
+    "transactionId": "0d78adf2f66849a7f97bbbd289c55ec392ce4c36e859900f0ecad1fcad081ca8",
+    "viewerEscalationDenied": true,
+    "workerJobAdoptedAfterApplicationRestart": true
+  },
+  "providerScope": "Controlled HTTPS OIDC/JWKS fixture; not real Okta acceptance",
+  "legacyRegressions": {
+    "schema": "sathonate.fixture-adapted-regressions/v1",
+    "status": "FIXTURE_ADAPTED_REGRESSIONS_PASS",
+    "cluster": "smp-regression-e20605f7",
+    "productionEnabled": false,
+    "awsVerified": false,
+    "transportOverlayOnly": true,
+    "tests": {
+      "TestEKSWorkerLifecycleOnKind": {
+        "exitCode": 0,
+        "states": [
+          {
+            "Action": "pass",
+            "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+            "Test": "TestEKSWorkerLifecycleOnKind",
+            "Elapsed": 187.83
+          },
+          {
+            "Action": "pass",
+            "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+            "Elapsed": 189.552
+          }
+        ]
+      },
+      "TestLocalWorkerRegressionOnKind": {
+        "exitCode": 0,
+        "states": [
+          {
+            "Action": "pass",
+            "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+            "Test": "TestLocalWorkerRegressionOnKind",
+            "Elapsed": 168.2
+          },
+          {
+            "Action": "pass",
+            "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+            "Elapsed": 169.937
+          }
+        ]
+      }
+    },
+    "overlay": {
+      "internal/deployment/kubernetes.go": {
+        "sourceSHA256": "c71d5a29fc9b2f472062708cdac076db600c27027838f9f70f25faadee7495c5",
+        "adaptedSHA256": "dfc3d0c2122312eb44179b8d21d956a5d8a683c262e9880afc69c100aaed12bb",
+        "literalSubstitutions": 6
+      },
+      "internal/deployment/eks_local_test.go": {
+        "sourceSHA256": "5f22c892e525467d4fe9c3d98647eb1480bb233021f3d8c92be14231023c0c38",
+        "adaptedSHA256": "8467eb4f719a06b9480a5cb35d1ea01715c712bad4755556a0b2987da531bd14",
+        "literalSubstitutions": 4
+      }
+    },
+    "images": {
+      "ghcr.io/hyperledger-bevel/bevel-operator-fabric:v1.14.0": {
+        "runtimeManifest": "sha256:ead8b836c3c2ab0afbf3b64e8fd7f8568a36e87d71135d28f538d4627183d91e",
+        "sourceIndexes": [
+          "ghcr.io/hyperledger-bevel/bevel-operator-fabric@sha256:8b588861d88498e10517c3a600ae2dbbe6f689146974f30edac38f31ad0d6a79"
+        ]
+      },
+      "sathonate/fabric-worker:eks-scoped": {
+        "runtimeManifest": "sha256:1ecc7818b921e212becc28e1afaf363775c6bd4748924d955af94403df6c49ba",
+        "sourceIndexes": [
+          "sathonate/fabric-worker@sha256:02696e75906154c1aa96ef9bcf4d3c2c3b86115968a83c911a0bf9cb8394fbda"
+        ]
+      },
+      "sathonate/smp-smoke:local": {
+        "runtimeManifest": "sha256:85bc9e7966dc9d439c69c623cf8a721156fa10ef6acd7c4a10c1902dfc4cb7fc",
+        "sourceIndexes": [
+          "sathonate/smp-smoke@sha256:961b63d744b24d5712342007212bb2087c731bdf7c3082a4ddcd062873734a06"
+        ]
+      },
+      "hyperledger/fabric-ca:1.5.15": {
+        "runtimeManifest": "sha256:61ed7bd64819ef935833c747cce9e5dbd1c05dc516f930e70f4ca8355cdc3975",
+        "sourceIndexes": [
+          "hyperledger/fabric-ca@sha256:1b64dc702bd400e14c8f452dedc0359b7dc06679b751b08937eb2bf2865fed40"
+        ]
+      },
+      "hyperledger/fabric-peer:2.5.15": {
+        "runtimeManifest": "sha256:b046b46c05cfe8ecd68def9e001990d59d96a25dfac58b4f4892cedf54e2ba20",
+        "sourceIndexes": [
+          "hyperledger/fabric-peer@sha256:c48323777139fcabe77a98cf4eeaf4466827dec225f754064f52f22395a8bd89"
+        ]
+      },
+      "hyperledger/fabric-orderer:2.5.15": {
+        "runtimeManifest": "sha256:26bd18aabe441b05d7b03e1356200bbb7261cc5bdecb676ddc7e4578c77e6e04",
+        "sourceIndexes": [
+          "hyperledger/fabric-orderer@sha256:72697d099f45b8e57f86d9a69fbedb683cd5888bc7b28ec01695773d0433b791"
+        ]
+      }
+    },
+    "disposableClusterRemoved": true,
+    "elapsedSeconds": 480.25
+  },
+  "preservedAtomic": {
+    "status": "PASS",
+    "stages": {
+      "ca": "PASS",
+      "identities": "PASS",
+      "orderers": "PASS",
+      "peers": "PASS",
+      "channel": "PASS",
+      "chaincode": "PASS",
+      "recovery": "PASS",
+      "rotation": "PASS",
+      "security": "PASS"
+    },
+    "failureCases": {
+      "before-secret": "PASS",
+      "after-secret": "PASS",
+      "during-helm": "PASS",
+      "before-rollout": "PASS",
+      "prepared": "PASS",
+      "before-ack": "PASS"
+    },
+    "independentAcknowledgement": {
+      "schema": "sathonate.sprint2-independent-ack/v1",
+      "status": "PASS",
+      "cluster": "smp-controller-91989d6f",
+      "resourceMutations": false,
+      "newCertificateLiveBeforeAcknowledgement": true,
+      "controllerAvailable": true,
+      "acknowledgementCompleted": true,
+      "sameMaterialReference": true,
+      "expectedCertificateLiveAfterRecovery": true,
+      "noRedundantHelmUpgrade": true,
+      "noPeerPodReplacement": true,
+      "noPeerContainerRestart": true,
+      "helmRevisionBefore": 18,
+      "helmRevisionAfter": 18
+    },
+    "scope": "Unchanged pinned controller candidate; peer TLS recovery only; earlier 9-stage/42-check full run preserved"
+  },
+  "realOkta": {
+    "schema": "sathonate.sprint2-real-okta-status/v1",
+    "status": "BLOCKED_PASSKEY_ENROLLMENT_DEFERRED",
+    "issuer": "https://integrator-5135965.okta.com/oauth2/default",
+    "clientId": "0oa193gpwu6s8uJ7I698",
+    "audience": "api://default",
+    "origin": "http://127.0.0.1:5173",
+    "redirectUri": "http://127.0.0.1:5173/login/callback",
+    "scopes": [
+      "openid",
+      "profile",
+      "email",
+      "fabric.read"
+    ],
+    "authorizationCodePKCE": "S256 request observed",
+    "currentPrompt": "Set up security methods: Required now / Passkey",
+    "realCallbackVerified": false,
+    "realAccessTokenAccepted": false,
+    "realUserMembershipCreated": false,
+    "authenticatedReadsVerified": false,
+    "logoutVerified": false,
+    "productionEnabled": false,
+    "awsEnabled": false,
+    "publicConfigurationMatches": true,
+    "unauthenticatedRequestsDenied": {
+      "missingBearer": true,
+      "invalidBearer": true
+    },
+    "userReportedPasswordCorrect": true,
+    "rootCause": "Earlier generic rejection used duplicated username and is corrected. Current blocker is required passkey enrollment.",
+    "passwordRetriedByAgent": false,
+    "providedSystemLogReview": {
+      "schema": "sathonate.sprint2-okta-log-review/v1",
+      "sourceFileSHA256": "107b3ad42f5cec244c2c0ff8913e71361b1e55f03d7f7e8833d99d9c04eb41d6",
+      "rowCount": 32,
+      "outcomes": {
+        "SUCCESS": 23,
+        "ALLOW": 6,
+        "CHALLENGE": 3
+      },
+      "applicationTargets": [
+        "Okta Admin Console"
+      ],
+      "sathonateClientReferenced": false,
+      "failureEvents": 0,
+      "conclusion": "Admin Console evidence only; no matching Sathonate SPA failure. No token subject binding or password conclusion established.",
+      "rawEventsExported": false
+    },
+    "newSystemLogReview": {
+      "schema": "sathonate.sprint2-okta-log-review/v2",
+      "sourceFileSHA256": "383b1433ee1fb84df635d001cd42a37386c380f3eae5ff19cefbba63691c94a9",
+      "rowCount": 319,
+      "outcomeCounts": {
+        "SUCCESS": 282,
+        "CHALLENGE": 16,
+        "ALLOW": 6,
+        "FAILURE": 13,
+        "ABANDONED": 2
+      },
+      "matchingSPAFailures": 10,
+      "allMatchingFailuresUsedDuplicatedApprovedEmail": true,
+      "allMatchingFailuresHadUnknownActor": true,
+      "allMatchingFailuresHadVerificationError": true,
+      "cause": "Agent appended approved email to a prefilled username. All ten matching SPA failures used the duplicated username. No password or policy conclusion is drawn.",
+      "correction": "Started fresh PKCE flow, replaced full username with single approved email, visually verified value, submitted Next; Okta recognized user and offered Okta Verify or Password.",
+      "realTokenSubjectVerified": false,
+      "membershipCreated": false,
+      "rawEventsExported": false
+    },
+    "usernameCorrectedAndVisuallyVerified": true,
+    "usernameRecognizedByOktaUI": true,
+    "currentBlocker": "After corrected username and user verification, Okta requires passkey enrollment. User explicitly deferred further Okta work.",
+    "userDeferredOkta": true,
+    "authenticationPolicyChanged": false,
+    "passkeyRequirementRemoved": false
+  },
+  "historicalRemediation": {
+    "status": "BLOCKED",
+    "source": "Pinned original ordnode_controller.go:1258 logs signing/TLS private key variables",
+    "rawLogsExportedByReview": false,
+    "retainedNetworkModified": false,
+    "approvals": "See ../sprint2-incident-migration.md"
+  },
+  "evidenceSHA256": {
+    "sprint2-go-final.jsonl": "510c6e62499df8c899c3d94133a107b3cb646a32654050f9c88d05e176c39c84",
+    "sprint2-vet-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sprint2-postgres.jsonl": "298c499bd28a3b81ca34223a49048cb3a8c7c103f80560b1c672de6fc6d7905a",
+    "sprint2-postgres-tls-final.log": "261ea094a6788556aec9c1f564eb999c230409d5c571c3621b7fb83039f7012b",
+    "sprint2-qualification.json": "c1f22e803cf290e0d2856a272648ffc34999bcc97f1ac5a7e6e85cde606f895e",
+    "sprint2-api-kind.json": "6dcf0f59154a775eb378d900052b1f1ecd58a54f61f388994474d79c3c638d63",
+    "sprint2-atomic-kind.json": "063546c1ee6ed491071d058cbdb3249f1c188179df79134b694850cbac24a977",
+    "sprint2-independent-ack.json": "234353f51cecdb4533101f332eda4a6095c3dd022faef125802a4829470a39fc",
+    "sprint2-legacy-regressions.json": "f0379b7d174b25551a3b4ceee8311cd12d634d82a8e020999fee7688f123e88d",
+    "sprint2-real-okta-status.json": "69e35e4376e2f8cd92797816804830c13aa40cdbaa94bd399720c1458e398665",
+    "sprint2-okta-log-review.json": "1b3a17c5bce263701bf72723b13b4a9bb70427104a47bc2351251663bb518bd8",
+    "sprint2-okta-log-review-second.json": "fb373b690fcb0bbec57f02cd48c381b4023de55cccf874b76efd033668162640"
+  },
+  "blockers": [
+    "Actual Okta acceptance: configured issuer/client/audience and scopes are available; complete the required interactive security method, verify issuer/subject, approve the existing-scope read-only grant, then qualify callback, authenticated reads/denials and logout. Controlled OIDC is not real Okta acceptance.",
+    "Retained incident remediation: owner-approved public-certificate exposure inventory, migration/rotation/restore and stale-identity rejection; no retained change authorized or performed.",
+    "Production deployment qualification remains disabled: target-cluster isolation/admission, approved registry enforcement, secret/encrypted backup delivery, restricted pod compatibility, audit retention and broader Fabric/CA/Raft identity recovery need independent acceptance."
+  ]
+}

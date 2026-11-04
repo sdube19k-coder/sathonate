@@ -1,0 +1,42 @@
+// Explicitly isolated, namespace-scoped candidate manager. No cluster channel
+// controllers or RBAC bootstrap controllers are registered in this candidate.
+package main
+import(
+ "io"
+ "encoding/base64"
+ "fmt"
+ "os"
+ "time"
+ "github.com/kfsoftware/hlf-operator/controllers/ca"
+ "github.com/kfsoftware/hlf-operator/controllers/peer"
+ "github.com/kfsoftware/hlf-operator/controllers/ordnode"
+ "github.com/kfsoftware/hlf-operator/controllers/chaincode/deploy"
+ "github.com/kfsoftware/hlf-operator/controllers/smpsecurity"
+ hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1"
+ logrus "github.com/sirupsen/logrus"
+ "k8s.io/apimachinery/pkg/runtime"
+ "k8s.io/client-go/kubernetes"
+ clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+ ctrl "sigs.k8s.io/controller-runtime"
+ "sigs.k8s.io/controller-runtime/pkg/cache"
+ metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+ "sigs.k8s.io/controller-runtime/pkg/log/zap"
+)
+func main(){
+ if len(os.Args)==2 && os.Args[1]=="channel-genesis"{raw,e:=io.ReadAll(io.LimitReader(os.Stdin,(1<<20)+1));if e!=nil{os.Exit(1)};out,e:=smpsecurity.GenerateChannel(raw);if e!=nil{os.Exit(1)};fmt.Print(base64.StdEncoding.EncodeToString(out));return}
+ if len(os.Args)==2 && os.Args[1]=="ca-config"{if smpsecurity.RegistryInit()!=nil{os.Exit(1)};return}
+ ns:=os.Getenv("SMP_NAMESPACE");if smpsecurity.Namespace(ns)!=nil{os.Exit(1)}
+ logrus.SetOutput(io.Discard) // Upstream diagnostics are not a secret-safe API.
+ ctrl.SetLogger(zap.New(zap.UseDevMode(false)))
+ scheme:=runtime.NewScheme();if clientgoscheme.AddToScheme(scheme)!=nil||hlf.AddToScheme(scheme)!=nil{os.Exit(1)}
+ cfg:=ctrl.GetConfigOrDie()
+ manager,err:=ctrl.NewManager(cfg,ctrl.Options{Scheme:scheme,Cache:cache.Options{DefaultNamespaces:map[string]cache.Config{ns:{}}},Metrics:metricsserver.Options{BindAddress:"0"},LeaderElection:false})
+ if err!=nil{os.Exit(1)}
+ client,err:=kubernetes.NewForConfig(cfg);if err!=nil{os.Exit(1)}
+ timeout:=3*time.Minute
+ if (&ca.FabricCAReconciler{Client:manager.GetClient(),Config:cfg,ClientSet:client,Scheme:scheme,Log:ctrl.Log.WithName("ca"),ChartPath:"/charts/hlf-ca",Timeout:timeout,MaxHistory:1}).SetupWithManager(manager,1)!=nil{os.Exit(1)}
+ if (&peer.FabricPeerReconciler{Client:manager.GetClient(),Config:cfg,Scheme:scheme,Log:ctrl.Log.WithName("peer"),ChartPath:"/charts/hlf-peer",Timeout:timeout,MaxHistory:1,AutoRenewCertificates:false}).SetupWithManager(manager,1)!=nil{os.Exit(1)}
+ if (&ordnode.FabricOrdererNodeReconciler{Client:manager.GetClient(),Config:cfg,Scheme:scheme,Log:ctrl.Log.WithName("orderer"),ChartPath:"/charts/hlf-ordnode",Timeout:timeout,MaxHistory:1,AutoRenewCertificates:false}).SetupWithManager(manager,1)!=nil{os.Exit(1)}
+ if (&deploy.FabricChaincodeDeployReconciler{Client:manager.GetClient(),Config:cfg,Scheme:scheme,Log:ctrl.Log.WithName("chaincode")}).SetupWithManager(manager)!=nil{os.Exit(1)}
+ if manager.Start(ctrl.SetupSignalHandler())!=nil{os.Exit(1)}
+}

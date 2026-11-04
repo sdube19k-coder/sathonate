@@ -1,0 +1,155 @@
+// Isolated peer material experiment; not selected by any application runner.
+package smpsecurity
+
+import (
+ "context"
+ "crypto/sha256"
+ "encoding/hex"
+ "encoding/json"
+ "os"
+ "reflect"
+ "strings"
+ "time"
+ corev1 "k8s.io/api/core/v1"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ apierrors "k8s.io/apimachinery/pkg/api/errors"
+ "k8s.io/apimachinery/pkg/types"
+ "k8s.io/client-go/kubernetes"
+ "helm.sh/helm/v3/pkg/kube"
+ "helm.sh/helm/v3/pkg/release"
+)
+
+const materialAnnotation="sathonate.io/material"
+const ownerAnnotation="sathonate.io/material-owner"
+var materialFields=map[string]string{"sign.cert":"cert","sign.key":"key","sign.root":"cacert","tls.cert":"tls.cert","tls.key":"tls.key","tls.root":"tlsrootcert","ops.cert":"opsTLS.cert","ops.key":"opsTLS.key"}
+
+func materialName(ns,node,uid string,data map[string][]byte)string{
+ public:=map[string]string{"namespace":ns,"node":node,"uid":uid}
+ for k,v:=range data{if !strings.HasSuffix(k,".key"){public[k]=string(v)}}
+ raw,_:=json.Marshal(public);sum:=sha256.Sum256(raw)
+ prefix:=node;if len(prefix)>30{prefix=prefix[:30]}
+ return prefix+"-mat-"+hex.EncodeToString(sum[:])[:24]
+}
+func validateMaterial(ns,node string,data map[string][]byte)error{
+ if Namespace(ns)!=nil||!name.MatchString(node)||len(data)!=len(materialFields){return denied}
+ if Pair(data["sign.cert"],data["sign.key"],data["sign.root"],"")!=nil||Pair(data["tls.cert"],data["tls.key"],data["tls.root"],node+"."+ns)!=nil||Pair(data["ops.cert"],data["ops.key"],data["tls.root"],node+"."+ns)!=nil{return denied}
+ return nil
+}
+func owned(meta metav1.Object,ns,node,uid string)bool{
+ refs:=meta.GetOwnerReferences();labels:=meta.GetLabels()
+ return meta.GetNamespace()==ns&&labels["sathonate.io/namespace"]==ns&&labels["sathonate.io/owner"]==node&&len(refs)==1&&refs[0].APIVersion=="hlf.kungfusoftware.es/v1alpha1"&&refs[0].Kind=="FabricPeer"&&refs[0].Name==node&&string(refs[0].UID)==uid
+}
+func readMaterial(ctx context.Context,c kubernetes.Interface,ns,node,ref,uid string)(*corev1.Secret,error){
+ if Namespace(ns)!=nil||!name.MatchString(ref){return nil,denied}
+ s,e:=c.CoreV1().Secrets(ns).Get(ctx,ref,metav1.GetOptions{})
+ if e!=nil||s.Immutable==nil||!*s.Immutable||!owned(s,ns,node,uid)||validateMaterial(ns,node,s.Data)!=nil||materialName(ns,node,uid,s.Data)!=ref{return nil,denied};return s,nil
+}
+func references(owner metav1.Object)[]metav1.OwnerReference{return []metav1.OwnerReference{{APIVersion:"hlf.kungfusoftware.es/v1alpha1",Kind:"FabricPeer",Name:owner.GetName(),UID:owner.GetUID()}}}
+
+func ProtectChart(ctx context.Context,c kubernetes.Interface,owner metav1.Object,kind string,chart any)error{
+ if kind!="FabricPeer"{return LegacyProtectChart(ctx,c,owner,kind,chart)}
+ ns,node,uid:=owner.GetNamespace(),owner.GetName(),string(owner.GetUID())
+ if Namespace(ns)!=nil||!name.MatchString(node)||uid==""{return denied}
+ raw,e:=json.Marshal(chart);if e!=nil{return denied};var values map[string]any;if json.Unmarshal(raw,&values)!=nil{return denied}
+ for _,path:=range []string{"intCAcert","intTLSCACert"}{if value,ok:=chartField(values,path);ok&&value!=""{return denied}}
+ data:=map[string][]byte{}
+ for key,path:=range materialFields{v,ok:=chartField(values,path);if !ok{return denied};data[key]=[]byte(v)}
+ if validateMaterial(ns,node,data)!=nil{return denied}
+ // Root rotation is a different channel/MSP operation, not a secret-only update.
+ dep,e:=c.AppsV1().Deployments(ns).Get(ctx,node,metav1.GetOptions{})
+ if e==nil{
+  prior:=dep.Spec.Template.Annotations[materialAnnotation]
+  if prior==""||dep.Spec.Template.Annotations[ownerAnnotation]!=uid{return denied}
+  old,err:=readMaterial(ctx,c,ns,node,prior,uid);if err!=nil||!reflect.DeepEqual(old.Data["sign.root"],data["sign.root"])||!reflect.DeepEqual(old.Data["tls.root"],data["tls.root"]){return denied}
+ }else if !apierrors.IsNotFound(e){return denied}
+ ref:=materialName(ns,node,uid,data)
+ if Checkpoint(ctx,c,ns,node,uid,ref,"before-secret",false)!=nil{return denied}
+ immutable:=true
+ staged:=&corev1.Secret{ObjectMeta:metav1.ObjectMeta{Name:ref,Namespace:ns,Labels:map[string]string{"sathonate.io/namespace":ns,"sathonate.io/owner":node},OwnerReferences:references(owner)},Immutable:&immutable,Data:data}
+ if _,e=c.CoreV1().Secrets(ns).Create(ctx,staged,metav1.CreateOptions{});e!=nil&&!apierrors.IsAlreadyExists(e){_ = Checkpoint(ctx,c,ns,node,uid,ref,"secret-refused",false);return denied}
+ verified,e:=readMaterial(ctx,c,ns,node,ref,uid);if e!=nil||!reflect.DeepEqual(verified.Data,data){return denied}
+ if Checkpoint(ctx,c,ns,node,uid,ref,"after-secret",false)!=nil{return denied}
+ if Checkpoint(ctx,c,ns,node,uid,ref,"prepared",true)!=nil{return denied}
+ for _,field:=range []string{"key","tls.key","opsTLS.key"}{removeChartField(values,field)}
+ values["couchdbPassword"]="";values["smpMaterialSecret"]=ref;values["smpMaterialUID"]=uid
+ safe,e:=json.Marshal(values);if e!=nil||json.Unmarshal(safe,chart)!=nil{return denied};return nil
+}
+
+// Checkpoints describe observations, never authorize a desired-state switch.
+// The source CR and revalidated immutable bundle remain authoritative.
+func Checkpoint(ctx context.Context,c kubernetes.Interface,ns,node,uid,ref,point string,available bool)error{
+ allowed:=map[string]bool{"before-secret":true,"secret-refused":true,"after-secret":true,"prepared":true,"during-helm":true,"before-rollout":true,"helm-refused":true,"before-ack":true,"ready":true}
+ if Namespace(ns)!=nil||!name.MatchString(node)||uid==""||!allowed[point]{return denied}
+ if available{if _,e:=readMaterial(ctx,c,ns,node,ref,uid);e!=nil{return denied}}
+ cmName:=node+"-material-state"
+ cm,e:=c.CoreV1().ConfigMaps(ns).Get(ctx,cmName,metav1.GetOptions{})
+ create:=apierrors.IsNotFound(e);if e!=nil&&!create{return denied}
+ if create{cm=&corev1.ConfigMap{ObjectMeta:metav1.ObjectMeta{Name:cmName,Namespace:ns,Labels:map[string]string{"sathonate.io/namespace":ns,"sathonate.io/owner":node},OwnerReferences:[]metav1.OwnerReference{{APIVersion:"hlf.kungfusoftware.es/v1alpha1",Kind:"FabricPeer",Name:node,UID:types.UID(uid)}}},Data:map[string]string{}}}else if !owned(cm,ns,node,uid){return denied}
+ if cm.Data==nil{cm.Data=map[string]string{}}
+ attempt:=strings.TrimPrefix(ref,node+"-mat-")
+ if cm.Data["attempt"]!=attempt{cm.Data["previous"]=cm.Data["active"];cm.Data["desired"]=""}
+ cm.Data["attempt"]=attempt;cm.Data["phase"]=point
+ if available{cm.Data["desired"]=ref}
+ if point=="ready"{cm.Data["active"]=ref}
+ if create{_,e=c.CoreV1().ConfigMaps(ns).Create(ctx,cm,metav1.CreateOptions{})}else{_,e=c.CoreV1().ConfigMaps(ns).Update(ctx,cm,metav1.UpdateOptions{})}
+ if e!=nil{return denied}
+ if os.Getenv("SMP_ATOMIC_LAB_FAULTS")!="1"{return nil}
+ for{
+  fault,e:=c.CoreV1().ConfigMaps(ns).Get(ctx,"smp-atomic-faults",metav1.GetOptions{})
+  if apierrors.IsNotFound(e){return nil};if e!=nil{return denied}
+  if fault.Data["node"]!=node||fault.Data["bundle"]!=ref||fault.Data["point"]!=point{return nil}
+  switch fault.Data["mode"]{case "error":return denied;case "crash":os.Exit(73);case "hold":select{case <-ctx.Done():return denied;case <-time.After(200*time.Millisecond):};default:return denied}
+ }
+}
+
+func ActiveMaterial(ctx context.Context,c kubernetes.Interface,ns,node string)(map[string][]byte,error){
+ if Namespace(ns)!=nil||!name.MatchString(node){return nil,denied}
+ dep,e:=c.AppsV1().Deployments(ns).Get(ctx,node,metav1.GetOptions{});if e!=nil{return nil,denied}
+ ref,uid:=dep.Spec.Template.Annotations[materialAnnotation],dep.Spec.Template.Annotations[ownerAnnotation]
+ s,e:=readMaterial(ctx,c,ns,node,ref,uid);if e!=nil{return nil,denied}
+ expected:=map[string]map[string]string{"id-cert":{"sign.cert":"cert.pem"},"id-key":{"sign.key":"key.pem"},"cacert":{"sign.root":"cacert.pem"},"tls-clientrootcert":{"tls.root":"cert.pem"},"tls":{"tls.cert":"tls.crt","tls.key":"tls.key"},"tls-ops":{"ops.cert":"tls.crt","ops.key":"tls.key"},"tls-rootcert":{"tls.root":"cacert.pem"},"tls-client":{"tls.cert":"tls.crt","tls.key":"tls.key"}}
+ seen:=map[string]bool{}
+ for _,v:=range dep.Spec.Template.Spec.Volumes{
+  if v.Secret==nil{if _,required:=expected[v.Name];required{return nil,denied};continue}
+  items,ok:=expected[v.Name];if !ok||seen[v.Name]||v.Secret.SecretName!=ref||v.Secret.DefaultMode==nil||*v.Secret.DefaultMode!=0440||v.Secret.Optional!=nil&&*v.Secret.Optional||len(items)!=len(v.Secret.Items){return nil,denied}
+  keys:=map[string]bool{};for _,item:=range v.Secret.Items{if keys[item.Key]||items[item.Key]!=item.Path||item.Mode!=nil&&*item.Mode!=0440{return nil,denied};keys[item.Key]=true}
+  seen[v.Name]=true
+ }
+ if len(seen)!=len(expected){return nil,denied}
+ return s.Data,nil
+}
+func Applied(ctx context.Context,c kubernetes.Interface,ns,node,ref string)bool{
+ dep,e:=c.AppsV1().Deployments(ns).Get(ctx,node,metav1.GetOptions{});if e!=nil||dep.Spec.Template.Annotations[materialAnnotation]!=ref{return false}
+ if _,e=ActiveMaterial(ctx,c,ns,node);e!=nil{return false}
+ replicas:=int32(1);if dep.Spec.Replicas!=nil{replicas=*dep.Spec.Replicas}
+ return replicas>0&&dep.Status.ObservedGeneration>=dep.Generation&&dep.Status.UpdatedReplicas==replicas&&dep.Status.ReadyReplicas==replicas&&dep.Status.AvailableReplicas==replicas&&dep.Status.UnavailableReplicas==0
+}
+// A recovery acknowledgement must not discard unrelated desired chart changes.
+func SamePublicChart(previous,desired any)bool{
+ a,e:=json.Marshal(previous);if e!=nil{return false};b,e:=json.Marshal(desired);return e==nil&&string(a)==string(b)
+}
+func RollbackRevision(history []*release.Release,current int)(int,error){
+ version:=0
+ for _,item:=range history{if item!=nil&&item.Info!=nil&&item.Info.Status==release.StatusDeployed&&item.Version<current&&item.Version>version{version=item.Version}}
+ if version==0{return 0,denied};return version,nil
+}
+func Ack(ctx context.Context,c kubernetes.Interface,ns,node,ref,uid string)error{
+ if !Applied(ctx,c,ns,node,ref){return denied}
+ if Checkpoint(ctx,c,ns,node,uid,ref,"before-ack",true)!=nil{return denied}
+ return Checkpoint(ctx,c,ns,node,uid,ref,"ready",true)
+}
+
+// Helm persists pending-upgrade before calling KubeClient.Update. Blocking or
+// crashing here exercises the real pending release recovery boundary.
+type AtomicKubeClient struct{kube.Interface;Client kubernetes.Interface;Namespace string}
+func (a AtomicKubeClient)Update(original,target kube.ResourceList,force bool)(*kube.Result,error){
+ for _,r:=range target{
+  if r.Mapping.GroupVersionKind.Kind!="Deployment"{continue}
+  raw,e:=json.Marshal(r.Object);if e!=nil{return nil,denied}
+  var d struct{Metadata struct{Name,Namespace string};Spec struct{Template struct{Metadata struct{Annotations map[string]string}}}}
+  if json.Unmarshal(raw,&d)!=nil||r.Namespace!=a.Namespace||(d.Metadata.Namespace!=""&&d.Metadata.Namespace!=a.Namespace){return nil,denied}
+  ref,uid:=d.Spec.Template.Metadata.Annotations[materialAnnotation],d.Spec.Template.Metadata.Annotations[ownerAnnotation]
+  for _,point:=range []string{"during-helm","before-rollout"}{if Checkpoint(context.Background(),a.Client,a.Namespace,d.Metadata.Name,uid,ref,point,true)!=nil{return nil,denied}}
+ }
+ return a.Interface.Update(original,target,force)
+}

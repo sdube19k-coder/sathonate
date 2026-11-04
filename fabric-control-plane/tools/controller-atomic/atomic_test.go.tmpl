@@ -1,0 +1,79 @@
+package smpsecurity
+import(
+ "context"
+ "encoding/json"
+ "net/http"
+ "net/http/httptest"
+ "strings"
+ "testing"
+ corev1 "k8s.io/api/core/v1"
+ appsv1 "k8s.io/api/apps/v1"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ "k8s.io/apimachinery/pkg/types"
+ "k8s.io/client-go/kubernetes"
+ "k8s.io/client-go/rest"
+ "helm.sh/helm/v3/pkg/release"
+)
+func TestSMPSecurityAtomicImmutableRetryAndOwnership(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate");t.Setenv("SMP_ATOMIC_LAB_FAULTS","")
+ cert,key,root:=material(t,11);stored:=map[string]corev1.Secret{};states:=map[string]corev1.ConfigMap{};creates:=0;refuse:=false;var deployment *appsv1.Deployment
+ server:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
+  w.Header().Set("Content-Type","application/json");p:=r.URL.Path
+  missing:=func(){w.WriteHeader(404);w.Write([]byte(`{"kind":"Status","apiVersion":"v1","reason":"NotFound","code":404}`))}
+  if strings.Contains(p,"/deployments/"){if deployment==nil{missing()}else{json.NewEncoder(w).Encode(deployment)};return}
+  if strings.Contains(p,"/secrets"){
+   if r.Method=="GET"{if s,ok:=stored[p];ok{json.NewEncoder(w).Encode(s)}else{missing()};return}
+   if r.Method!="POST"{t.Error("immutable Secret was updated or deleted");w.WriteHeader(403);return}
+   var s corev1.Secret;json.NewDecoder(r.Body).Decode(&s);path:=p+"/"+s.Name
+   if _,ok:=stored[path];ok{w.WriteHeader(409);w.Write([]byte(`{"kind":"Status","apiVersion":"v1","reason":"AlreadyExists","code":409}`));return}
+   if refuse{w.WriteHeader(403);return};creates++;stored[path]=s;json.NewEncoder(w).Encode(s);return
+  }
+  if r.Method=="GET"{if s,ok:=states[p];ok{json.NewEncoder(w).Encode(s)}else{missing()};return}
+  var cm corev1.ConfigMap;json.NewDecoder(r.Body).Decode(&cm);path:="/api/v1/namespaces/smp-candidate/configmaps/"+cm.Name;states[path]=cm;json.NewEncoder(w).Encode(cm)
+ }));defer server.Close()
+ c,_:=kubernetes.NewForConfig(&rest.Config{Host:server.URL,ContentConfig:rest.ContentConfig{ContentType:"application/json"}})
+ owner:=&metav1.ObjectMeta{Name:"contract",Namespace:"smp-candidate",UID:types.UID("fixture-owner")}
+ chart:=func()map[string]any{return map[string]any{"cert":string(cert),"key":string(key),"cacert":string(root),"tlsrootcert":string(root),"tls":map[string]any{"cert":string(cert),"key":string(key)},"opsTLS":map[string]any{"cert":string(cert),"key":string(key)}}}
+ refuse=true;v:=chart();if ProtectChart(context.Background(),c,owner,"FabricPeer",&v)==nil||creates!=0{t.Fatal("failed creation acknowledged")}
+ refuse=false;v=chart();if ProtectChart(context.Background(),c,owner,"FabricPeer",&v)!=nil{t.Fatal("valid bundle refused")}
+ raw,_:=json.Marshal(v);if strings.Contains(string(raw),"PRIVATE KEY"){t.Fatal("private key reached Helm")}
+ v=chart();if ProtectChart(context.Background(),c,owner,"FabricPeer",&v)!=nil||creates!=1{t.Fatal("retry did not reuse immutable bundle")}
+ ref:=v["smpMaterialSecret"].(string)
+ deployment=&appsv1.Deployment{ObjectMeta:metav1.ObjectMeta{Name:"contract",Namespace:"smp-candidate",Generation:2}}
+ deployment.Spec.Template.Annotations=map[string]string{materialAnnotation:ref,ownerAnnotation:string(owner.UID)}
+ deployment.Status=appsv1.DeploymentStatus{ObservedGeneration:2,UpdatedReplicas:1,ReadyReplicas:1,AvailableReplicas:1}
+ if Applied(context.Background(),c,owner.Namespace,owner.Name,ref){t.Fatal("missing material volumes acknowledged")}
+ projections:=map[string]map[string]string{"id-cert":{"sign.cert":"cert.pem"},"id-key":{"sign.key":"key.pem"},"cacert":{"sign.root":"cacert.pem"},"tls-clientrootcert":{"tls.root":"cert.pem"},"tls":{"tls.cert":"tls.crt","tls.key":"tls.key"},"tls-ops":{"ops.cert":"tls.crt","ops.key":"tls.key"},"tls-rootcert":{"tls.root":"cacert.pem"},"tls-client":{"tls.cert":"tls.crt","tls.key":"tls.key"}}
+ mode:=int32(0440)
+ for name,items:=range projections{volume:=corev1.Volume{Name:name,VolumeSource:corev1.VolumeSource{Secret:&corev1.SecretVolumeSource{SecretName:ref,DefaultMode:&mode}}};for key,path:=range items{volume.Secret.Items=append(volume.Secret.Items,corev1.KeyToPath{Key:key,Path:path})};deployment.Spec.Template.Spec.Volumes=append(deployment.Spec.Template.Spec.Volumes,volume)}
+ if !Applied(context.Background(),c,owner.Namespace,owner.Name,ref){t.Fatal("complete ready deployment refused")}
+ deployment.Status.ObservedGeneration=1;if Applied(context.Background(),c,owner.Namespace,owner.Name,ref){t.Fatal("stale deployment acknowledged")};deployment.Status.ObservedGeneration=2
+ deployment.Spec.Template.Spec.Volumes[0].Secret.SecretName="foreign"
+ if Applied(context.Background(),c,owner.Namespace,owner.Name,ref){t.Fatal("mixed generation acknowledged")}
+ deployment.Spec.Template.Spec.Volumes[0].Secret.SecretName=ref
+ mode=0777;if Applied(context.Background(),c,owner.Namespace,owner.Name,ref){t.Fatal("world-readable private material acknowledged")};mode=0440
+ if Ack(context.Background(),c,owner.Namespace,owner.Name,ref,string(owner.UID))!=nil{t.Fatal("valid ready acknowledgement failed")}
+ deployment=nil
+ for path,s:=range stored{if s.Immutable==nil||!*s.Immutable||len(s.Data)!=8{t.Fatal("incomplete mutable bundle")};s.OwnerReferences[0].UID="foreign";stored[path]=s}
+ v=chart();if ProtectChart(context.Background(),c,owner,"FabricPeer",&v)==nil{t.Fatal("foreign owner accepted")}
+ owner.Namespace="foreign";if ProtectChart(context.Background(),c,owner,"FabricPeer",&v)==nil{t.Fatal("foreign namespace accepted")}
+}
+func TestSMPSecurityAtomicValidationPrecedesWrites(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate");requests:=0
+ server:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){requests++;w.WriteHeader(403)}));defer server.Close()
+ c,_:=kubernetes.NewForConfig(&rest.Config{Host:server.URL});owner:=&metav1.ObjectMeta{Name:"contract",Namespace:"smp-candidate",UID:"owner"}
+ chart:=map[string]any{"cert":"invalid","key":"never-export-canary","cacert":"invalid","tlsrootcert":"invalid","tls":map[string]any{"cert":"invalid","key":"never-export-canary"},"opsTLS":map[string]any{"cert":"invalid","key":"never-export-canary"}}
+ e:=ProtectChart(context.Background(),c,owner,"FabricPeer",&chart)
+ if e==nil||strings.Contains(e.Error(),"canary")||requests!=0{t.Fatal("invalid material reached API or errors")}
+}
+func TestSMPSecurityAtomicAcknowledgementPreservesDesiredChanges(t *testing.T){
+ previous:=map[string]any{"smpMaterialSecret":"same-bundle","replicas":float64(1)}
+ same:=map[string]any{"replicas":1,"smpMaterialSecret":"same-bundle"}
+ changed:=map[string]any{"replicas":2,"smpMaterialSecret":"same-bundle"}
+ if !SamePublicChart(previous,same)||SamePublicChart(previous,changed)||SamePublicChart(previous,func(){}){t.Fatal("acknowledgement ignored desired chart changes")}
+}
+func TestSMPSecurityAtomicRollbackNeverSelectsFailedOrPendingRevision(t *testing.T){
+ history:=[]*release.Release{nil,{Version:1,Info:&release.Info{Status:release.StatusDeployed}},{Version:3,Info:&release.Info{Status:release.StatusFailed}},{Version:4,Info:&release.Info{Status:release.StatusPendingUpgrade}},{Version:2,Info:&release.Info{Status:release.StatusDeployed}}}
+ version,e:=RollbackRevision(history,4);if e!=nil||version!=2{t.Fatal("rollback did not select last deployed revision")}
+ if _,e=RollbackRevision(history,1);e==nil{t.Fatal("rollback without a successful predecessor was allowed")}
+}

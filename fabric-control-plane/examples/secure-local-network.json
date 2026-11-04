@@ -1,0 +1,89 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": {
+    "id": "secure-local",
+    "name": "Secure local candidate design (execution blocked)"
+  },
+  "spec": {
+    "environment": "development",
+    "fabricVersion": "2.5.15",
+    "deployment": {
+      "engine": "bevel",
+      "runtime": "kubernetes",
+      "provider": "local",
+      "targetRef": "smp-secure-local-v1"
+    },
+    "ordering": {
+      "consensus": "raft",
+      "channelCapability": "V2_0"
+    },
+    "organizations": [
+      {
+        "id": "org1",
+        "mspId": "Org1MSP",
+        "identityProviderRef": "org1-ca"
+      },
+      {
+        "id": "org2",
+        "mspId": "Org2MSP",
+        "identityProviderRef": "org2-ca"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "orderer-1",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "kind-node",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "orderer-2",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "kind-node",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "orderer-3",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "kind-node",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "org1-peer-1",
+        "role": "peer",
+        "organizationRef": "org1",
+        "placementRef": "kind-node",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "org2-peer-1",
+        "role": "peer",
+        "organizationRef": "org2",
+        "placementRef": "kind-node",
+        "failureDomain": "local-host"
+      }
+    ],
+    "channels": [
+      {
+        "id": "smpchannel",
+        "organizationRefs": [
+          "org1",
+          "org2"
+        ],
+        "ordererRefs": [
+          "orderer-1",
+          "orderer-2",
+          "orderer-3"
+        ],
+        "peerRefs": [
+          "org1-peer-1",
+          "org2-peer-1"
+        ]
+      }
+    ]
+  }
+}

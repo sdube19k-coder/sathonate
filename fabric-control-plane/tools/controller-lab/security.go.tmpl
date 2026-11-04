@@ -1,0 +1,43 @@
+// Isolated candidate only. No production runner imports this package.
+package smpsecurity
+
+import (
+ "context"
+ "crypto/ecdsa"
+ "crypto/tls"
+ "crypto/x509"
+ "errors"
+ "os"
+ "regexp"
+ "time"
+ hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ "k8s.io/client-go/kubernetes"
+)
+var denied=errors.New("candidate external certificate authorization or material validation failed")
+var name=regexp.MustCompile(`^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$`)
+var key=regexp.MustCompile(`^[A-Za-z0-9_.-]{1,253}$`)
+func Namespace(ns string) error {
+ if !name.MatchString(ns)||ns!=os.Getenv("SMP_NAMESPACE"){return denied};return nil
+}
+func Reference(ns string,ref *hlf.ExternalCertificate) error {
+ if Namespace(ns)!=nil||ref==nil||ref.SecretNamespace!=ns||!name.MatchString(ref.SecretName)||!key.MatchString(ref.CertificateKey)||!key.MatchString(ref.PrivateKeyKey)||!key.MatchString(ref.RootCertificateKey){return denied};return nil
+}
+func Require(ns string,component hlf.Component,tls hlf.TLSComponent) error {
+ if component.Enrollsecret!=""||tls.Enrollsecret!=""||component.Vault!=nil||tls.Vault!=nil{return denied}
+ if Reference(ns,component.External)!=nil||Reference(ns,tls.External)!=nil{return denied};return nil
+}
+func Pair(cert,key,root []byte,dns string) error {
+ pair,err:=tls.X509KeyPair(cert,key);if err!=nil||len(pair.Certificate)!=1{return denied}
+ if _,ok:=pair.PrivateKey.(*ecdsa.PrivateKey);!ok{return denied}
+ leaf,err:=x509.ParseCertificate(pair.Certificate[0]);if err!=nil{return denied}
+ roots:=x509.NewCertPool();if !roots.AppendCertsFromPEM(root){return denied}
+ _,err=leaf.Verify(x509.VerifyOptions{Roots:roots,CurrentTime:time.Now(),DNSName:dns,KeyUsages:[]x509.ExtKeyUsage{x509.ExtKeyUsageAny}});if err!=nil{return denied};return nil
+}
+func Read(ctx context.Context,client kubernetes.Interface,ns string,ref *hlf.ExternalCertificate,dns string)([]byte,[]byte,[]byte,error){
+ if Reference(ns,ref)!=nil{return nil,nil,nil,denied}
+ secret,err:=client.CoreV1().Secrets(ns).Get(ctx,ref.SecretName,metav1.GetOptions{})
+ if err!=nil||secret.Labels["sathonate.io/namespace"]!=ns{return nil,nil,nil,denied}
+ cert,private,root:=secret.Data[ref.CertificateKey],secret.Data[ref.PrivateKeyKey],secret.Data[ref.RootCertificateKey]
+ if Pair(cert,private,root,dns)!=nil{return nil,nil,nil,denied};return cert,private,root,nil
+}

@@ -1,0 +1,62 @@
+package smpsecurity
+import(
+ "context"
+ "crypto/ecdsa"
+ "crypto/elliptic"
+ "crypto/rand"
+ "crypto/x509"
+ "crypto/x509/pkix"
+ "encoding/json"
+ "encoding/pem"
+ "math/big"
+ "net/http"
+ "net/http/httptest"
+ "strings"
+ "testing"
+ "time"
+ hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1"
+ corev1 "k8s.io/api/core/v1"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ "k8s.io/client-go/kubernetes"
+ "k8s.io/client-go/rest"
+)
+func material(t *testing.T,serial int64)([]byte,[]byte,[]byte){
+ t.Helper();key,err:=ecdsa.GenerateKey(elliptic.P256(),rand.Reader);if err!=nil{t.Fatal("key generation failed")}
+ root:=&x509.Certificate{SerialNumber:big.NewInt(1),Subject:pkix.Name{CommonName:"lab-root"},NotBefore:time.Now().Add(-time.Hour),NotAfter:time.Now().Add(time.Hour),IsCA:true,BasicConstraintsValid:true,KeyUsage:x509.KeyUsageCertSign}
+ der,err:=x509.CreateCertificate(rand.Reader,root,root,&key.PublicKey,key);if err!=nil{t.Fatal("CA generation failed")}
+ ca,_:=x509.ParseCertificate(der);leafkey,_:=ecdsa.GenerateKey(elliptic.P256(),rand.Reader)
+ leaf:=&x509.Certificate{SerialNumber:big.NewInt(serial),DNSNames:[]string{"contract.smp-candidate"},NotBefore:root.NotBefore,NotAfter:root.NotAfter,KeyUsage:x509.KeyUsageDigitalSignature,ExtKeyUsage:[]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth,x509.ExtKeyUsageClientAuth}}
+ cert,err:=x509.CreateCertificate(rand.Reader,leaf,ca,&leafkey.PublicKey,key);if err!=nil{t.Fatal("leaf generation failed")}
+ raw,_:=x509.MarshalPKCS8PrivateKey(leafkey)
+ return pem.EncodeToMemory(&pem.Block{Type:"CERTIFICATE",Bytes:cert}),pem.EncodeToMemory(&pem.Block{Type:"PRIVATE KEY",Bytes:raw}),pem.EncodeToMemory(&pem.Block{Type:"CERTIFICATE",Bytes:der})
+}
+func TestSMPSecurityExternalMaterialAndRenewedReplacement(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate")
+ cert,key,root:=material(t,2)
+ ref:=&hlf.ExternalCertificate{SecretName:"preenrolled",SecretNamespace:"smp-candidate",CertificateKey:"tls.crt",PrivateKeyKey:"tls.key",RootCertificateKey:"tlsroot.crt"}
+ secret:=corev1.Secret{TypeMeta:metav1.TypeMeta{APIVersion:"v1",Kind:"Secret"},ObjectMeta:metav1.ObjectMeta{Name:"preenrolled",Namespace:"smp-candidate",Labels:map[string]string{"sathonate.io/namespace":"smp-candidate"}},Data:map[string][]byte{"tls.crt":cert,"tls.key":key,"tlsroot.crt":root}}
+ requests:=0
+ server:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){requests++;if r.Method!="GET"||r.URL.Path!="/api/v1/namespaces/smp-candidate/secrets/preenrolled"{t.Error("unexpected Secret operation");w.WriteHeader(403);return};w.Header().Set("Content-Type","application/json");json.NewEncoder(w).Encode(secret)}));defer server.Close()
+ client,_:=kubernetes.NewForConfig(&rest.Config{Host:server.URL})
+ if _,_,_,err:=Read(context.Background(),client,"smp-candidate",ref,"contract.smp-candidate");err!=nil{t.Fatal("valid external material rejected")}
+ if _,_,_,err:=Read(context.Background(),client,"foreign",ref,"");err==nil||requests!=1{t.Fatal("foreign namespace reached API")}
+ secret.Labels=nil
+ if _,_,_,err:=Read(context.Background(),client,"smp-candidate",ref,"");err==nil{t.Fatal("unowned Secret accepted")}
+ secret.Labels=map[string]string{"sathonate.io/namespace":"smp-candidate"}
+ secret.Data["tls.key"]=[]byte("private-canary")
+ _,_,_,err:=Read(context.Background(),client,"smp-candidate",ref,"")
+ if err==nil||strings.Contains(err.Error(),"private-canary"){t.Fatal("malformed key accepted or exposed")}
+ renewed,newkey,newroot:=material(t,3)
+ secret.Data=map[string][]byte{"tls.crt":renewed,"tls.key":newkey,"tlsroot.crt":newroot}
+ received,_,_,err:=Read(context.Background(),client,"smp-candidate",ref,"contract.smp-candidate")
+ if err!=nil||string(received)==string(cert){t.Fatal("replacement material not observed")}
+ if Pair(renewed,key,newroot,"")==nil||Pair(renewed,newkey,root,"")==nil||Pair(renewed,newkey,newroot,"foreign.invalid")==nil{t.Fatal("key, trust or SAN failure accepted")}
+}
+func TestSMPSecurityRequireNoFallback(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate")
+ ref:=&hlf.ExternalCertificate{SecretName:"cert",SecretNamespace:"smp-candidate",CertificateKey:"cert.pem",PrivateKeyKey:"key.pem",RootCertificateKey:"root.pem"}
+ c:=hlf.Component{External:ref};tls:=hlf.TLSComponent{External:ref}
+ if Require("smp-candidate",c,tls)!=nil{t.Fatal("complete references rejected")}
+ c.Enrollsecret="private-canary";if Require("smp-candidate",c,tls)==nil{t.Fatal("mixed inline/reference accepted")}
+ c.Enrollsecret="";tls.External=nil;if Require("smp-candidate",c,tls)==nil{t.Fatal("partial reference accepted")}
+}

@@ -1,0 +1,36 @@
+package smpsecurity
+import (
+ "bytes"
+ "context"
+ "crypto/x509"
+ "encoding/json"
+ "encoding/pem"
+ "io"
+ "github.com/golang/protobuf/proto"
+ "github.com/kfsoftware/hlf-operator/controllers/testutils"
+ hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1"
+)
+type channelOrg struct {MSP string `json:"msp"`;Root string `json:"root"`;TLSRoot string `json:"tlsRoot"`}
+type channelNode struct {Name string `json:"name"`;TLS string `json:"tls"`;Sign string `json:"sign"`}
+type channelInput struct {Namespace string `json:"namespace"`;Organizations []channelOrg `json:"organizations"`;Orderers []channelNode `json:"orderers"`}
+func GenerateChannel(raw []byte)([]byte,error){
+ var v channelInput;if len(raw)>1<<20{return nil,denied}
+ d:=json.NewDecoder(bytes.NewReader(raw));d.DisallowUnknownFields();if d.Decode(&v)!=nil{return nil,denied};var extra any;if d.Decode(&extra)!=io.EOF{return nil,denied}
+ if Namespace(v.Namespace)!=nil||len(v.Organizations)!=2||len(v.Orderers)!=3{return nil,denied}
+ parse:=func(raw string)(*x509.Certificate,error){block,rest:=pem.Decode([]byte(raw));if block==nil||len(bytes.TrimSpace(rest))!=0{return nil,denied};return x509.ParseCertificate(block.Bytes)}
+ var peers []testutils.PeerOrg;var ordering []testutils.OrdererOrg;var consenters []testutils.Consenter
+ endpoints:=[]string{}
+ for i,n:=range v.Orderers{
+  if n.Name!=[]string{"orderer-1","orderer-2","orderer-3"}[i]{return nil,denied}
+  tls,e:=parse(n.TLS);if e!=nil{return nil,denied};sign,e:=parse(n.Sign);if e!=nil{return nil,denied}
+  host:=n.Name+"."+v.Namespace;if tls.VerifyHostname(host)!=nil{return nil,denied}
+  consenters=append(consenters,testutils.CreateConsenter(host,7050,tls,sign,"Org1MSP"));endpoints=append(endpoints,host+":7050")
+ }
+ for i,org:=range v.Organizations{
+  if org.MSP!=[]string{"Org1MSP","Org2MSP"}[i]{return nil,denied}
+  root,e:=parse(org.Root);if e!=nil||!root.IsCA{return nil,denied};tls,e:=parse(org.TLSRoot);if e!=nil||!tls.IsCA{return nil,denied}
+  peers=append(peers,testutils.CreatePeerOrg(org.MSP,tls,root));if i==0{ordering=append(ordering,testutils.CreateOrdererOrg(org.MSP,tls,root,endpoints))}
+ }
+ block,e:=testutils.NewChannelStore().GetApplicationChannelBlock(context.Background(),testutils.WithName("smpchannel"),testutils.WithPeerOrgs(peers...),testutils.WithOrdererOrgs(ordering...),testutils.WithConsenters(consenters...),testutils.WithConsensus(hlf.OrdererConsensusEtcdraft))
+ if e!=nil{return nil,denied};out,e:=proto.Marshal(block);if e!=nil{return nil,denied};return out,nil
+}

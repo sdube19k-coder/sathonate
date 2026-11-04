@@ -1,0 +1,24 @@
+{
+  "schema": "sathonate.source-import/v1",
+  "preparedAt": "2026-11-04T11:31:51.424213+00:00",
+  "destinationOwner": "sdube19k-coder",
+  "sources": {
+    "fabric-control-plane": {
+      "commit": "623974555bb63ca661488ae2a1443852504b7137",
+      "archiveSHA256": "6d1061050db840cc97d5dbfe22d7f4c36ec63101ae036c1530cee29bc97cfe0b",
+      "files": 297
+    },
+    "fabric-console": {
+      "commit": "e023c17d3f467c168f2399b94614c4c790be71dc",
+      "archiveSHA256": "44172bc4d43e728278be373e91d0595bd2a856ef5ed055590ba46a4859b49a3a",
+      "files": 61
+    }
+  },
+  "upstreamDependency": {
+    "url": "https://github.com/hyperledger-bevel/bevel-operator-fabric.git",
+    "commit": "cd236ccc61d1d159b3dadb4625d08bb5682a8451"
+  },
+  "historyImported": false,
+  "privateRuntimeDataIncluded": false,
+  "unverifiedAWSChangesIncluded": false
+}

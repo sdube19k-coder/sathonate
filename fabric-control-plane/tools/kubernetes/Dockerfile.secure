@@ -1,0 +1,8 @@
+FROM hyperledger/fabric-ca:1.5.15@sha256:1b64dc702bd400e14c8f452dedc0359b7dc06679b751b08937eb2bf2865fed40 AS ca
+FROM sathonate/fabric-worker@sha256:02696e75906154c1aa96ef9bcf4d3c2c3b86115968a83c911a0bf9cb8394fbda
+USER root
+COPY --from=ca /usr/local/bin/fabric-ca-client /usr/local/bin/fabric-ca-client
+COPY bin/controller-atomic /usr/local/bin/candidate-tools
+COPY bin/fabric-worker-secure /usr/local/bin/fabric-worker
+USER 10001:10001
+ENTRYPOINT ["/usr/local/bin/fabric-worker"]

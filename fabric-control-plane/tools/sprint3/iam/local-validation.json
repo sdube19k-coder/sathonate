@@ -1,0 +1,142 @@
+{
+  "validation": "public AWS service-reference action names and JSON syntax; NOT live IAM simulator or AWS deployment",
+  "nonWhitespaceBytes": 10215,
+  "invalidActions": [],
+  "wildcardStatements": [
+    {
+      "action": "autoscaling:DescribeAutoScalingGroups",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "cloudformation:ValidateTemplate",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeAccountAttributes",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeAvailabilityZones",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeInstanceTypes",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeInstanceTypeOfferings",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeImages",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeInstances",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeInstanceStatus",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeVolumes",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeVolumeStatus",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeVpcs",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeSubnets",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeRouteTables",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeInternetGateways",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeSecurityGroups",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeNetworkInterfaces",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeAddresses",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeNatGateways",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeLaunchTemplates",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeLaunchTemplateVersions",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ec2:DescribeTags",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "ecr:GetAuthorizationToken",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "eks:ListClusters",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "eks:DescribeAddonVersions",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "eks:DescribeAddonConfiguration",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "eks:DescribeClusterVersions",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "eks:CreateCluster",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "elasticloadbalancing:DescribeLoadBalancers",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "elasticloadbalancing:DescribeTags",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "freetier:GetAccountPlanState",
+      "supportsResourceTypes": []
+    },
+    {
+      "action": "sts:GetCallerIdentity",
+      "supportsResourceTypes": []
+    }
+  ],
+  "structuralChecks": {
+    "noWildcardActions": "PASS",
+    "iamOnlyGetAndScopedPassRole": "PASS",
+    "literalWildcardActionsLackResourceLevelSupport": "PASS",
+    "inlinePolicySize": "PASS"
+  },
+  "policySHA256": "6ff68e6667ca980e230b47f71d22f1a500e2c2837efe906119d79a0f089d77fe"
+}

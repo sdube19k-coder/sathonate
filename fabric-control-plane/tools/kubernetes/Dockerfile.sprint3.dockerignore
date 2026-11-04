@@ -1,0 +1,6 @@
+**
+!bin/
+!bin/fabric-worker-sprint3
+!tools/
+!tools/kubernetes/
+!tools/kubernetes/Dockerfile.sprint3

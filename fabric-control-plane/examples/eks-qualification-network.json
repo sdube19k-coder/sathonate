@@ -1,0 +1,89 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": {
+    "id": "eks-qualification",
+    "name": "EKS qualification"
+  },
+  "spec": {
+    "environment": "development",
+    "fabricVersion": "2.5.15",
+    "deployment": {
+      "engine": "bevel",
+      "runtime": "kubernetes",
+      "provider": "aws",
+      "targetRef": "company-eks"
+    },
+    "ordering": {
+      "consensus": "raft",
+      "channelCapability": "V2_0"
+    },
+    "organizations": [
+      {
+        "id": "org1",
+        "mspId": "Org1MSP",
+        "identityProviderRef": "org1-ca"
+      },
+      {
+        "id": "org2",
+        "mspId": "Org2MSP",
+        "identityProviderRef": "org2-ca"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "orderer1",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "az-a",
+        "failureDomain": "ap-south-1a"
+      },
+      {
+        "id": "orderer2",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "az-b",
+        "failureDomain": "ap-south-1b"
+      },
+      {
+        "id": "orderer3",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "az-c",
+        "failureDomain": "ap-south-1c"
+      },
+      {
+        "id": "peer1",
+        "role": "peer",
+        "organizationRef": "org1",
+        "placementRef": "az-a",
+        "failureDomain": "ap-south-1a"
+      },
+      {
+        "id": "peer2",
+        "role": "peer",
+        "organizationRef": "org2",
+        "placementRef": "az-b",
+        "failureDomain": "ap-south-1b"
+      }
+    ],
+    "channels": [
+      {
+        "id": "sathonate",
+        "organizationRefs": [
+          "org1",
+          "org2"
+        ],
+        "ordererRefs": [
+          "orderer1",
+          "orderer2",
+          "orderer3"
+        ],
+        "peerRefs": [
+          "peer1",
+          "peer2"
+        ]
+      }
+    ]
+  }
+}

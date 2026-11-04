@@ -1,0 +1,352 @@
+{
+  "schema": "sathonate.sprint4-local-verification/v1",
+  "generatedAtUTC": "2026-10-30T03:24:24.530572+00:00",
+  "sprint3": "LOCAL QUALIFICATION PASSED / AWS EKS QUALIFICATION PENDING",
+  "sprint4": "LOCAL OPERATIONS INCREMENT PASS; BROADER BACKLOG OPEN",
+  "awsCallsPerformed": false,
+  "awsResourcesCreated": false,
+  "productionEnabled": false,
+  "backendFeatureCommit": "88aec1443fe86941ddc45fb775fa8720d95a03ee",
+  "consoleFeatureCommit": "040a0ad4c9d27e65df3b481bde6c5607197374ae",
+  "authenticationLimits": {
+    "apiRuntime": "controlled HTTPS OIDC fixture, not live Okta",
+    "browserRuntime": "explicit local-only cryptographic bearer grants, hashed server-side",
+    "realOkta": "BLOCKED: required user passkey enrollment deferred; no authentication bypass"
+  },
+  "retainedNetwork": {
+    "readOnly": true,
+    "readyDeployments": 8,
+    "total": 8,
+    "ready": true,
+    "mutated": false,
+    "newTransactionSubmitted": false
+  },
+  "retainedClusterObservation": {
+    "nodeAndSystemPodsReady": true,
+    "historicalFailedWorkerPod": "smp-n-4a3ac39ceab00d34/smp-8f5743cd4ba2c32fdf245091da749085-wps44",
+    "historicalFailedWorkerAge": "13 days",
+    "historicalFailedWorkerAction": "Preserved; outside active retained-network namespace; no cleanup performed"
+  },
+  "apiFabric": {
+    "apiToFabric": "PASS",
+    "authenticatedTenantProject": true,
+    "authenticationMode": "okta",
+    "awsEnabled": false,
+    "checkedAt": "2026-10-30T03:14:55.4434359Z",
+    "committedAndReadOnBothPeers": true,
+    "crossProjectDenied": true,
+    "crossTenantDenied": true,
+    "duplicateOperationReused": true,
+    "failedWorkerRetriedThroughAPI": true,
+    "initialOperationId": "op_5455a652cbc80784054abdd5b4fdc7ce",
+    "initialTransactionId": "3ed04381a8741a07f8eaf9fb9230ab6cfd2914f47be6ecf3ae1c55f1be18bc94",
+    "mode": "secure-local",
+    "namespace": "smp-s-ce32fc5e150cff9526aca7b6d0bb1943",
+    "operationId": "op_db6274692ad11505673b3c3dd219bba1",
+    "persistentClaimsUnchangedAfterPeerRestart": true,
+    "postRestartLedgerHealth": {
+      "checkedAt": "2026-10-30T03:14:51.109188075Z",
+      "ready": true,
+      "channel": "smpchannel",
+      "peers": [
+        {
+          "peer": "org1-peer-1",
+          "mspId": "Org1MSP",
+          "available": true,
+          "height": 6,
+          "currentBlockHash": "WorXAdB0Q9vSvB6yCn5auZ+keX55XjH+qyREkhmagUI="
+        },
+        {
+          "peer": "org2-peer-1",
+          "mspId": "Org2MSP",
+          "available": true,
+          "height": 6,
+          "currentBlockHash": "WorXAdB0Q9vSvB6yCn5auZ+keX55XjH+qyREkhmagUI="
+        }
+      ],
+      "orderers": [
+        {
+          "name": "orderer-1",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        },
+        {
+          "name": "orderer-2",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        },
+        {
+          "name": "orderer-3",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        }
+      ],
+      "certificateAuthorities": [
+        {
+          "name": "org1-ca",
+          "available": true,
+          "tls": true
+        },
+        {
+          "name": "org2-ca",
+          "available": true,
+          "tls": true
+        }
+      ],
+      "chaincode": {
+        "name": "smp_smoke",
+        "available": true,
+        "version": "1.0",
+        "sequence": 1
+      },
+      "alerts": []
+    },
+    "processArguments": {
+      "samples": 130,
+      "caCommands": 1,
+      "protectedCLICommands": 8,
+      "credentialsAbsent": true
+    },
+    "productionEnabled": false,
+    "schema": "sathonate.sprint1-api/v1",
+    "transactionId": "1c35a2f7def1f99a5e10ac3a5e66cde8f8d1587bacc27795567d767112559ae3",
+    "viewerEscalationDenied": true,
+    "workerJobAdoptedAfterApplicationRestart": true
+  },
+  "queryVerification": {
+    "expectedValue": "ready-smp-s-ce32fc5e150cff9526aca7b6d0bb1943",
+    "bothPeerGetResultsMatchedExpectedValue": true,
+    "source": "internal/kubernetesfabric/worker.go: verify strict Put/Get comparison; protected worker unchanged"
+  },
+  "security": {
+    "publicResourcesNoCredentials": "PASS",
+    "helmHistoryNoCredentials": "PASS",
+    "runtimeLogsNoCredentials": "PASS",
+    "sourceAndEvidenceNoActualCredentials": "PASS",
+    "controllerIssuerForeignAndClusterDenials": "PASS",
+    "foreignResourcePreserved": "PASS",
+    "bothLivePeerCertificatesVerified": "PASS",
+    "privilegedAdmissionDenied": "PASS",
+    "containerLimitAdmissionDenied": "PASS",
+    "effectiveCrossNamespaceIngressDenied": "PASS",
+    "effectiveCrossNamespaceEgressDenied": "PASS",
+    "ownFabricConnectivity": "PASS",
+    "fabricServiceAccountTokenMountsAbsent": "PASS",
+    "defaultServiceAccountTokenDisabled": "PASS"
+  },
+  "runtimeInspection": {
+    "helmReleases": 12,
+    "logStreams": 11,
+    "knownPrivateValues": 84
+  },
+  "runtimeImages": {
+    "sathonate/controller-candidate:atomic": "sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c",
+    "hyperledger/fabric-ca:1.5.15": "hyperledger/fabric-ca@sha256:61ed7bd64819ef935833c747cce9e5dbd1c05dc516f930e70f4ca8355cdc3975",
+    "hyperledger/fabric-peer:2.5.15": "hyperledger/fabric-peer@sha256:b046b46c05cfe8ecd68def9e001990d59d96a25dfac58b4f4892cedf54e2ba20",
+    "hyperledger/fabric-orderer:2.5.15": "hyperledger/fabric-orderer@sha256:26bd18aabe441b05d7b03e1356200bbb7261cc5bdecb676ddc7e4578c77e6e04",
+    "sathonate/smp-smoke:local": "sathonate/smp-smoke@sha256:85bc9e7966dc9d439c69c623cf8a721156fa10ef6acd7c4a10c1902dfc4cb7fc",
+    "sathonate/fabric-worker:sprint3": "sathonate/fabric-worker@sha256:221a8d15253fd0316d808061a72244e7e2cfcb2bbc85e682a4a22caa65939181"
+  },
+  "qualifiedWorkerBuild": {
+    "baseImageID": "sha256:59bcadb6439b1df6220212fbc8263f6abc44593507b6ee67e5c954e097eda5aa",
+    "workerBinarySHA256": "c4396d1eb6d206d6ecf0557ef5b77898899593916eb1e4be41d5aa3482399d7e",
+    "source": "current local source; no AWS execution",
+    "workerImageID": "sha256:3484ce5cfabed6c94a2f33bd7311cb627ab74ebd92061c19888ae1a55507f0fc"
+  },
+  "browser": {
+    "schema": "sathonate.ui-acceptance/v1",
+    "status": "PASS",
+    "checks": {
+      "invalidToken": "PASS",
+      "expiredToken": "PASS",
+      "unauthorizedProjectSelection": "PASS",
+      "profileAndServerValidation": "PASS",
+      "uiSubmission": "PASS",
+      "refreshWhileRunning": "PASS",
+      "networkInterruption": "PASS",
+      "realWorkerFailureVisible": "PASS",
+      "uiRetry": "PASS",
+      "caPeerOrdererChannelChaincodeAndBothReadbacks": "PASS",
+      "noDuplicateDeployment": "PASS",
+      "finalRefreshRestoresStatus": "PASS",
+      "diagnosticDownload": "PASS",
+      "responsiveDashboard": "PASS",
+      "crossTenantAndProjectDenials": "PASS",
+      "missingPermissionVisible": "PASS",
+      "memoryOnlyTokens": "PASS",
+      "productionBuildRejectsLocalTokens": "PASS",
+      "fixedDeveloperBypassRejected": "PASS"
+    },
+    "namespace": "smp-s-e9bb760a2b895ca340deeaef70b95514",
+    "initialOperationId": "op_f6b618b976e63d5578df19f743d72d0d",
+    "operationId": "op_8f1972c4b91017fed197516b162abf45",
+    "transactionId": "1cb9d8b127be9c79664006a72e6e18521d4eedef9bbf66b45dcfb3b9de1c6fcb",
+    "channel": "smpchannel",
+    "chaincode": {
+      "name": "smp_smoke",
+      "available": true,
+      "version": "1.0",
+      "sequence": 1
+    },
+    "peers": [
+      {
+        "peer": "org1-peer-1",
+        "mspId": "Org1MSP",
+        "available": true,
+        "height": 5,
+        "currentBlockHash": "FUNHlhKWePF7uDp9FBAp9eXyPK7cLauA9E7gjKlCjzY="
+      },
+      {
+        "peer": "org2-peer-1",
+        "mspId": "Org2MSP",
+        "available": true,
+        "height": 5,
+        "currentBlockHash": "FUNHlhKWePF7uDp9FBAp9eXyPK7cLauA9E7gjKlCjzY="
+      }
+    ],
+    "orderers": [
+      {
+        "name": "orderer-1",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 5
+      },
+      {
+        "name": "orderer-2",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 5
+      },
+      {
+        "name": "orderer-3",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 5
+      }
+    ],
+    "certificateAuthorities": [
+      {
+        "name": "org1-ca",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "org2-ca",
+        "available": true,
+        "tls": true
+      }
+    ],
+    "browser": "Microsoft Edge via Playwright",
+    "browserRuntimeErrors": 0,
+    "apiResponses": 427,
+    "checkedAt": "2026-10-30T03:22:59.955Z",
+    "productionEnabled": false,
+    "awsEnabled": false
+  },
+  "uiProvenance": {
+    "backendCommit": "88aec1443fe86941ddc45fb775fa8720d95a03ee",
+    "apiBinarySHA256": "aa091114936bcd113585d7fd82e3b428e82265ba7a00201802dfd361e9d2a994",
+    "workerImageID": "sha256:3484ce5cfabed6c94a2f33bd7311cb627ab74ebd92061c19888ae1a55507f0fc",
+    "backendDiffSHA256": "efa7094b7d2582f913dc6998fd74ab6ead7c59210196bb02077fdb07ef42dc07"
+  },
+  "tests": {
+    "go": {
+      "pass": 253,
+      "fail": 0,
+      "skip": 16
+    },
+    "vet": "PASS",
+    "postgres": {
+      "pass": 40,
+      "fail": 0,
+      "skip": 1
+    },
+    "separatePostgresVerifiedTLSAndRestrictedRoleDockerFixture": "PASS",
+    "consoleUnit": "18 PASS",
+    "consoleBuild": "PASS",
+    "consoleFormat": "PASS",
+    "offlineInfrastructure": "5 PASS"
+  },
+  "matrix": {
+    "currentKindHealth": "PASS",
+    "retainedReadiness": "PASS 8/8, read-only",
+    "disposableFabric2Org2Peer2CA3Raft": "PASS",
+    "channelJoinChaincodeLifecycle": "PASS",
+    "newTransactionsAndBothPeerReadback": "PASS",
+    "apiOrchestrationRestartRetryIdempotency": "PASS",
+    "peerPodRestartAndPVCReuse": "PASS",
+    "tlsTrustRBACIsolation": "PASS",
+    "runtimeCredentialInspection": "PASS",
+    "consoleAPIToFabricAndDiagnostics": "PASS",
+    "independentMultiServerKubernetes": "NOT TESTED",
+    "backupOrDiskLossRecovery": "NOT TESTED",
+    "independentNativeArbitraryTopologyEngine": "NOT TESTED",
+    "AWS_EKS_IRSA_CNI_EBS": "NOT TESTED; DEFERRED",
+    "realOkta": "BLOCKED",
+    "historicalKeyRemediation": "BLOCKED"
+  },
+  "cleanup": {
+    "apiDisposableClusterRemoved": true,
+    "uiDisposableClusterRemoved": true,
+    "retainedNetworkPreserved": true,
+    "onlyRetainedKindClusterRemains": true,
+    "testAPIAndViteListenersStopped": true,
+    "temporaryTLSDatabaseRemoved": true
+  },
+  "failedAttempts": [
+    {
+      "status": "BLOCKED before disposable creation",
+      "reason": "Existing development PostgreSQL container stopped; started only smp-postgres and reran",
+      "evidence": ".logs/local-final-20261030/initial-database-blocked.json"
+    }
+  ],
+  "sourceSHA256CanonicalLF": {
+    "fabric-control-plane/internal/httpapi/api.go": "cb050cfc62702fcbea1e95d45bd6817ec8bfb8de0b59abb0d65cb50e63e9a32c",
+    "fabric-control-plane/internal/httpapi/diagnostics.go": "0dcb0a72ad4d30faab917119e55faead0d084722f14a9029af6305b4b3ca5d99",
+    "fabric-control-plane/internal/httpapi/diagnostics_test.go": "e8822d08048b8d3987038c535a06023fddcaf15c617d8c965ac382215b8a73ae",
+    "fabric-control-plane/internal/httpapi/secure_api_e2e_test.go": "33bac4f9e368f9994b7ef4cc3bbf58c4a414a210a8ba09d9b8008df4660f7314",
+    "fabric-control-plane/internal/httpapi/oidc_postgres_test.go": "0a1b9d03678dd309e42bc9d89e2c2e6de99418d2517e689181b595df95aec268",
+    "fabric-control-plane/internal/kubernetesfabric/worker.go": "feca36e45e2c01c618d238c6d10a68cf060e041e160f1a43bba6ef0e58e5293c",
+    "fabric-control-plane/tools/sprint1/qualify.py": "8eb2c267d59353b075491e170c2f23ba7e26817eb74f74d6a04cee0c4ff32b36",
+    "fabric-console/src/OperationDiagnostics.tsx": "ac49981137b581c20bfa036e96c30451fb104891d36da39a5be971dbd4af1a78",
+    "fabric-console/src/operation-diagnostics.test.ts": "1dda44ab5fbce4e0941ad4f599b6d1cc07bc146ebe96398cd11a9b8c297ca64a",
+    "fabric-console/src/api.ts": "2b8aeb69345ca5c9567d461d4878689f8d29abc7dab23eeae8c6496a70af5805",
+    "fabric-console/src/SmpApp.tsx": "9cc467cfe3695f967da5ac119f7670e76c6188fa5a14bda30575cb3164499cb4",
+    "fabric-console/tools/qualify-ui.py": "65901d9de163f7e34ff9fac55e16754a4c0dcbdafec941c72b8fefcc30b3fa76",
+    "fabric-console/tools/browser-acceptance.mjs": "6ef13235553d63d568fc5268461f65d00f3da5a41be1f642ba4e71b3d7b784ae"
+  },
+  "evidenceSHA256": {
+    ".logs\\local-final-20261030\\current-qualification.json": "220a8c724e19be48f5e62e2830c08e761d0fd0f7907de34e53e452d00d8068b7",
+    ".logs\\local-final-20261030\\current-api-kind.json": "76d51ab647d832d5003f86890fa258ca019f6ba2a69c03d12b1317c71b5f5901",
+    ".logs\\local-final-20261030\\current-api-kind.log": "fc31cf99e50a4713c1dbf7284b938245b781729d6b05acdcdb949002fb7cae06",
+    ".logs\\local-final-20261030\\go.jsonl": "d9ecfc7253653d402194c6d353c93f39ae8ff72344a14eebd76f6310756eec05",
+    ".logs\\local-final-20261030\\postgres.jsonl": "4d6ce1bf81b6420242e597577024b15e7f0e24670d0bb9af29beaf7bffe9806e",
+    ".logs\\local-final-20261030\\postgres-tls.log": "a16617de85f09b8722e5e79d60388e78830fad8fedd6e2f5e514bcddaff44075",
+    ".logs\\local-final-20261030\\retained-nodes.txt": "94b68961162df6bb0fd58bf7716e54178d487cf85cfdce866243fe6f81730b69",
+    ".logs\\local-final-20261030\\retained-workloads.txt": "8ad9e271bfa3649aa832acf21dc5f8046dcc4ef16250cdd59322289bddc969dd",
+    ".logs\\local-final-20261030\\retained-all-pods.txt": "8d72d5211f0c4c900dfada3f499b3b451d607b9ff78446b6b1165dabf63a8f01",
+    ".logs\\local-final-20261030\\cleanup-clusters.txt": "4ad7f5dce020baead85552bd1ffc9c924f7f1901e308c9749a8342284007dbc3",
+    ".logs\\local-final-20261030\\cleanup-containers.txt": "fa40ab0fb30bf0bd0e93c1ec6b1ee1537bf47795573dad1a891af22c39864edd"
+  },
+  "consoleEvidenceArchive": "E:/Sathonate/fabric-console/.logs/local-final-20261030/",
+  "browserEvidenceSHA256": {
+    "ui-qualification.json": "e606f818d903b394d6b43a6c9b1b04766f0ad077c674590ee715c20ec21e1156",
+    "browser-result.json": "1e1dc8d49e53205977dd33d2d386adaad2ec93a4bd159791fb87187f6008b3f9",
+    "browser.log": "604dac1b53f03965493bb991f352b742bbbc2710cfa24e259e5b828ae1a530d5",
+    "sprint4-unit.log": "ad6201034cc9585a5c075c5f8410c1c93347d68c04795c3523a3d05257bf0f6b",
+    "sprint4-build.log": "a6b5e9d4b05a55cfcda1c494a1633d657d11a99ec9db25702362a4b40eddd6d8",
+    "sprint4-format.log": "bd964c129b61cfd1f669e988ca1f3593d3d5cb6dd07f87ed2fc02407830e4332"
+  },
+  "preservedAtomicEvidenceSHA256": "1481990cfa170e2c8c49cdbe26d432810bc77aff6482fe0306bcabcd9e166c60",
+  "remainingBacklog": [
+    "Guarded peer/orderer/organization membership changes",
+    "General channel/chaincode lifecycle beyond fixed qualification profile",
+    "Self-service tenant/project onboarding with approved identity authority",
+    "Production storage backup/restore and multi-server failure acceptance",
+    "Live Okta and owner-approved historical-key remediation",
+    "Deferred AWS EKS, IRSA, VPC CNI, EBS and teardown acceptance"
+  ]
+}

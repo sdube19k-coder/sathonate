@@ -1,0 +1,8 @@
+# Source-built CLI keeps the selected Bevel revision with a small reviewed
+# namespace-discovery patch. Build tools/kubernetes/build-scoped-cli.py first.
+ARG WORKER_BASE_IMAGE=sathonate/fabric-worker:eks-local
+FROM ${WORKER_BASE_IMAGE}
+USER root
+COPY bin/fabric-worker /usr/local/bin/fabric-worker
+COPY bin/kubectl-hlf-scoped /usr/local/bin/kubectl-hlf
+USER 10001:10001

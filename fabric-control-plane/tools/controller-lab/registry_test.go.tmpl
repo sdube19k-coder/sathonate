@@ -1,0 +1,49 @@
+package smpsecurity
+import(
+ "context"
+ "encoding/json"
+ "net/http"
+ "net/http/httptest"
+ "strings"
+ "testing"
+ corev1 "k8s.io/api/core/v1"
+ hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ "k8s.io/client-go/kubernetes"
+ "k8s.io/client-go/rest"
+ "sigs.k8s.io/yaml"
+)
+func registryFixture()[]byte{
+ id:=registryIdentity{Name:"registrar",Pass:strings.Repeat("a",64),Type:"client",Attrs:map[string]any{"hf.Registrar.Roles":"peer,orderer,admin,client","hf.Registrar.DelegateRoles":"","hf.Registrar.Attributes":"","hf.Revoker":false,"hf.IntermediateCA":false,"hf.GenCRL":false,"hf.AffiliationMgr":false}}
+ registry:=registryConfig{MaxEnrollments:-1,Identities:[]registryIdentity{id}}
+ tlsRegistry:=registryConfig{MaxEnrollments:-1,Identities:[]registryIdentity{id}};tlsRegistry.Identities[0].Pass=strings.Repeat("b",64)
+ raw,_:=json.Marshal(registryBundle{CA:registry,TLS:tlsRegistry});return raw
+}
+func TestSMPSecurityRegistryConfigOnlyAtRuntime(t *testing.T){
+ public:=[]byte("registry:\n  maxenrollments: -1\n  identities: []\ndebug: true\nca:\n  name: ca\n")
+ a,b,err:=RenderRegistryConfig(public,public,registryFixture());if err!=nil{t.Fatal("runtime registry render failed")}
+ for i,raw:=range [][]byte{a,b}{var v map[string]any;if yaml.Unmarshal(raw,&v)!=nil||v["debug"]!=false{t.Fatal("invalid runtime output")};expected:="a";if i==1{expected="b"};if !strings.Contains(string(raw),strings.Repeat(expected,64)){t.Fatal("runtime credentials absent")}}
+ var config map[string]any;yaml.Unmarshal(a,&config)
+ if config["cafiles"].([]any)[0]!="/smp/runtime/tls-ca.yaml"{t.Fatal("secondary CA config persisted outside memory path")}
+ if strings.Contains(string(public),strings.Repeat("a",64)){t.Fatal("public input mutated")}
+ for _,raw:=range [][]byte{[]byte(`{"bad":"private-canary"}`),append(registryFixture(),[]byte(` {}`)...)}{
+  _,_,err=RenderRegistryConfig(public,public,raw);if err==nil||strings.Contains(err.Error(),"private-canary"){t.Fatal("unsafe registry accepted or echoed")}
+ }
+ bad:=[]byte("registry:\n  identities:\n    - pass: private-canary\n")
+ if _,_,err=RenderRegistryConfig(bad,public,registryFixture());err==nil{t.Fatal("credential-bearing public template accepted")}
+}
+func TestSMPSecurityRegistrySecretBoundary(t *testing.T){
+ t.Setenv("SMP_NAMESPACE","smp-candidate")
+ resource:=&hlf.FabricCA{};resource.Namespace="smp-candidate";resource.Annotations=map[string]string{RegistryAnnotation:"registry-v1"};resource.Spec.Database.Type="sqlite3";resource.Spec.Database.Datasource="fabric-ca-server.db"
+ immutable:=true
+ secret:=corev1.Secret{TypeMeta:metav1.TypeMeta{APIVersion:"v1",Kind:"Secret"},ObjectMeta:metav1.ObjectMeta{Labels:map[string]string{"sathonate.io/namespace":"smp-candidate"}},Immutable:&immutable,Data:map[string][]byte{"registry.json":registryFixture()}}
+ calls:=0
+ server:=httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){calls++;if r.Method!="GET"||r.URL.Path!="/api/v1/namespaces/smp-candidate/secrets/registry-v1"{t.Error("unexpected registry request")};w.Header().Set("Content-Type","application/json");json.NewEncoder(w).Encode(secret)}));defer server.Close()
+ client,_:=kubernetes.NewForConfig(&rest.Config{Host:server.URL})
+ ref,err:=RegistryReference(context.Background(),client,resource);if err!=nil||ref!="registry-v1"{t.Fatal("registry reference rejected")}
+ resource.Namespace="foreign";if _,err=RegistryReference(context.Background(),client,resource);err==nil||calls!=1{t.Fatal("foreign registry request reached API")}
+ resource.Namespace="smp-candidate";immutable=false
+ if _,err=RegistryReference(context.Background(),client,resource);err==nil{t.Fatal("mutable registry accepted")}
+ immutable=true;secret.Labels=nil
+ if _,err=RegistryReference(context.Background(),client,resource);err==nil{t.Fatal("unowned registry accepted")}
+}

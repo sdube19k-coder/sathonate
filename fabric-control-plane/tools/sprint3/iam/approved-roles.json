@@ -1,0 +1,12 @@
+{
+  "account": "429488690613",
+  "region": "ap-south-1",
+  "run": "sathonate-s3-20261027",
+  "roles": {
+    "clusterrole": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-clusterrole",
+    "noderole": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-noderole",
+    "cnirole": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-cnirole",
+    "ebsrole": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-ebsrole"
+  },
+  "requiredAdministratorOwnedRepository": "arn:aws:ecr:ap-south-1:429488690613:repository/sathonate-s3-20261027"
+}

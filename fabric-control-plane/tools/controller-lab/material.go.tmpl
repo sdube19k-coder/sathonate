@@ -1,0 +1,80 @@
+// Candidate-only chart boundary: private material is delivered through Secrets,
+// never through Helm values or release manifests.
+package smpsecurity
+import (
+ "context"
+ "encoding/json"
+ "reflect"
+ "strings"
+ corev1 "k8s.io/api/core/v1"
+ apierrors "k8s.io/apimachinery/pkg/api/errors"
+ metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+ "k8s.io/client-go/kubernetes"
+)
+type materialMapping struct {suffix string; fields map[string]string; private []string}
+func chartField(root map[string]any,path string)(string,bool){
+ parts:=strings.Split(path,".");m:=root
+ for _,p:=range parts[:len(parts)-1]{v,ok:=m[p].(map[string]any);if !ok{return "",false};m=v}
+ value,ok:=m[parts[len(parts)-1]].(string);return value,ok
+}
+func removeChartField(root map[string]any,path string){
+ parts:=strings.Split(path,".");m:=root
+ for _,p:=range parts[:len(parts)-1]{m=m[p].(map[string]any)}
+ m[parts[len(parts)-1]]=""
+}
+func ProtectChart(ctx context.Context,client kubernetes.Interface,owner metav1.Object,kind string,chart any)error{
+ if Namespace(owner.GetNamespace())!=nil||!name.MatchString(owner.GetName())||owner.GetUID()==""{return denied}
+ raw,err:=json.Marshal(chart);if err!=nil{return denied};var values map[string]any;if json.Unmarshal(raw,&values)!=nil{return denied}
+ var mappings []materialMapping
+ switch kind {
+ case "FabricCA":mappings=[]materialMapping{
+  {"--tls-cryptomaterial",map[string]string{"tls.key":"msp.tlsKeyFile","tls.crt":"msp.tlsCertFile"},[]string{"msp.tlsKeyFile"}},
+  {"--msp-cryptomaterial",map[string]string{"keyfile":"msp.keyfile","certfile":"msp.certfile","chainfile":"msp.chainfile"},[]string{"msp.keyfile"}},
+  {"--msp-tls-cryptomaterial",map[string]string{"keyfile":"msp.tlsCAKeyFile","certfile":"msp.tlsCACertFile","chainfile":"msp.tlsCAChainfile"},[]string{"msp.tlsCAKeyFile"}},
+ }
+ case "FabricPeer":mappings=[]materialMapping{
+  {"-tlsrootcert",map[string]string{"cacert.pem":"tlsrootcert"},nil},
+  {"-idkey",map[string]string{"key.pem":"key"},[]string{"key"}},
+  {"-tls",map[string]string{"tls.key":"tls.key","tls.crt":"tls.cert"},[]string{"tls.key"}},
+  {"-tls-ops",map[string]string{"tls.key":"opsTLS.key","tls.crt":"opsTLS.cert"},[]string{"opsTLS.key"}},
+ }
+ case "FabricOrdererNode":mappings=[]materialMapping{
+  {"-idkey",map[string]string{"key.pem":"key"},[]string{"key"}},
+  {"-tls",map[string]string{"tls.key":"tls.key","tls.crt":"tls.cert"},[]string{"tls.key"}},
+  {"-admin",map[string]string{"tls.key":"admin.key","tls.crt":"admin.cert","cacert.crt":"admin.rootCAs","clientcacert.crt":"admin.clientRootCAs"},[]string{"admin.key"}},
+ }
+ default:return denied
+ }
+ if kind=="FabricPeer"{values["couchdbPassword"]=""} // LevelDB-only candidate profile.
+ for _,mapping:=range mappings{
+  data:=map[string][]byte{}
+  for target,field:=range mapping.fields{value,ok:=chartField(values,field);if !ok{return denied};data[target]=[]byte(value)}
+  secretName:=owner.GetName()+mapping.suffix
+  old,e:=client.CoreV1().Secrets(owner.GetNamespace()).Get(ctx,secretName,metav1.GetOptions{})
+  if e!=nil&&!apierrors.IsNotFound(e){return denied}
+  labels:=map[string]string{"sathonate.io/namespace":owner.GetNamespace(),"sathonate.io/owner":owner.GetName()}
+  if e==nil {
+   if old.Labels["sathonate.io/namespace"]!=owner.GetNamespace()||old.Labels["sathonate.io/owner"]!=owner.GetName(){return denied}
+   for _,ref:=range old.OwnerReferences{if ref.UID!=owner.GetUID(){return denied}}
+   if !reflect.DeepEqual(old.Data,data)||len(old.OwnerReferences)==0{old.Data=data;old.OwnerReferences=[]metav1.OwnerReference{{APIVersion:"hlf.kungfusoftware.es/v1alpha1",Kind:kind,Name:owner.GetName(),UID:owner.GetUID()}};if _,e=client.CoreV1().Secrets(owner.GetNamespace()).Update(ctx,old,metav1.UpdateOptions{});e!=nil{return denied}}
+  }else{
+   secret:=&corev1.Secret{ObjectMeta:metav1.ObjectMeta{Name:secretName,Namespace:owner.GetNamespace(),Labels:labels,OwnerReferences:[]metav1.OwnerReference{{APIVersion:"hlf.kungfusoftware.es/v1alpha1",Kind:kind,Name:owner.GetName(),UID:owner.GetUID()}}},Data:data}
+   if _,e=client.CoreV1().Secrets(owner.GetNamespace()).Create(ctx,secret,metav1.CreateOptions{});e!=nil{return denied}
+  }
+  for _,field:=range mapping.private{removeChartField(values,field)}
+ }
+ sanitized,e:=json.Marshal(values);if e!=nil||json.Unmarshal(sanitized,chart)!=nil{return denied};return nil
+}
+// Auxiliary validates the pinned chart's conventional Secret layout, including
+// ownership, certificate/key pairing and trust. There is no enrollment fallback.
+func Auxiliary(ctx context.Context,client kubernetes.Interface,ns,node string,admin bool)error{
+ if Namespace(ns)!=nil||!name.MatchString(node){return denied}
+ certName,rootName,rootKey:=node+"-tls-ops",node+"-tlsrootcert","cacert.pem"
+ if admin{certName=node+"-admin";rootName=certName;rootKey="cacert.crt"}
+ cert,e:=client.CoreV1().Secrets(ns).Get(ctx,certName,metav1.GetOptions{});if e!=nil{return denied}
+ root,e:=client.CoreV1().Secrets(ns).Get(ctx,rootName,metav1.GetOptions{});if e!=nil{return denied}
+ for _,s:=range []*corev1.Secret{cert,root}{if s.Labels["sathonate.io/namespace"]!=ns||s.Labels["sathonate.io/owner"]!=node{return denied}}
+ if Pair(cert.Data["tls.crt"],cert.Data["tls.key"],root.Data[rootKey],node+"."+ns)!=nil{return denied}
+ if admin&&Pair(cert.Data["tls.crt"],cert.Data["tls.key"],root.Data["clientcacert.crt"],"")!=nil{return denied}
+ return nil
+}

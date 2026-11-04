@@ -1,0 +1,76 @@
+- name: Bootstrap the dedicated local Bevel operator
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    bevel_commit: cd236ccc61d1d159b3dadb4625d08bb5682a8451
+  tasks:
+    - name: Verify pinned upstream checkout
+      ansible.builtin.command:
+        argv: [git, -c, safe.directory=/operator, -C, /operator, rev-parse, HEAD]
+      register: source_revision
+      changed_when: false
+    - name: Reject unqualified source
+      ansible.builtin.assert:
+        that: source_revision.stdout == bevel_commit
+    - name: Verify dedicated Docker kind provider
+      ansible.builtin.command:
+        argv: [kubectl, --context, kind-smp-qualification, get, node, smp-qualification-control-plane, -o, 'jsonpath={.spec.providerID}']
+      register: node_provider
+      changed_when: false
+    - name: Reject nonlocal target
+      ansible.builtin.assert:
+        that: node_provider.stdout == 'kind://docker/smp-qualification/smp-qualification-control-plane'
+    - name: Create isolated chart workspace
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: smp-chart-
+      register: chart_workspace
+    - name: Inspect existing release ownership before any upgrade
+      ansible.builtin.command:
+        argv: [helm, get, manifest, smp-bevel, --kube-context, kind-smp-qualification, --namespace, smp-system]
+      register: old_manifest
+      changed_when: false
+      failed_when: false
+    - name: Prevent legacy Helm upgrades from deleting CRDs and networks
+      ansible.builtin.assert:
+        that: "'kind: CustomResourceDefinition' not in old_manifest.stdout"
+        fail_msg: Legacy operator release owns CRD templates. Do not upgrade it with this bootstrap; use a fresh dedicated kind cluster or migrate ownership with a reviewed backup procedure.
+    - name: Prepare matching chart and CRDs
+      block:
+        - name: Copy pinned upstream chart
+          ansible.builtin.copy:
+            src: /operator/chart/hlf-operator/
+            dest: '{{ chart_workspace.path }}/'
+            remote_src: true
+        - name: Remove stale chart CRDs in temporary copy only
+          ansible.builtin.file:
+            path: '{{ chart_workspace.path }}/templates/crds'
+            state: absent
+        - name: Copy matching source CRDs
+          ansible.builtin.copy:
+            src: /operator/config/crd/bases/
+            dest: '{{ chart_workspace.path }}/crds/'
+            remote_src: true
+        - name: Reconcile CRDs separately without taking Helm ownership of existing schemas
+          ansible.builtin.command:
+            argv: [kubectl, --context, kind-smp-qualification, apply, --server-side, --force-conflicts, --field-manager=fabric-smp-bootstrap, -f, /operator/config/crd/bases]
+          changed_when: true
+        - name: Reconcile operator with Helm
+          ansible.builtin.command:
+            argv: [helm, upgrade, --install, smp-bevel, '{{ chart_workspace.path }}', --kube-context, kind-smp-qualification, --namespace, smp-system, --create-namespace, --set, image.repository=ghcr.io/hyperledger-bevel/bevel-operator-fabric, --set-string, image.tag=v1.14.0, --wait, --timeout, 300s]
+          register: helm_result
+          changed_when: true
+        - name: Wait for controller availability
+          ansible.builtin.command:
+            argv: [kubectl, --context, kind-smp-qualification, -n, smp-system, rollout, status, deployment/smp-bevel-hlf-operator-controller-manager, --timeout=180s]
+          changed_when: false
+        - name: Verify matching schemas after Helm reconciliation
+          ansible.builtin.command:
+            argv: [kubectl, --context, kind-smp-qualification, apply, --server-side, --force-conflicts, --field-manager=fabric-smp-bootstrap, -f, /operator/config/crd/bases]
+          changed_when: true
+      always:
+        - name: Remove temporary chart copy
+          ansible.builtin.file:
+            path: '{{ chart_workspace.path }}'
+            state: absent

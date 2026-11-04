@@ -1,0 +1,38 @@
+name: security-boundaries
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+permissions:
+  contents: read
+jobs:
+  offline-boundaries:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify Go module checksums and security tests
+        shell: pwsh
+        run: |
+          go mod download
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go mod verify
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go test ./... -count=1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Recovery and evidence harness security tests
+        shell: pwsh
+        run: |
+          python -m pip install PyYAML==6.0.3
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($suite in @('tools/controller-atomic','tools/controller-lab','tools/engineering','tools/sprint2')) {
+            python -m unittest discover -s $suite -v
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Whitespace and patch hygiene
+        run: git diff --check
+# Opt-in PostgreSQL, Docker CA, Calico/Fabric and six-fault runtime qualification
+# are separate guarded local gates. Skipped integration tests are never PASS.
+# No cloud credentials, publishing, deployment or production-enable step exists.

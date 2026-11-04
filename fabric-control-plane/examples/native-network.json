@@ -1,0 +1,31 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": { "id": "supplychain-native", "name": "Supply chain on private servers" },
+  "spec": {
+    "environment": "production",
+    "fabricVersion": "2.5.16",
+    "deployment": { "engine": "native", "targetRef": "private-datacenter", "runtime": "linux-containers" },
+    "organizations": [
+      { "id": "manufacturer", "mspId": "ManufacturerMSP", "identityProviderRef": "manufacturer-ca" },
+      { "id": "carrier", "mspId": "CarrierMSP", "identityProviderRef": "carrier-ca" },
+      { "id": "retailer", "mspId": "RetailerMSP", "identityProviderRef": "retailer-ca" }
+    ],
+    "nodes": [
+      { "id": "orderer-manufacturer", "organizationRef": "manufacturer", "role": "orderer", "placementRef": "host-a", "failureDomain": "rack-a" },
+      { "id": "orderer-carrier", "organizationRef": "carrier", "role": "orderer", "placementRef": "host-b", "failureDomain": "rack-b" },
+      { "id": "orderer-retailer", "organizationRef": "retailer", "role": "orderer", "placementRef": "host-c", "failureDomain": "rack-c" },
+      { "id": "peer-manufacturer", "organizationRef": "manufacturer", "role": "peer", "placementRef": "host-a", "failureDomain": "rack-a" },
+      { "id": "peer-carrier", "organizationRef": "carrier", "role": "peer", "placementRef": "host-b", "failureDomain": "rack-b" },
+      { "id": "peer-retailer", "organizationRef": "retailer", "role": "peer", "placementRef": "host-c", "failureDomain": "rack-c" }
+    ],
+    "channels": [
+      {
+        "id": "supplychain",
+        "organizationRefs": ["manufacturer", "carrier", "retailer"],
+        "ordererRefs": ["orderer-manufacturer", "orderer-carrier", "orderer-retailer"],
+        "peerRefs": ["peer-manufacturer", "peer-carrier", "peer-retailer"]
+      }
+    ]
+  }
+}

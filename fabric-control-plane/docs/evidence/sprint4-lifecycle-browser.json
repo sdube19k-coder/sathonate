@@ -1,0 +1,443 @@
+{
+  "schema": "sathonate.sprint1-qualification/v1",
+  "status": "PASS",
+  "apiToFabric": "PASS",
+  "uiToFabric": "PASS",
+  "cluster": "smp-sprint1-1543ce01",
+  "awsEnabled": false,
+  "productionEnabled": false,
+  "checks": {
+    "publicResourcesNoCredentials": "PASS",
+    "helmHistoryNoCredentials": "PASS",
+    "runtimeLogsNoCredentials": "PASS",
+    "sourceAndEvidenceNoActualCredentials": "PASS",
+    "controllerIssuerForeignAndClusterDenials": "PASS",
+    "foreignResourcePreserved": "PASS",
+    "bothLivePeerCertificatesVerified": "PASS"
+  },
+  "startedAt": 1793412110.5561645,
+  "provenance": {
+    "backendCommit": "42edc8394f00f0008e2ab1d0ddfc579ebca4061f",
+    "apiBinarySHA256": "bf976dae2fc7054da49a3619f82cd5d7dc6f7fbc76dd4476d07e09c6e5823ae6",
+    "workerImageID": "sha256:f09045d7f39d22773f5059d9ec2c0c24694020dd5a58101b3f22d43f5811f0f7",
+    "backendDiffSHA256": "6222803b0f3473bf17c379db71ee8be388bce237d16d195eff9988f8a80137dd"
+  },
+  "browserExitCode": 0,
+  "browser": {
+    "schema": "sathonate.ui-acceptance/v1",
+    "status": "PASS",
+    "checks": {
+      "invalidToken": "PASS",
+      "expiredToken": "PASS",
+      "unauthorizedProjectSelection": "PASS",
+      "profileAndServerValidation": "PASS",
+      "uiSubmission": "PASS",
+      "workspaceReadConnectionRecovery": "PASS",
+      "refreshWhileRunning": "PASS",
+      "networkInterruption": "PASS",
+      "realWorkerFailureVisible": "PASS",
+      "uiRetry": "PASS",
+      "caPeerOrdererChannelChaincodeAndBothReadbacks": "PASS",
+      "noDuplicateDeployment": "PASS",
+      "finalRefreshRestoresStatus": "PASS",
+      "responsiveDashboard": "PASS",
+      "guardedPeerAdditionAndSynchronization": "PASS",
+      "chaincodeSequenceUpgrade": "PASS",
+      "approvedPeerRestartAndPersistence": "PASS",
+      "newTransactionOnExpandedNetwork": "PASS",
+      "unsupportedMembershipChangesRejected": "PASS",
+      "diagnosticDownload": "PASS",
+      "crossTenantAndProjectDenials": "PASS",
+      "missingPermissionVisible": "PASS",
+      "memoryOnlyTokens": "PASS",
+      "productionBuildRejectsLocalTokens": "PASS",
+      "fixedDeveloperBypassRejected": "PASS"
+    },
+    "namespace": "smp-s-6d322e186c83ba9f55d652f4e47db3bc",
+    "initialOperationId": "op_117f4f46e63a3b488607e42bf14c98e2",
+    "operationId": "op_7fe2ae120f293f2b55a56482e448cb61",
+    "baseOperationId": "op_1e24d3f0334063f9509761cb879f8414",
+    "lifecycleChanges": [
+      {
+        "action": "add-peer",
+        "operationId": "op_ebf78daa31759cda2e8c0f5e8ef7a16f",
+        "transactionId": "67f60827d828c78bfb8cc3e5ecf80014e0b3916740fcfbebf0c0d792447b82c5",
+        "health": {
+          "checkedAt": "2026-10-31T02:09:41.333063795Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 6,
+              "currentBlockHash": "NkTRzgvP6dFx6s5PG4IKxnvqTZIyO3Pv2pT4s19lmSY="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 6,
+              "currentBlockHash": "NkTRzgvP6dFx6s5PG4IKxnvqTZIyO3Pv2pT4s19lmSY="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 6,
+              "currentBlockHash": "NkTRzgvP6dFx6s5PG4IKxnvqTZIyO3Pv2pT4s19lmSY="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 6
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 6
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 6
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "1.0",
+            "sequence": 1
+          },
+          "alerts": []
+        }
+      },
+      {
+        "action": "upgrade-chaincode",
+        "operationId": "op_09e78ca5d0ee509d3ff676cce81f4820",
+        "transactionId": "2aa96a9ed7760f3e1616c622286a05060127e978dc2508181823509cec4923ab",
+        "health": {
+          "checkedAt": "2026-10-31T02:10:04.37963814Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 10,
+              "currentBlockHash": "T9ZX9hazSJUnuIgubADM3sQRIy8Ul7msWu/CFOUvrWA="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 10,
+              "currentBlockHash": "T9ZX9hazSJUnuIgubADM3sQRIy8Ul7msWu/CFOUvrWA="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 10,
+              "currentBlockHash": "T9ZX9hazSJUnuIgubADM3sQRIy8Ul7msWu/CFOUvrWA="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 10
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 10
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 10
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "2.0",
+            "sequence": 2
+          },
+          "alerts": []
+        }
+      },
+      {
+        "action": "restart-peer",
+        "operationId": "op_7a257b0aceb30877bca143e90ae86221",
+        "transactionId": "f756d1e5db7ab30ab7db483168378198b09b765b63cefc3697df716af2720aa4",
+        "health": {
+          "checkedAt": "2026-10-31T02:10:55.781185922Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 11,
+              "currentBlockHash": "kYIo9ubxavNuqUP1JhF5nBCDpStCX697OgqllhyA3+g="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 11,
+              "currentBlockHash": "kYIo9ubxavNuqUP1JhF5nBCDpStCX697OgqllhyA3+g="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 11,
+              "currentBlockHash": "kYIo9ubxavNuqUP1JhF5nBCDpStCX697OgqllhyA3+g="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 11
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 11
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 11
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "2.0",
+            "sequence": 2
+          },
+          "alerts": []
+        }
+      },
+      {
+        "action": "verify-network",
+        "operationId": "op_7fe2ae120f293f2b55a56482e448cb61",
+        "transactionId": "94cf22e43f2243dca764987e7c63760677119a6ff248d93192452507c9546f66",
+        "health": {
+          "checkedAt": "2026-10-31T02:11:12.457701343Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 12,
+              "currentBlockHash": "2J17rmh14QXbZAPP8XWG6dagDrXMGMRMNGkxSc/NOeU="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 12,
+              "currentBlockHash": "2J17rmh14QXbZAPP8XWG6dagDrXMGMRMNGkxSc/NOeU="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 12,
+              "currentBlockHash": "2J17rmh14QXbZAPP8XWG6dagDrXMGMRMNGkxSc/NOeU="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 12
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 12
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 12
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "2.0",
+            "sequence": 2
+          },
+          "alerts": []
+        }
+      }
+    ],
+    "canonicalGenesisSHA256": "f3f8346e7a8d774972d5a5ddc04209c29d28c08689296e813a980a1dd4a7692b",
+    "transactionId": "94cf22e43f2243dca764987e7c63760677119a6ff248d93192452507c9546f66",
+    "channel": "smpchannel",
+    "chaincode": {
+      "name": "smp_smoke",
+      "available": true,
+      "version": "2.0",
+      "sequence": 2
+    },
+    "peers": [
+      {
+        "peer": "org1-peer-1",
+        "mspId": "Org1MSP",
+        "available": true,
+        "height": 12,
+        "currentBlockHash": "2J17rmh14QXbZAPP8XWG6dagDrXMGMRMNGkxSc/NOeU="
+      },
+      {
+        "peer": "org2-peer-1",
+        "mspId": "Org2MSP",
+        "available": true,
+        "height": 12,
+        "currentBlockHash": "2J17rmh14QXbZAPP8XWG6dagDrXMGMRMNGkxSc/NOeU="
+      },
+      {
+        "peer": "org1-peer-2",
+        "mspId": "Org1MSP",
+        "available": true,
+        "height": 12,
+        "currentBlockHash": "2J17rmh14QXbZAPP8XWG6dagDrXMGMRMNGkxSc/NOeU="
+      }
+    ],
+    "orderers": [
+      {
+        "name": "orderer-1",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 12
+      },
+      {
+        "name": "orderer-2",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 12
+      },
+      {
+        "name": "orderer-3",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 12
+      }
+    ],
+    "certificateAuthorities": [
+      {
+        "name": "org1-ca",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "org2-ca",
+        "available": true,
+        "tls": true
+      }
+    ],
+    "browser": "Microsoft Edge via Playwright",
+    "browserRuntimeErrors": 0,
+    "apiResponses": 641,
+    "checkedAt": "2026-10-31T02:11:19.791Z",
+    "productionEnabled": false,
+    "awsEnabled": false
+  },
+  "images": {
+    "sathonate/controller-candidate:atomic": "sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c",
+    "hyperledger/fabric-ca:1.5.15": "hyperledger/fabric-ca@sha256:61ed7bd64819ef935833c747cce9e5dbd1c05dc516f930e70f4ca8355cdc3975",
+    "hyperledger/fabric-peer:2.5.15": "hyperledger/fabric-peer@sha256:b046b46c05cfe8ecd68def9e001990d59d96a25dfac58b4f4892cedf54e2ba20",
+    "hyperledger/fabric-orderer:2.5.15": "hyperledger/fabric-orderer@sha256:26bd18aabe441b05d7b03e1356200bbb7261cc5bdecb676ddc7e4578c77e6e04",
+    "sathonate/smp-smoke:local": "sathonate/smp-smoke@sha256:85bc9e7966dc9d439c69c623cf8a721156fa10ef6acd7c4a10c1902dfc4cb7fc",
+    "sathonate/fabric-worker:sprint4-lifecycle": "sathonate/fabric-worker@sha256:819811fbf05e605ed7787122b620ff9b5ae5d7b31bff436c73e0c3da9de93715"
+  },
+  "sourceEvidenceFilesInspected": 120,
+  "inspection": {
+    "helmReleases": 13,
+    "logStreams": 15,
+    "knownPrivateValues": 101
+  },
+  "retainedNetwork": {
+    "readOnly": true,
+    "ready": true,
+    "readyDeployments": 8,
+    "total": 8
+  },
+  "disposableClusterRemoved": true,
+  "finishedAt": 1793412687.2969396
+}

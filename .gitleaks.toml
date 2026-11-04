@@ -1,0 +1,99 @@
+title = "Sathonate exact reviewed provenance exceptions"
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Reviewed public checksums or Kubernetes resource name; exact line and path"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-console/e2e/local\\-kubernetes\\.spec\\.ts$"]
+regexes = [
+  "^\\s*kub\\(\"\\-n\",\\ ns,\\ \"get\",\\ \"secret\",\\ \"smp\\-enrollment\\-org1\",\\ \"\\-o\",\\ \"json\"\\),\\s*$",
+]
+
+[[allowlists]]
+description = "Reviewed public checksums or Kubernetes resource name; exact line and path"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint2\\-local\\-qualification\\.json$"]
+regexes = [
+  "^\\s*\"internal/httpapi/api\\.go\":\\ \"bde9804fd483b3d98b62fd1d4cdacbcf486219b376b3bfe853a06e7c21396272\",\\s*$",
+  "^\\s*\"internal/identity/local_tokens\\.go\":\\ \"721116a867c43430ada6a9b9d43efcf407406773afe46ebf7d82f81977624d70\",\\s*$",
+  "^\\s*\"internal/kubernetesfabric/credentials\\.go\":\\ \"2559e11a9649ea36e8abe85f86ad3c56df5989a35b1eb09cc667ae5e9514c322\",\\s*$",
+  "^\\s*\"apiEvidenceSHA256\":\\ \"6dcf0f59154a775eb378d900052b1f1ecd58a54f61f388994474d79c3c638d63\",\\s*$",
+  "^\\s*\"sprint2\\-api\\-kind\\.json\":\\ \"6dcf0f59154a775eb378d900052b1f1ecd58a54f61f388994474d79c3c638d63\",\\s*$",
+]
+
+[[allowlists]]
+description = "Reviewed public checksums or Kubernetes resource name; exact line and path"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint3\\-local\\-secure\\-eks\\.json$"]
+regexes = [
+  "^\\s*\"sprint3\\-api\\-kind\\.json\":\\ \"3290068f65a3988c806b57ec6cab2d5227950f168a70f43110a770e08dd27eaa\",\\s*$",
+  "^\\s*\"internal/httpapi/api\\.go\":\\ \"bde9804fd483b3d98b62fd1d4cdacbcf486219b376b3bfe853a06e7c21396272\",\\s*$",
+  "^\\s*\"internal/httpapi/api_test\\.go\":\\ \"9f72c0dde0e96e58ea2bb2f292c26c40520ec1e85bfc3877cde29751432bc999\",\\s*$",
+  "^\\s*\"internal/httpapi/credentials_test\\.go\":\\ \"d9e4d218edf0063b7b1f8965de0b7a5b1a686e6ce9ce91dbfd2d6f644927edfd\",\\s*$",
+  "^\\s*\"internal/httpapi/secure_api_e2e_test\\.go\":\\ \"0242b9371746abf2a7d03e78c161fd5bd53648e8f21bb1cfff6d1d67a5c57bda\",\\s*$",
+  "^\\s*\"internal/identity/local_tokens\\.go\":\\ \"721116a867c43430ada6a9b9d43efcf407406773afe46ebf7d82f81977624d70\",\\s*$",
+  "^\\s*\"internal/identity/local_tokens_test\\.go\":\\ \"d67a30db47645e22d39a572096e12b81c92fa24f76ba4ee007ab8ebc0b046712\",\\s*$",
+  "^\\s*\"internal/kubernetesfabric/credentials\\.go\":\\ \"2559e11a9649ea36e8abe85f86ad3c56df5989a35b1eb09cc667ae5e9514c322\",\\s*$",
+  "^\\s*\"internal/kubernetesfabric/credentials_test\\.go\":\\ \"23c14c51d8bc990f33c4c96e8e9cc94df2b5be0cf48ca2a26e5bdeb4e64eb5d0\",\\s*$",
+  "^\\s*\"internal/localfabric/credentials_docker_test\\.go\":\\ \"494c00f026e85b856f5d381d22a27cf8f107b0e60866a3cb4d2e6dd4623dde56\",\\s*$",
+  "^\\s*\"internal/localfabric/credentials_test\\.go\":\\ \"c8d425839100618b0a0ccc46590f333324327e82240bf56ed9658f149f403e8b\",\\s*$",
+  "^\\s*\"tools/prototype/inspect\\-stored\\-credentials\\.py\":\\ \"2ae342f22265b4b0249c4877e4fb6ddf7c5096e24dbca9ee327f0f5891d88168\",\\s*$",
+]
+
+[[allowlists]]
+description = "Reviewed public checksums or Kubernetes resource name; exact line and path"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-lifecycle\\-browser\\.json$"]
+regexes = [
+  "^\\s*\"apiBinarySHA256\":\\ \"bf976dae2fc7054da49a3619f82cd5d7dc6f7fbc76dd4476d07e09c6e5823ae6\",\\s*$",
+]
+
+[[allowlists]]
+description = "Reviewed public checksums or Kubernetes resource name; exact line and path"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-lifecycle\\-verification\\.json$"]
+regexes = [
+  "^\\s*\"apiEvidenceSHA256\":\\ \"916d9426354d820a405cc056faa151f99b0676346bd41a5b2a9ba071ffa78a91\",\\s*$",
+  "^\\s*\"internal/httpapi/api\\.go\":\\ \"b0c266ce927889d5b3d05fcb4904bd62f5d3aa90d6fca2d5f6221c7afc645927\",\\s*$",
+  "^\\s*\"internal/httpapi/api_test\\.go\":\\ \"9f72c0dde0e96e58ea2bb2f292c26c40520ec1e85bfc3877cde29751432bc999\",\\s*$",
+  "^\\s*\"internal/httpapi/credentials_test\\.go\":\\ \"d9e4d218edf0063b7b1f8965de0b7a5b1a686e6ce9ce91dbfd2d6f644927edfd\",\\s*$",
+  "^\\s*\"internal/httpapi/secure_api_e2e_test\\.go\":\\ \"097c88f96d0227b5f1f5076b6c89260dfc404a3398537db7a612707b4089c3a2\",\\s*$",
+  "^\\s*\"internal/identity/local_tokens\\.go\":\\ \"721116a867c43430ada6a9b9d43efcf407406773afe46ebf7d82f81977624d70\",\\s*$",
+  "^\\s*\"internal/identity/local_tokens_test\\.go\":\\ \"d67a30db47645e22d39a572096e12b81c92fa24f76ba4ee007ab8ebc0b046712\",\\s*$",
+  "^\\s*\"internal/kubernetesfabric/credentials\\.go\":\\ \"2559e11a9649ea36e8abe85f86ad3c56df5989a35b1eb09cc667ae5e9514c322\",\\s*$",
+  "^\\s*\"internal/kubernetesfabric/credentials_test\\.go\":\\ \"23c14c51d8bc990f33c4c96e8e9cc94df2b5be0cf48ca2a26e5bdeb4e64eb5d0\",\\s*$",
+  "^\\s*\"internal/localfabric/credentials_docker_test\\.go\":\\ \"494c00f026e85b856f5d381d22a27cf8f107b0e60866a3cb4d2e6dd4623dde56\",\\s*$",
+  "^\\s*\"internal/localfabric/credentials_test\\.go\":\\ \"c8d425839100618b0a0ccc46590f333324327e82240bf56ed9658f149f403e8b\",\\s*$",
+  "^\\s*\"src/api\\.transport\\.test\\.ts\":\\ \"011a32945086f74462dc9e2a7ad8e5f50b4e01de6b940db740e8a2b03641de3e\",\\s*$",
+  "^\\s*\"src/api\\.ts\":\\ \"feee371ddba229c4f11341ede665d15463f9f84c9ee0bff7ac68ec8341679164\",\\s*$",
+  "^\\s*\"src/AuthGate\\.tsx\":\\ \"28813ee4cd85aed4a3eb9bcd2b625b8ca31593fbc1c753bce81a2f51877db706\",\\s*$",
+  "^\\s*\"E:\\\\\\\\Sathonate\\\\\\\\fabric\\-control\\-plane\\\\\\\\\\.logs\\\\\\\\sprint4\\-api\\-kind\\.log\":\\ \"c28650daaaf4b0d8bd1c635cd1d173f5b2424c5707773172179102544691a138\",\\s*$",
+  "^\\s*\"E:\\\\\\\\Sathonate\\\\\\\\fabric\\-control\\-plane\\\\\\\\\\.logs\\\\\\\\sprint4\\-api\\-kind\\.json\":\\ \"916d9426354d820a405cc056faa151f99b0676346bd41a5b2a9ba071ffa78a91\",\\s*$",
+  "^\\s*\"E:\\\\\\\\Sathonate\\\\\\\\fabric\\-control\\-plane\\\\\\\\\\.logs\\\\\\\\sprint4\\-third\\-peer\\-token\\-mount\\.json\":\\ \"cabfb61bf6ab5af9bc1fe4a60156fb06ae661f6d7911769c512af666835d363f\"\\s*$",
+]
+
+[[allowlists]]
+description = "Reviewed public checksums or Kubernetes resource name; exact line and path"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-local\\-verification\\.json$"]
+regexes = [
+  "^\\s*\"apiBinarySHA256\":\\ \"aa091114936bcd113585d7fd82e3b428e82265ba7a00201802dfd361e9d2a994\",\\s*$",
+  "^\\s*\"fabric\\-control\\-plane/internal/httpapi/api\\.go\":\\ \"cb050cfc62702fcbea1e95d45bd6817ec8bfb8de0b59abb0d65cb50e63e9a32c\",\\s*$",
+  "^\\s*\"fabric\\-control\\-plane/internal/httpapi/secure_api_e2e_test\\.go\":\\ \"33bac4f9e368f9994b7ef4cc3bbf58c4a414a210a8ba09d9b8008df4660f7314\",\\s*$",
+  "^\\s*\"fabric\\-console/src/api\\.ts\":\\ \"2b8aeb69345ca5c9567d461d4878689f8d29abc7dab23eeae8c6496a70af5805\",\\s*$",
+  "^\\s*\"\\.logs\\\\\\\\local\\-final\\-20261030\\\\\\\\current\\-api\\-kind\\.json\":\\ \"76d51ab647d832d5003f86890fa258ca019f6ba2a69c03d12b1317c71b5f5901\",\\s*$",
+  "^\\s*\"\\.logs\\\\\\\\local\\-final\\-20261030\\\\\\\\current\\-api\\-kind\\.log\":\\ \"fc31cf99e50a4713c1dbf7284b938245b781729d6b05acdcdb949002fb7cae06\",\\s*$",
+]

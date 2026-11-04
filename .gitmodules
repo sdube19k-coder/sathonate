@@ -1,0 +1,3 @@
+[submodule "dependencies/bevel-operator-fabric"]
+	path = dependencies/bevel-operator-fabric
+	url = https://github.com/hyperledger-bevel/bevel-operator-fabric.git

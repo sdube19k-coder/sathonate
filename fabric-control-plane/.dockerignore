@@ -1,0 +1,13 @@
+*
+!bin/
+bin/*
+!bin/fabric-worker
+!bin/local-chaincode
+!bin/kubectl-hlf-scoped
+!bin/fabric-worker-secure
+!bin/controller-atomic
+!tools/
+!tools/kubernetes/
+!tools/kubernetes/Dockerfile
+!tools/kubernetes/Dockerfile.eks
+!tools/kubernetes/Dockerfile.secure

@@ -1,0 +1,19 @@
+package deploy
+import("testing";"context"; hlf "github.com/kfsoftware/hlf-operator/pkg/apis/hlf.kungfusoftware.es/v1alpha1")
+func TestSMPSecurityChaincodeNoCredentialFallback(t *testing.T){
+ r:=FabricChaincodeDeployReconciler{}
+ resource:=&hlf.FabricChaincode{}
+ if _,err:=r.getCryptoMaterial(context.Background(),nil,"smp-candidate",resource);err==nil{t.Fatal("plaintext TLS bypass accepted")}
+ resource.Spec.Credentials=&hlf.TLSComponent{Enrollsecret:"private-canary"}
+ if _,err:=r.getCryptoMaterial(context.Background(),nil,"smp-candidate",resource);err==nil{t.Fatal("inline credential accepted")}
+ resource.Spec.Credentials.External=&hlf.ExternalCertificate{SecretName:"preenrolled"}
+ if r.getSecretName(resource)!="preenrolled"{t.Fatal("external Secret was not selected")}
+}
+
+func TestSMPSecurityExternalChaincodeReadDoesNotEnrollOrMutate(t *testing.T){
+ _,config,ref:=smpFixture(t)
+ r:=FabricChaincodeDeployReconciler{Config:config}
+ resource:=&hlf.FabricChaincode{};resource.Name="contract";resource.Namespace="smp-candidate";resource.Spec.Credentials=&hlf.TLSComponent{External:ref}
+ data,err:=r.getCryptoMaterial(context.Background(),nil,"smp-candidate",resource)
+ if err!=nil||!data.Enabled||len(data.Certificate)==0||len(data.PrivateKey)==0{t.Fatal("external chaincode certificate read failed")}
+}

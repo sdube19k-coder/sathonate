@@ -1,0 +1,99 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": {
+    "id": "supplychain-cloud",
+    "name": "Supply chain on AWS"
+  },
+  "spec": {
+    "environment": "production",
+    "fabricVersion": "2.5.16",
+    "deployment": {
+      "engine": "bevel",
+      "targetRef": "aws-production",
+      "runtime": "kubernetes",
+      "provider": "aws"
+    },
+    "organizations": [
+      {
+        "id": "manufacturer",
+        "mspId": "ManufacturerMSP",
+        "identityProviderRef": "manufacturer-ca"
+      },
+      {
+        "id": "carrier",
+        "mspId": "CarrierMSP",
+        "identityProviderRef": "carrier-ca"
+      },
+      {
+        "id": "retailer",
+        "mspId": "RetailerMSP",
+        "identityProviderRef": "retailer-ca"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "orderer-manufacturer",
+        "organizationRef": "manufacturer",
+        "role": "orderer",
+        "placementRef": "node-pool-a",
+        "failureDomain": "zone-a"
+      },
+      {
+        "id": "orderer-carrier",
+        "organizationRef": "carrier",
+        "role": "orderer",
+        "placementRef": "node-pool-b",
+        "failureDomain": "zone-b"
+      },
+      {
+        "id": "orderer-retailer",
+        "organizationRef": "retailer",
+        "role": "orderer",
+        "placementRef": "node-pool-c",
+        "failureDomain": "zone-c"
+      },
+      {
+        "id": "peer-manufacturer",
+        "organizationRef": "manufacturer",
+        "role": "peer",
+        "placementRef": "node-pool-a",
+        "failureDomain": "zone-a"
+      },
+      {
+        "id": "peer-carrier",
+        "organizationRef": "carrier",
+        "role": "peer",
+        "placementRef": "node-pool-b",
+        "failureDomain": "zone-b"
+      },
+      {
+        "id": "peer-retailer",
+        "organizationRef": "retailer",
+        "role": "peer",
+        "placementRef": "node-pool-c",
+        "failureDomain": "zone-c"
+      }
+    ],
+    "channels": [
+      {
+        "id": "supplychain",
+        "organizationRefs": [
+          "manufacturer",
+          "carrier",
+          "retailer"
+        ],
+        "ordererRefs": [
+          "orderer-manufacturer",
+          "orderer-carrier",
+          "orderer-retailer"
+        ],
+        "peerRefs": [
+          "peer-manufacturer",
+          "peer-carrier",
+          "peer-retailer"
+        ]
+      }
+    ]
+  }
+}

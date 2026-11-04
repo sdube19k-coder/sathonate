@@ -1,0 +1,848 @@
+{
+  "schema": "sathonate.sprint4-bounded-lifecycle/v1",
+  "assembledAt": "2026-11-04T11:24:34.414259+00:00",
+  "sprint4": "PARTIAL",
+  "sprint3": "LOCAL QUALIFICATION PASSED / AWS EKS QUALIFICATION PENDING",
+  "awsAccessed": false,
+  "productionEnabled": false,
+  "backendCommit": "fbdd205bbcf9cd343ef56c78e937151f56362592",
+  "consoleCommit": "e023c17d3f467c168f2399b94614c4c790be71dc",
+  "workerBuild": {
+    "workerImageID": "sha256:f09045d7f39d22773f5059d9ec2c0c24694020dd5a58101b3f22d43f5811f0f7",
+    "workerBinarySHA256": "66948aa66331ef03d0b9bd04819f56928cc7771dfc4f986fb82eac96fe9e952c"
+  },
+  "browserQualification": {
+    "evidence": "sprint4-lifecycle-browser.json",
+    "sha256": "4a0c152d991676043b2ada581a370c81ee1f7a61a51d9f3f00a31de4aa022f84",
+    "checkedAt": "2026-10-31T02:11:19.791Z",
+    "checks": {
+      "invalidToken": "PASS",
+      "expiredToken": "PASS",
+      "unauthorizedProjectSelection": "PASS",
+      "profileAndServerValidation": "PASS",
+      "uiSubmission": "PASS",
+      "workspaceReadConnectionRecovery": "PASS",
+      "refreshWhileRunning": "PASS",
+      "networkInterruption": "PASS",
+      "realWorkerFailureVisible": "PASS",
+      "uiRetry": "PASS",
+      "caPeerOrdererChannelChaincodeAndBothReadbacks": "PASS",
+      "noDuplicateDeployment": "PASS",
+      "finalRefreshRestoresStatus": "PASS",
+      "responsiveDashboard": "PASS",
+      "guardedPeerAdditionAndSynchronization": "PASS",
+      "chaincodeSequenceUpgrade": "PASS",
+      "approvedPeerRestartAndPersistence": "PASS",
+      "newTransactionOnExpandedNetwork": "PASS",
+      "unsupportedMembershipChangesRejected": "PASS",
+      "diagnosticDownload": "PASS",
+      "crossTenantAndProjectDenials": "PASS",
+      "missingPermissionVisible": "PASS",
+      "memoryOnlyTokens": "PASS",
+      "productionBuildRejectsLocalTokens": "PASS",
+      "fixedDeveloperBypassRejected": "PASS"
+    }
+  },
+  "currentAPIQualification": {
+    "schema": "sathonate.sprint4-qualification/v1",
+    "status": "SPRINT4_LOCAL_SECURITY_PASS_EXTERNAL_GATES_BLOCKED",
+    "apiToFabric": "PASS",
+    "uiToFabric": "NOT_RERUN_SPRINT4",
+    "cluster": "smp-sprint1-41f9ded7",
+    "awsEnabled": false,
+    "productionEnabled": false,
+    "checks": {
+      "publicResourcesNoCredentials": "PASS",
+      "helmHistoryNoCredentials": "PASS",
+      "runtimeLogsNoCredentials": "PASS",
+      "sourceAndEvidenceNoActualCredentials": "PASS",
+      "controllerIssuerForeignAndClusterDenials": "PASS",
+      "foreignResourcePreserved": "PASS",
+      "bothLivePeerCertificatesVerified": "PASS",
+      "privilegedAdmissionDenied": "PASS",
+      "containerLimitAdmissionDenied": "PASS",
+      "effectiveCrossNamespaceIngressDenied": "PASS",
+      "effectiveCrossNamespaceEgressDenied": "PASS",
+      "ownFabricConnectivity": "PASS",
+      "fabricServiceAccountTokenMountsAbsent": "PASS",
+      "defaultServiceAccountTokenDisabled": "PASS"
+    },
+    "startedAt": 1793790473.240478,
+    "networkPolicyFixture": {
+      "provider": "Calico",
+      "version": "v3.31.4",
+      "manifestURL": "https://raw.githubusercontent.com/projectcalico/calico/v3.31.4/manifests/calico.yaml",
+      "manifestSHA256": "6e89ee080d6dae58c620c47e3fcb7a9bfc40748422c868c924b7482dd5145ce2",
+      "images": {
+        "quay.io/calico/cni:v3.31.4": "quay.io/calico/cni@sha256:a43a7dd4ed67adad4535fc948b483dac0a3c905bae64b007fae05e4d0867a02b",
+        "quay.io/calico/kube-controllers:v3.31.4": "quay.io/calico/kube-controllers@sha256:8a41b637f143971a95ce78234ece53e43201361bd38bad7fc65508f5798306d0",
+        "quay.io/calico/node:v3.31.4": "quay.io/calico/node@sha256:972f29ffd956ca83688b41ef5c696b633c6c63529bc63e2b058413fd4fff0cd0"
+      },
+      "enforcement": "PASS"
+    },
+    "apiTestExitCode": 0,
+    "apiEvidenceSHA256": "916d9426354d820a405cc056faa151f99b0676346bd41a5b2a9ba071ffa78a91",
+    "images": {
+      "sathonate/controller-candidate:atomic": "sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c",
+      "hyperledger/fabric-ca:1.5.15": "hyperledger/fabric-ca@sha256:61ed7bd64819ef935833c747cce9e5dbd1c05dc516f930e70f4ca8355cdc3975",
+      "hyperledger/fabric-peer:2.5.15": "hyperledger/fabric-peer@sha256:b046b46c05cfe8ecd68def9e001990d59d96a25dfac58b4f4892cedf54e2ba20",
+      "hyperledger/fabric-orderer:2.5.15": "hyperledger/fabric-orderer@sha256:26bd18aabe441b05d7b03e1356200bbb7261cc5bdecb676ddc7e4578c77e6e04",
+      "sathonate/smp-smoke:local": "sathonate/smp-smoke@sha256:85bc9e7966dc9d439c69c623cf8a721156fa10ef6acd7c4a10c1902dfc4cb7fc",
+      "sathonate/fabric-worker:sprint4-lifecycle": "sathonate/fabric-worker@sha256:819811fbf05e605ed7787122b620ff9b5ae5d7b31bff436c73e0c3da9de93715"
+    },
+    "sourceEvidenceFilesInspected": 318,
+    "inspection": {
+      "helmReleases": 13,
+      "logStreams": 16,
+      "knownPrivateValues": 94
+    },
+    "retainedNetwork": {
+      "readOnly": true,
+      "readyDeployments": 8,
+      "total": 8,
+      "ready": true
+    },
+    "disposableClusterRemoved": true,
+    "finishedAt": 1793791368.2189806
+  },
+  "apiEvidence": {
+    "apiToFabric": "PASS",
+    "authenticatedTenantProject": true,
+    "authenticationMode": "local-token",
+    "awsEnabled": false,
+    "checkedAt": "2026-11-04T11:22:26.971949Z",
+    "committedAndReadOnBothPeers": true,
+    "crossProjectDenied": true,
+    "crossTenantDenied": true,
+    "duplicateOperationReused": true,
+    "failedWorkerRetriedThroughAPI": true,
+    "initialOperationId": "op_9ee8d0506e5ac4ce691228894d5dd212",
+    "initialTransactionId": "ff989cabfa716d0741c45f6d70e70c2957ca08678d14fc9ea74dd2cbcb9b8e80",
+    "lifecycleChanges": [
+      {
+        "action": "add-peer",
+        "apiRestartAdopted": true,
+        "approvedPreview": {
+          "parentOperationId": "op_15e63eccc739363c5c0c4dfa19ddbbf4",
+          "action": "add-peer",
+          "digest": "4069267a1e412d96febeebae8b5910cd26cc3abd4bca0bdeb10ad1022742d05f",
+          "before": {
+            "peerAdded": false,
+            "sequence": 1
+          },
+          "after": {
+            "peerAdded": true,
+            "sequence": 1
+          },
+          "impact": [
+            "Enroll independent org1-peer-2 signing/TLS identities using Org1 CA",
+            "Create one peer and persistent claim in the owned namespace",
+            "Join smpchannel, install the approved package and verify synchronized ledgers on three peers",
+            "Existing Raft membership, organization membership and endorsement policy stay unchanged"
+          ],
+          "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+          "liveHealthChecked": true
+        },
+        "health": {
+          "checkedAt": "2026-11-04T11:20:46.146691768Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 7,
+              "currentBlockHash": "ODHh2OQ6R7M+22MjvrrgerEYM6+FlTQgYJzfV0ArybE="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 7,
+              "currentBlockHash": "ODHh2OQ6R7M+22MjvrrgerEYM6+FlTQgYJzfV0ArybE="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 7,
+              "currentBlockHash": "ODHh2OQ6R7M+22MjvrrgerEYM6+FlTQgYJzfV0ArybE="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 7
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 7
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 7
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "1.0",
+            "sequence": 1
+          },
+          "alerts": []
+        },
+        "operationId": "op_d971c30039fb389c75b82073d1cdf786",
+        "transactionId": "287128584e9086f9233a069dfd24499d1e10b947c15452e734cdc04be4b7138d"
+      },
+      {
+        "action": "upgrade-chaincode",
+        "apiRestartAdopted": true,
+        "approvedPreview": {
+          "parentOperationId": "op_d971c30039fb389c75b82073d1cdf786",
+          "action": "upgrade-chaincode",
+          "digest": "f3439aef50784c8e70c7e6cfc7d0b1a8bb3651ebaab8a058fbc4fc0b58ce83cd",
+          "before": {
+            "peerAdded": true,
+            "sequence": 1
+          },
+          "after": {
+            "peerAdded": true,
+            "sequence": 2
+          },
+          "impact": [
+            "Approve smp_smoke version 2.0 sequence 2 with both organization administrators",
+            "Check commit readiness and commit with Org1 AND Org2 endorsements",
+            "Retain the qualified package/image and existing ledger; this upgrades the definition, not arbitrary code",
+            "Verify a new committed transaction on every managed peer"
+          ],
+          "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+          "liveHealthChecked": true
+        },
+        "health": {
+          "checkedAt": "2026-11-04T11:21:08.385245386Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 11,
+              "currentBlockHash": "zvqE3D6Vy9NQzsJyt1ZFzRklGLBmFsu6kgjgbN0B3F8="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 11,
+              "currentBlockHash": "zvqE3D6Vy9NQzsJyt1ZFzRklGLBmFsu6kgjgbN0B3F8="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 11,
+              "currentBlockHash": "zvqE3D6Vy9NQzsJyt1ZFzRklGLBmFsu6kgjgbN0B3F8="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 11
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 11
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 11
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "2.0",
+            "sequence": 2
+          },
+          "alerts": []
+        },
+        "operationId": "op_cf8f30b78d60864fe8fcb3b0daab4ca9",
+        "transactionId": "981da332b9f256c2f3ea0868620def89fd987ad35e68f6ffcfdedd952d5c58ae"
+      },
+      {
+        "action": "restart-peer",
+        "apiRestartAdopted": true,
+        "approvedPreview": {
+          "parentOperationId": "op_cf8f30b78d60864fe8fcb3b0daab4ca9",
+          "action": "restart-peer",
+          "digest": "41c807ea917566436ed4e645634a4cca4fd5d78cf6a2fd6e768021919d391662",
+          "before": {
+            "peerAdded": true,
+            "sequence": 2
+          },
+          "after": {
+            "peerAdded": true,
+            "sequence": 2
+          },
+          "impact": [
+            "Restart org1-peer-1 through an owned UID-checked pod-template update",
+            "Keep identities and persistent claims; wait for rollout, then commit and query a new transaction on every managed peer"
+          ],
+          "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+          "liveHealthChecked": true
+        },
+        "health": {
+          "checkedAt": "2026-11-04T11:21:59.431312218Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 12,
+              "currentBlockHash": "bo+eaF041almqcXYoti/6ph/vWXhCA3OhEY4rZXDCt0="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 12,
+              "currentBlockHash": "bo+eaF041almqcXYoti/6ph/vWXhCA3OhEY4rZXDCt0="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 12,
+              "currentBlockHash": "bo+eaF041almqcXYoti/6ph/vWXhCA3OhEY4rZXDCt0="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 12
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 12
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 12
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "2.0",
+            "sequence": 2
+          },
+          "alerts": []
+        },
+        "operationId": "op_2323480f6c329a719b03d6974e7c76ad",
+        "transactionId": "c170378fde134bc82c6f548bccce4698f0c7c1f58592e984393534a3a88dde9f"
+      },
+      {
+        "action": "verify-network",
+        "apiRestartAdopted": true,
+        "approvedPreview": {
+          "parentOperationId": "op_2323480f6c329a719b03d6974e7c76ad",
+          "action": "verify-network",
+          "digest": "b8bae8cf2d26b2ba90e9ca336312c389addb17429387b8d3895d1cf0f9781092",
+          "before": {
+            "peerAdded": true,
+            "sequence": 2
+          },
+          "after": {
+            "peerAdded": true,
+            "sequence": 2
+          },
+          "impact": [
+            "Reconcile the current approved member set without changing membership",
+            "Submit a NEW qualification Put and verify Get and equal ledger state on every managed peer"
+          ],
+          "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+          "liveHealthChecked": true
+        },
+        "health": {
+          "checkedAt": "2026-11-04T11:22:15.056061287Z",
+          "ready": true,
+          "channel": "smpchannel",
+          "peers": [
+            {
+              "peer": "org1-peer-1",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 13,
+              "currentBlockHash": "S16mzZpuSP4SLQ1L1gw2KjQUCw77k4jOGMwk6EFA690="
+            },
+            {
+              "peer": "org2-peer-1",
+              "mspId": "Org2MSP",
+              "available": true,
+              "height": 13,
+              "currentBlockHash": "S16mzZpuSP4SLQ1L1gw2KjQUCw77k4jOGMwk6EFA690="
+            },
+            {
+              "peer": "org1-peer-2",
+              "mspId": "Org1MSP",
+              "available": true,
+              "height": 13,
+              "currentBlockHash": "S16mzZpuSP4SLQ1L1gw2KjQUCw77k4jOGMwk6EFA690="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "orderer-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 13
+            },
+            {
+              "name": "orderer-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 13
+            },
+            {
+              "name": "orderer-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 13
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "org1-ca",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "org2-ca",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "smp_smoke",
+            "available": true,
+            "version": "2.0",
+            "sequence": 2
+          },
+          "alerts": []
+        },
+        "operationId": "op_62cc5d662fe46cda77d05914e1ba4d32",
+        "transactionId": "316da2c9b794d742b1bd2fb159e1b6a1647ba0d8715225903970d50e9a593fcd"
+      }
+    ],
+    "mode": "secure-local",
+    "namespace": "smp-s-56be528d7109334253526176413cf568",
+    "operationId": "op_62cc5d662fe46cda77d05914e1ba4d32",
+    "persistentClaimsUnchangedAfterPeerRestart": true,
+    "postRestartLedgerHealth": {
+      "checkedAt": "2026-11-04T11:20:18.10772933Z",
+      "ready": true,
+      "channel": "smpchannel",
+      "peers": [
+        {
+          "peer": "org1-peer-1",
+          "mspId": "Org1MSP",
+          "available": true,
+          "height": 6,
+          "currentBlockHash": "riNuclaTIpOeDXVUdqcsAoC+wM08/UPiqOdE6hMyg7U="
+        },
+        {
+          "peer": "org2-peer-1",
+          "mspId": "Org2MSP",
+          "available": true,
+          "height": 6,
+          "currentBlockHash": "riNuclaTIpOeDXVUdqcsAoC+wM08/UPiqOdE6hMyg7U="
+        }
+      ],
+      "orderers": [
+        {
+          "name": "orderer-1",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        },
+        {
+          "name": "orderer-2",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        },
+        {
+          "name": "orderer-3",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        }
+      ],
+      "certificateAuthorities": [
+        {
+          "name": "org1-ca",
+          "available": true,
+          "tls": true
+        },
+        {
+          "name": "org2-ca",
+          "available": true,
+          "tls": true
+        }
+      ],
+      "chaincode": {
+        "name": "smp_smoke",
+        "available": true,
+        "version": "1.0",
+        "sequence": 1
+      },
+      "alerts": []
+    },
+    "processArguments": {
+      "samples": 171,
+      "caCommands": 2,
+      "protectedCLICommands": 5,
+      "credentialsAbsent": true
+    },
+    "productionEnabled": false,
+    "schema": "sathonate.sprint1-api/v1",
+    "transactionId": "316da2c9b794d742b1bd2fb159e1b6a1647ba0d8715225903970d50e9a593fcd",
+    "viewerEscalationDenied": true,
+    "workerJobAdoptedAfterApplicationRestart": true
+  },
+  "regressions": {
+    "go": {
+      "pass": 283,
+      "skip": 17
+    },
+    "goVetExitCode": 0,
+    "postgres": {
+      "pass": 41,
+      "skip": 1
+    },
+    "postgresTLSAndRestrictedRole": "PASS",
+    "consoleUnitTestsPassed": 22,
+    "consoleBuild": "PASS",
+    "consoleFormat": "PASS",
+    "pythonSafetyTestsPassed": 29
+  },
+  "retainedNetwork": {
+    "readOnly": true,
+    "readyDeployments": 8,
+    "boundClaims": 7
+  },
+  "cleanup": {
+    "remainingKindClusters": [
+      "smp-qualification"
+    ],
+    "disposableAPIClusterRemoved": true,
+    "disposableBrowserClusterRemoved": true
+  },
+  "sourceFilesSHA256": {
+    "backend": {
+      "cmd/fabric-acceptance/main.go": "2576d9e4768818f7de436d7cab14a9366776b564e7f60ff875eead33fed4121e",
+      "cmd/fabric-api/main.go": "9cb65264c5912b0a0a419dce07bad9c6bfb21464e34ea2641af5c1d88b11c494",
+      "cmd/fabric-cloud-prepare/main.go": "2ebc728a2a0894497cbbf8f030205ec5ca6a61978585a66ec97917c562c8df8c",
+      "cmd/fabric-eks/main.go": "c1a3cabd0c7e5002bc91d2dff29b4369ce1f4741a65bd810011fffbad59071a3",
+      "cmd/fabric-local-token/main.go": "a5d6bad295b500a57134910c74b3c29ec95475897ab06370fabedbef4ac0aac8",
+      "cmd/fabric-maintenance/main.go": "ab762dfb7a295de7e33ea9533f48e3215005159cdc06f63002ba32a3fe50612d",
+      "cmd/fabric-membership/main.go": "9c68db14db500fcae8df9db22532314c4c1238923a5977d6e3339d7373b66801",
+      "cmd/fabric-qualification-export/main.go": "36c10f0c94fba0c720486d87a2696d5dd787ca61c9ebe6ae0ed7baca5225b88d",
+      "cmd/fabric-worker/main.go": "e099d17956146aaf9ac7d3714a82a83094b08f43f04b1c572082f9bcf083a79c",
+      "cmd/fabricctl/main.go": "a7383b977b2b9bc8bf6c91fea54924806e424372c1eac1e8c67bbc76e168e0dc",
+      "cmd/fabricctl/main_test.go": "fa88b070a3e2166a538f0ccbd4bbef6b35d7cbbd2b4665ee4843c56542b00caa",
+      "cmd/local-chaincode/main.go": "8fd301c4bdb33403b85a03a67cf5f0d9862419a905a71e1f431c36d763b9f09c",
+      "internal/acceptance/harness.go": "df72fa26deb95de22f61f8b04ed24cdfcbefc4378d5a383024eac19199066e14",
+      "internal/acceptance/harness_test.go": "9fb64ffad84314efff2e0ae187228182c151a8ff9ffb03edcc835d544d2b3232",
+      "internal/certificateprototype/prototype.go": "cdc3beb49e1ad2f192eb2fedf6f74124499941172802e622d6ad50bd091dae01",
+      "internal/certificateprototype/prototype_test.go": "f4704d036088d99f85f92b5cccad85ad1b72dc5491fb15bc2cd899542807d7de",
+      "internal/cloud/cloud_test.go": "f4ca0e8f5a96306b24506f0485ecdfe81f0acd01250f9926ef1cb920474817b4",
+      "internal/cloud/compiler.go": "cdd1349b627c4e22f20cc2fbab7642655afccc46c1bd89627c2df14fa5081154",
+      "internal/cloud/config.go": "32e0c3182e8c0195eb4afcb06560e2147419d6380c8dc6db06ad508e3f3d57f0",
+      "internal/cloud/operator.go": "66ba2c8092e602cb13a003965cdbdc71f7b5dea6846d1de99bd19695d1b1b664",
+      "internal/cloud/operator_test.go": "5b6dbfe2fc336a9a53592acc75c5029f3c224e80aee417e5454fbb45bafc4c7f",
+      "internal/cloud/package.go": "34e04a802a71d9512ab3c53531964256f0e7f33bb686a5e15c5afc4b087cbc1d",
+      "internal/cloud/package_test.go": "2d0720be48f90a9f6169d9eff626dfdbbaf62697e42438d926d06dd421be1c4f",
+      "internal/cloud/postgres_readiness.go": "84190c8d09df5d444d22c7845adea8d0a95cb53d68cd05f36c23253b6086f599",
+      "internal/cloud/postgres_readiness_test.go": "5481d5ebb95bce91af7bc4256a40b45700aa3ce8f1a2357a6a4bc221185649a5",
+      "internal/cloud/preflight.go": "9bb5917b1dda54a76094582aaac78f92a48913cf5a4d9e0b30c3ca9a7632519a",
+      "internal/cloud/readiness.go": "82a40ba5a9b5f4191c6c61cb208d94dbd9b95b8fae94176cd89015edbc2f8094",
+      "internal/cloud/readiness_test.go": "b9c1d81da8b6edae8b2776afcfbb72859e0ff1ddcf20127a5f0416e2fcc5ea2c",
+      "internal/deployment/cleanup.go": "3f7cfab566222ffba8f9e5ad6f390abaecfd4099fcd22cf08e6a92df4ecf08f8",
+      "internal/deployment/cleanup_test.go": "0f14f55d7aa28596589f25b0042ed0bde8da21340c0adac657a9a5f1e5929c81",
+      "internal/deployment/eks.go": "77342dcbb1ec607eb568f56a628cf72dbca4574e1c9a97ea7bf3ff28cb882fbb",
+      "internal/deployment/eks_local_test.go": "5f22c892e525467d4fe9c3d98647eb1480bb233021f3d8c92be14231023c0c38",
+      "internal/deployment/eks_test.go": "9a18e7b3df6614cc18e9d27045271aeff97b66bc2f45eea9930b4ed91a65b75f",
+      "internal/deployment/evidence.go": "b6eeb9520b26eb1637b6d58292d0a1dd5ee01290d2b3a8136e8a9c9a961b55d2",
+      "internal/deployment/evidence_test.go": "39949dd7dd42ffb45da5416e46d105adb9c85d6753ef6c71b25c9ebbd3dc9473",
+      "internal/deployment/history.go": "98379d15fb65b3def1846fe843fcfbf8b58732263f1dd63a7e1040f279644370",
+      "internal/deployment/history_test.go": "ce9cb1f3ad85eff4dbed9805a00fd8c9b09ab49dd78e0b7ff52dcb113f95c16a",
+      "internal/deployment/isolation.go": "6e5d517fad91c8578be8a2bb8692befb127656c27c81e2132864bfd7a4aeb7fb",
+      "internal/deployment/isolation_test.go": "40dfbebd26985176197565a8a576af98ca2a9294cf1ecd54c72dc142aaa0860e",
+      "internal/deployment/kubernetes.go": "77c342f03839a9abe4123a4e50b210851de319be0495082d49893c1e8c6f65ea",
+      "internal/deployment/lifecycle.go": "d3ec6345bb141e4ab8b930506765a03f7de3431ec2412fbb543828a2b76b2cb9",
+      "internal/deployment/lifecycle_restart.go": "f76b193803d7fb50b369f42d7b0dab1d1aad57ead4728377bf14f0be36e7aad4",
+      "internal/deployment/lifecycle_test.go": "0a154b3f7168b9b97361514720b32289b158e6386a56f3a097a0c365505e97c1",
+      "internal/deployment/manager.go": "3b2bd8f4f2a06f400ba825f7355e5257ab2dbd25da0646c928bd0ab826a9cc19",
+      "internal/deployment/manager_test.go": "280b9cde415c23d8936d2523d3ee513ec9564795f63927da4a980fa84155d9fa",
+      "internal/deployment/qualification_export.go": "a1ecbd29f7fccf8774825fa19ecdc2b0df7428c316304d31e1fa1960c863bcff",
+      "internal/deployment/qualification_export_test.go": "08743ba8c4d2bf3c44212cf1a913bc6f0e7d691547726e3174ee30389e360e5a",
+      "internal/deployment/recovery.go": "2a5f97be4870f30913a7eea1fdeb1bc66165e8083e1d2498f5f81e1a61f26d1d",
+      "internal/deployment/runner.go": "530830310613480ec6dcf818541bbf973bde2a24cb9270b12df72f5552afb033",
+      "internal/deployment/secure_eks.go": "3ef1bf38cba9f077dfc15307b0906b05a0e708d4666d3dd5a554e3fd3921a8d9",
+      "internal/deployment/secure_eks_cleanup.go": "f717fdedcbe301a6f74654b82ec3ef3d4e0ec061cac1a375a9da43a96cc8ff64",
+      "internal/deployment/secure_eks_test.go": "6e03cc169a838e65688ebe671fead46fa9af90d76e1c35faf828ec3646785c81",
+      "internal/deployment/secure_profile.go": "bdd93f1a09e42f3c740a2486215d414e3e73e465ffe35132bd6ccd2e1b7fa94f",
+      "internal/deployment/secure_profile_test.go": "9f09fbbea500eea9a0462db8275a9150f6fc49053a6c5d84c561873605f5771e",
+      "internal/deployment/secure_runner.go": "f01ad48cad39d9f28b9349413c132d36af9d01e6f32ad3bbfddf1a8e4d0f45dc",
+      "internal/domain/cloud.go": "7947e6b30b77d00c88dc645eecd8d1c3a45c1631d3bac1990b68deb4c0558fb5",
+      "internal/domain/ordering_test.go": "d2c3859ecd9dd75d715906f2d7650be95e939d68fd501310eebdd1c49a6026d8",
+      "internal/domain/secure_profile.go": "9837acae6dd96251bd333babb70a587080d41939707e20997848fa9f304d88f8",
+      "internal/domain/secure_profile_test.go": "0cf5efed4e505e78b5f2f7b39a35958e9811208182ac5b0de201a31044dc44cc",
+      "internal/domain/spec.go": "cabdeff6d4a719203737818075d81d61192f4ea3913be82f93fd92abcba0c28a",
+      "internal/domain/validate.go": "2f36d96cf721eaa77f86c8492398b76b09f7893d0ad7a411693479cdf71231ce",
+      "internal/domain/validate_test.go": "3712c9414229be44493961248040b7247d7a80aaf3c6c07f5a31a2cd6e161f7f",
+      "internal/drafts/store.go": "02da0baecefa10a82965335aff8c7649cbe4e609dcd70b61cc836fadb35e0e5e",
+      "internal/drafts/store_test.go": "1ecdba77f2663469fcb5113935baf73e9a8537927bb757d3d32f79cab99991ec",
+      "internal/drafts/transform.go": "02608ca7ecd1e709c8c9650b820e5ae285b08b629f6928c5fcc836065c376dba",
+      "internal/engine/engine.go": "2161cffb077198b1b5312cfdae838d0e20b5a02cebbdacb6ba51d52f594c433a",
+      "internal/httpapi/api.go": "b0c266ce927889d5b3d05fcb4904bd62f5d3aa90d6fca2d5f6221c7afc645927",
+      "internal/httpapi/api_test.go": "9f72c0dde0e96e58ea2bb2f292c26c40520ec1e85bfc3877cde29751432bc999",
+      "internal/httpapi/cleanup_security_test.go": "6efaf1028a4fcc9a82e08f93ab37b17c94bd655faccee5a7f1fbd55e445cf1e5",
+      "internal/httpapi/cloud.go": "918db5041260721a7214973747bb92e3cc4c01631c06a369247c52a2065422db",
+      "internal/httpapi/cloud_test.go": "b13830d79ea0304a31fce4a193c68b53e0b84585abf563d8c797df1380b002fb",
+      "internal/httpapi/credentials_test.go": "d9e4d218edf0063b7b1f8965de0b7a5b1a686e6ce9ce91dbfd2d6f644927edfd",
+      "internal/httpapi/deployment.go": "54cb54f9a378f71d8253f64ade9e54afb65f7dcd4b267be7bb1a03ea7d43f46e",
+      "internal/httpapi/deployment_cancel_test.go": "84c442e402fbbcae501cecb6afee5eee5ed57d5b4dcf0c9bf1aec745a13c8238",
+      "internal/httpapi/deployment_test.go": "b1a7fb5bf25c552f4abb5dc749a7c74bd35b3c8beaf077f11ae7bffbd96c23ca",
+      "internal/httpapi/diagnostics.go": "0dcb0a72ad4d30faab917119e55faead0d084722f14a9029af6305b4b3ca5d99",
+      "internal/httpapi/diagnostics_test.go": "e8822d08048b8d3987038c535a06023fddcaf15c617d8c965ac382215b8a73ae",
+      "internal/httpapi/lifecycle.go": "50f5bd247b28318ef86b8fc1856b2f7a143a42fff47fa0642ebdf574149aa3cf",
+      "internal/httpapi/local.go": "a5199408142c22a7407d13df0c41529c2ba2d00ba801e6b880512579c0751331",
+      "internal/httpapi/local_test.go": "4a4eca49d2a038fa0cb9256b9bcb342d1083198ca199bc77964b30d761df4592",
+      "internal/httpapi/maintenance.go": "cea6e3b4ab4e25ba88c6ccdf503062b2075fab7325b2048f75f2b8a332f6b622",
+      "internal/httpapi/maintenance_test.go": "4098d7277f67d6aebde979079b6d8ed380dc92e17d533eac926fec286bc4945c",
+      "internal/httpapi/oidc_fixture_test.go": "040447885c4a2ae46e0a81eedeb4310885e27a3f30cb305e147b54edb2ed8aa6",
+      "internal/httpapi/oidc_postgres_test.go": "0a1b9d03678dd309e42bc9d89e2c2e6de99418d2517e689181b595df95aec268",
+      "internal/httpapi/readiness.go": "0ba891dead1796a657e1eaa0cf940d6679d234f811a2c52d26e32e407935cea0",
+      "internal/httpapi/readiness_test.go": "704354f82e03b2514b99c9ff95d3d789a518db7ad4773bab668009653d3edb11",
+      "internal/httpapi/repository.go": "2e9b167f31844586cc9e66bee2d9ea32ce1c63584bcfb9154fc7e932a59f1d27",
+      "internal/httpapi/secure_api_e2e_test.go": "097c88f96d0227b5f1f5076b6c89260dfc404a3398537db7a612707b4089c3a2",
+      "internal/httpapi/secure_profile_test.go": "0259f7ed7b3dca5cfb53dd55c3e67f1ea3be212189d1ac71171bd1430bd4572e",
+      "internal/identity/local_tokens.go": "721116a867c43430ada6a9b9d43efcf407406773afe46ebf7d82f81977624d70",
+      "internal/identity/local_tokens_test.go": "d67a30db47645e22d39a572096e12b81c92fa24f76ba4ee007ab8ebc0b046712",
+      "internal/identity/membership.go": "847af0b3ea14dfc3993108c050b6b22f71a80dd4152028eef61868bba3a981b2",
+      "internal/identity/membership_test.go": "d9e313be3d40277a351dcbda4138477f6548f267a6bbd1d406fbe9472203c235",
+      "internal/identity/okta.go": "b2722e6985bea6e1e8c111df61414d2cdc83178c1d6b7f8729c1eee57713f1d3",
+      "internal/identity/okta_test.go": "d47b41d91f0db48ff27c5ca379d1f38a68e25566174b99334b0847adefc9cc1d",
+      "internal/kubernetesfabric/arguments.go": "864c51d42e55d11f8cb992b7aff0ad981d2181626625169732408af490e9442f",
+      "internal/kubernetesfabric/authorized_material.go": "25de39943c41bb27c6c25d17515dd390e164ebd36683edd16f255c3ee5f40f28",
+      "internal/kubernetesfabric/authorized_material_test.go": "5976242c5266574087856b641f9b4bd69577aefdcf8df02b23b8990a67e9b145",
+      "internal/kubernetesfabric/ca_diagnostics.go": "20849042b52e9f6151af1becca8e3e906a078ec9873bd2ae45b4ef476b34ffa2",
+      "internal/kubernetesfabric/ca_diagnostics_test.go": "957d8b7ef7cc9157360e1f21004905f66114576ea7f68c6e94eaab44a0891e83",
+      "internal/kubernetesfabric/credentials.go": "2559e11a9649ea36e8abe85f86ad3c56df5989a35b1eb09cc667ae5e9514c322",
+      "internal/kubernetesfabric/credentials_test.go": "23c14c51d8bc990f33c4c96e8e9cc94df2b5be0cf48ca2a26e5bdeb4e64eb5d0",
+      "internal/kubernetesfabric/endorsement.go": "ec47d639a62e490ddc2818f463cd504f0ec3308ce589d979554180e78f6e82ee",
+      "internal/kubernetesfabric/endorsement_test.go": "019946b072b81b85217e1b0fe1576ac3be857bfc49d264de0257feee7fabd8ac",
+      "internal/kubernetesfabric/genesis.go": "820359d44cce1ed3e7ac5ae92422eef31eb2d873f47061f470431b53498ea9f3",
+      "internal/kubernetesfabric/genesis_test.go": "afecbd721a25deb6f90fbb5b2938e5bc2d89af87bd83e2b8d33929a536881ee8",
+      "internal/kubernetesfabric/gossip.go": "9901f3c6316f4d5f82c06150d853aac91f2261360681f3a2ad889b05146b6fb4",
+      "internal/kubernetesfabric/gossip_test.go": "10ca80dfc7c0ea047fbc68e51bd5940976f8bda2ae6e43db270b594d651d513f",
+      "internal/kubernetesfabric/lifecycle.go": "a26e5c37e7920f6c9ffe114968339795d0bf2eb2ce6f8ff418a1a56161db4e22",
+      "internal/kubernetesfabric/lifecycle_test.go": "7584857b8b2a5f34fcee76eba5a30eba89a1409d067edc60eac306ba1022102d",
+      "internal/kubernetesfabric/peer_diagnostics.go": "4de7924c31116dfa5056ffa788e16412f2a575408e7b6e7f31396c1a1c774afa",
+      "internal/kubernetesfabric/peer_diagnostics_test.go": "3e07e778b2ce87cdbae632d8056daa42bb03a0b1fc097d5d15131cb8d6e40904",
+      "internal/kubernetesfabric/profile.go": "c4149844e24a7c337bbae8bd3b406b82d4e27c730f2de8db6c9c6bd90cb2138a",
+      "internal/kubernetesfabric/readback.go": "6efb44ef5c6497f24bcb4a6e6490bf226577005f93d4f9ad54904c35bec5ad19",
+      "internal/kubernetesfabric/readback_test.go": "1565c1f3d930f135316cbc4944d2372290673d18c8a3bd3cbcccea6096eb0255",
+      "internal/kubernetesfabric/registrar_test.go": "fd3c56b61b3fc2fd8c4206baf6caa0dc150585492947aef84a1a23d3b8b30bc3",
+      "internal/kubernetesfabric/runtime.go": "5bcc8b8258441b7ccc5f435102924ad789aa80dc15e5ef76e812244508758b11",
+      "internal/kubernetesfabric/runtime_test.go": "9cb3df15a00f277bfc57868d14167bf89125dc64f2b680d1c5f9537ca42d52e8",
+      "internal/kubernetesfabric/secure_issuer.go": "ba207c8fc93775df2ea9247f4b6710be4c9a95f1b9c948e460ba2099993d1bf9",
+      "internal/kubernetesfabric/secure_issuer_test.go": "8ec60631193f639717475f6efb5c36f18d41441728d42c84234b3a67e0503c1c",
+      "internal/kubernetesfabric/worker.go": "4bb94b3b8b76fb93617ffe9f1289de4fa87f2085588491398c0836f241ee5971",
+      "internal/kubernetesfabric/worker_test.go": "1dc5ad85804c2f2bd1b5f02c56b9b82a096b3df1d23dcbb720cf5aad9c3fda81",
+      "internal/localfabric/config.go": "0bd6db81d1bae42fef7aeeff4011a5b6459c7d9cd9bc73e08555699c0556654a",
+      "internal/localfabric/config_test.go": "e7c56177e58938defedcff7f6f3a7c27d27ed1956462f89f24661b2f9a6739a0",
+      "internal/localfabric/contract.go": "d0e5ddb42349d351c1ef3bf69962ded9febf7d3068ad36a9dcd90f95084aa39b",
+      "internal/localfabric/credentials.go": "f8e719f99f01f50afb786d7057aae80d0ebddead71a1177339cea6f7dd5f7a50",
+      "internal/localfabric/credentials_docker_test.go": "494c00f026e85b856f5d381d22a27cf8f107b0e60866a3cb4d2e6dd4623dde56",
+      "internal/localfabric/credentials_test.go": "c8d425839100618b0a0ccc46590f333324327e82240bf56ed9658f149f403e8b",
+      "internal/localfabric/health.go": "54594ce11923524a0d6ecde81f06c9cd919f89643edcd4affcce556137e27491",
+      "internal/localfabric/manager.go": "d5b2191881dbdf5a6f9f8e5c15aa3f2bfadf1028392f33978f414bd0bb56b6ce",
+      "internal/localfabric/private_test.go": "ffefcf235d7b28412b06eeff6c4acf59a89492674353db3c7e717a2727d17a9b",
+      "internal/localfabric/private_unix.go": "841906625aee3a1142a73f7ef5a780d3557a313b46fd63d94624aad10ef05342",
+      "internal/localfabric/private_windows.go": "502da0cf90528fb4c1c1c5517d06f718c3b1e8115d6abc92eb487ac5b7778e75",
+      "internal/maintenance/backup.go": "367465da15a49295a7e2831ef491e1d81e944a40b921151d162a9a4ca6ee2878",
+      "internal/maintenance/backup_test.go": "a1b30e341f7a83c1e05fd22d47fe586105661df6db2bd693b6e520b54bf22de4",
+      "internal/maintenance/postgres.go": "e022ea6aeb1c566dc4117d794e1e0dfe4cdbf7d53a7cc9eae69554e26050e173",
+      "internal/maintenance/postgres_test.go": "5eb62523d022b63f3ee88beae763d4da451a5f6972234387375fc95b360354a6",
+      "internal/maintenance/private_unix.go": "999371ad586e4b66ab104077aa2fa8b3b04e69c7df64ea373bb1617f1dc7cecb",
+      "internal/maintenance/private_windows.go": "36bb2afde94e3784f74f8b1585a34be78d596a319e7232e71f35b077d99c0537",
+      "internal/maintenance/retirement_test.go": "3fad837cf38ba27bc54e55718497b310642ec1ffb7e4c0ef8c06073490e79d2e",
+      "internal/maintenance/rotation.go": "5884d1592e785759ce518ec1fd9d3592316ef9c8b7998abdd1ea69c370e14e0e",
+      "internal/maintenance/rotation_test.go": "08d1971f4b9a7685f746430c7c4239d7323faa356f7dd1271bfc07358191d7fb",
+      "internal/operations/isolation_test.go": "85a11bddb46eb0b50d94608dfd03d0861a7c2d1962123712e3f177b2436d2a07",
+      "internal/operations/postgres.go": "9e29d484e03e30a214ec109acda41d02f49e0912a64cb964cfc5f4e87e520609",
+      "internal/operations/prepared_test.go": "f62d218f3a7ea4c98967be6b5893ba3c88efa7b05ffabf8e9d7fb9374b351cf8",
+      "internal/operations/recovery.go": "f778a64603ee1d49e6a17a5f528a0791c5c44327e02878c3f019e23117e4790e",
+      "internal/operations/store.go": "31929d4358d901b9f5d71818dc1d0970ae6f1f09104546d27a5e46a19fc54ea6",
+      "internal/operations/store_test.go": "3d9c227ee6480ba6c600b836a9dd1da748d9bec734412b4e8eee652c77e84df5",
+      "internal/persistence/oidc_memberships.go": "1d191b59ec3ab86eef26e427f7f20aad2595b4c9ca1969580c3fc1d49bcb70d2",
+      "internal/persistence/oidc_memberships_test.go": "c209013786770c4d98c0870d61ad20c0d1e2c63f419006ecf9c92bc2d56802a4",
+      "internal/persistence/postgres.go": "51a60eb8bc6c5b56e59b4155ef11324f3cf53fc2c47f9733581fdf16ea801bc5",
+      "internal/persistence/postgres_test.go": "eadc6889b4c157fd3744ab1afff02be668ca8753ada34397aadb9ee9629b8727",
+      "internal/persistence/production_docker_test.go": "da4ee97ee9085b9e9dc99ff9da82d34c74070f61c45b17ce167b36006a3c7bed",
+      "internal/persistence/tls_test.go": "5fc5dbd835161c58a0bc4f8593a35a95d3342aa385b6d385868beff80c9a95f9",
+      "internal/planner/plan.go": "74c88faea4a5b7af494e20ad62b6eac983ba1161fc5c6facaa857b4b43d78193",
+      "internal/planner/plan_test.go": "517ccaf85f8150bd96d84af7e6b409a257bb9a5aab885da8043dcd365bdc451c",
+      "internal/readiness/readiness.go": "963a7a9eab8887560d691f98fcbd12dbee5069e7dfe643929982f590b4a84702",
+      "internal/readiness/readiness_test.go": "1f0e336afa369ad51b92c7e5a091dccc0abf41e5866e5c0a7428fd2e4aedf7eb",
+      "internal/redact/text.go": "e5dbf7fa228a7f2143a8878a775c870754018764d82333acd26f4f5468dc6a0e",
+      "internal/redact/text_test.go": "fdc6990a69eab167864684a5e0c2baac079c7d55fe2c528e63fb098500fbb58b",
+      "internal/topology/contract.go": "9ffe8881df0b29b32b5f25b66d13e16b5f19ba72fdb8d3b11cacada112356ea8",
+      "internal/topology/contract_test.go": "8e55f89c1dce8347b2736e8d3cdc98fab4f42dbc166e1a5fffb08d9476034dfb"
+    },
+    "console": {
+      "src/api.transport.test.ts": "011a32945086f74462dc9e2a7ad8e5f50b4e01de6b940db740e8a2b03641de3e",
+      "src/api.ts": "feee371ddba229c4f11341ede665d15463f9f84c9ee0bff7ac68ec8341679164",
+      "src/App.tsx": "ffbf298ded52b921e950d911946c47b952d8c068cf419d84bd942dc64dc760e2",
+      "src/AuthGate.tsx": "28813ee4cd85aed4a3eb9bcd2b625b8ca31593fbc1c753bce81a2f51877db706",
+      "src/CloudReadiness.tsx": "a85b0bba7be533147f47aeee95e2370aa402eab49d1f88ccd8af74769a4c2f18",
+      "src/components.tsx": "c2c33dd86c3f3d96861906b67a99933e7d5d0460fe2d691eb6785af3208086fb",
+      "src/LaunchReadiness.tsx": "13d82f864b7f86c0cf09d366e635f8bb95f189e0575b5262939f3e4557c11955",
+      "src/lifecycle.test.ts": "97a4dc482e861e9925bdef4bd5732e8fb1100ad9db22dbe6d7817a9870df4efe",
+      "src/LifecycleManagement.tsx": "2bef77280c43eca273ff429745888843385a65da9ebc5f8055fd377b84eebd77",
+      "src/LocalRuntime.tsx": "812708b431fae3b7aaba21bffda73719c757b95fbf1f1aed1b19fbf98d35299f",
+      "src/LocalSignIn.tsx": "3f0884300112978ec58b660e5d70ba41c67e703b9e9e7d1cd27c22ca8d17c6e6",
+      "src/main.tsx": "d9bae1fc6aa3af1fe0443b37f909b735e0d382deca90ce65c22df604b5364699",
+      "src/network-form.test.ts": "978130e0eda65f709a41cf166bad9e4c73320e2cddd6eb507c0a965146f2ff31",
+      "src/network-form.ts": "5aaccdacc84aad9deef16c32357a8c18a245e613e7db347747f34696590f198c",
+      "src/NetworkDetail.tsx": "1c4c1d7472eb6313de90dc107cc209d32bbe5d4f822775fb275679c65ea69c30",
+      "src/operation-diagnostics.test.ts": "1dda44ab5fbce4e0941ad4f599b6d1cc07bc146ebe96398cd11a9b8c297ca64a",
+      "src/OperationDiagnostics.tsx": "ac49981137b581c20bfa036e96c30451fb104891d36da39a5be971dbd4af1a78",
+      "src/OperationProgress.tsx": "73f13aac3d05532a9b1fdebfffaef3749948df87bcd5c748f6120a1479bdfd42",
+      "src/OrderingStep.tsx": "99cdaef53ab3829303aa68c435a43182a3279d0c9580be946422317975f5263a",
+      "src/ProjectGate.tsx": "f87d8c8ce44bbac08c7dd184c6db939d776b5e3a1e1ba7fb02320b89845d397a",
+      "src/read-recovery.test.ts": "24f8c976e4c04e11d5910b9afce649b7b3eafff596c2ced4f1e8ae36c0e548e9",
+      "src/read-recovery.ts": "813560697d94b4592701b817364f19c267bb528ffe2ba5e70d2d7bee9d77cbf1",
+      "src/RuntimeDashboard.tsx": "26fcc079d19784d5e095b023bc3cff7e7f813e916f809c45196f015ce1a51408",
+      "src/secure-profile.test.ts": "a5f42869bd35573fa5bd5461775cec3bea13f9b57742e95161e04c8dacfa1bbd",
+      "src/secure-render.test.ts": "35ec8d21886783345e7a0f5581350ab4139cb6b195d9974f1b3090f36e82043a",
+      "src/smp-model.test.ts": "31c2d8b765aac458220cc3a4bda1bb8d4fda2d0540bfcd19ed325711a644da6c",
+      "src/smp-model.ts": "2ce086979784781bcff2f5f784b494b25ea2c24751cdb57f85f717a6a9218372",
+      "src/SmpApp.tsx": "f49c59b22a5ad596703538273eb4f828f5fac93e14371b4fe89996b4898fe4bc",
+      "src/SmpRuntime.tsx": "e09a93930f159ea61b6ddae3766296f3b6b68c4f42e38967153512e54c357e88",
+      "src/SmpScreens.tsx": "59ab0aed10f1e292cd5133c4af4eb63feda9cc07719322554b45c4f601452426",
+      "src/types.ts": "2db4715ffcac3d9c2702aac080444366f555c63c0537cb7ba0d3ba5965c17647",
+      "src/use-dialog.ts": "86beb4178e56569b8623f18845ed0f24f1dbdb52e45240cf4876094d0d6074f6",
+      "src/vite-env.d.ts": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "src/Wizard.tsx": "f931aea269c97b65ba69112cc9c4821bc4fdcf6211f81fc663850746710b595e",
+      "src/workspace.tsx": "490c55b042a12b87a77ed5a692bd42f6dd171b6a18fc317895a59070c3c7082a"
+    }
+  },
+  "localEvidenceSHA256": {
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-api-kind.log": "c28650daaaf4b0d8bd1c635cd1d173f5b2424c5707773172179102544691a138",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-api-kind.json": "916d9426354d820a405cc056faa151f99b0676346bd41a5b2a9ba071ffa78a91",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-qualification.json": "87613b42c27cd155341bafcdd86a2fac8102e57b188b8fb233963eabaf9c4541",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-lifecycle-go-final.jsonl": "9706dfb90740fcf40235dbe7b0a9392ecc0c38382abb22aa305bbaa2f9d0ac15",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-lifecycle-postgres-final.jsonl": "7a5f9f1aa7a37542720abf4ae06fac9c0e10c3f3e563372890f2abf13994b598",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-lifecycle-vet-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-postgres-tls-final.log": "b98171a6e4003b7c127635518593ec0efac85434e213ad3292bb47bc27e5cd08",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-controller-lab-python.log": "7f62733b6eb3368dd3f32e0959ff4777650a05af5999f72a9907c28d1fd95554",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-controller-atomic-python.log": "cbdcd9ff849513eae4a2ca11e8cadca63aca59997498e7e053c4731b7ce7f3bf",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-security-python.log": "f7047c8ab562dcb12f7c9322f801ebca4f6a001aeef970d87655da374f21e058",
+    "E:\\Sathonate\\fabric-console\\.logs\\browser.log": "604dac1b53f03965493bb991f352b742bbbc2710cfa24e259e5b828ae1a530d5",
+    "E:\\Sathonate\\fabric-console\\.logs\\browser-result.json": "c3ec7ca6ba64fa36e21c77148d3716ff142e11129876f2a0b5e16df62571b7b1",
+    "E:\\Sathonate\\fabric-console\\.logs\\ui-qualification.json": "4a0c152d991676043b2ada581a370c81ee1f7a61a51d9f3f00a31de4aa022f84",
+    "E:\\Sathonate\\fabric-console\\.logs\\sprint4-lifecycle-unit.log": "877ef1d744619230b72446646322291db69db0249b86dcb3f663294b61f6ef23",
+    "E:\\Sathonate\\fabric-console\\.logs\\sprint4-lifecycle-build.log": "9109b7998de37cac5eef146942923a9efc31c52a38741d35196431b95acabf04",
+    "E:\\Sathonate\\fabric-console\\.logs\\sprint4-lifecycle-format.log": "bd964c129b61cfd1f669e988ca1f3593d3d5cb6dd07f87ed2fc02407830e4332",
+    "E:\\Sathonate\\fabric-control-plane\\.logs\\sprint4-third-peer-token-mount.json": "cabfb61bf6ab5af9bc1fe4a60156fb06ae661f6d7911769c512af666835d363f"
+  },
+  "sourceLinks": [
+    "internal/kubernetesfabric/gossip.go",
+    "internal/kubernetesfabric/endorsement.go",
+    "internal/kubernetesfabric/genesis.go",
+    "internal/deployment/lifecycle.go",
+    "internal/deployment/lifecycle_restart.go",
+    "internal/httpapi/lifecycle.go",
+    "internal/httpapi/secure_api_e2e_test.go",
+    "E:/Sathonate/fabric-console/src/LifecycleManagement.tsx"
+  ],
+  "remainingWorkInPriorityOrder": [
+    "Generic configuration-driven provisioning executor and actual A/B/C topology transactions (current topology package validates designs only)",
+    "Organization/MSP and Raft membership changes with durable configuration-update recovery",
+    "General channel/configuration/anchor management",
+    "Actual chaincode implementation/package upgrades (current sequence 2 uses the same approved code/image)",
+    "Version-qualified BFT execution; not advertised as supported",
+    "Real Okta browser acceptance and historical exposed-key remediation with owner approvals",
+    "Multi-server Kubernetes, disk-loss/backup restore and deferred EKS/IRSA/CNI/EBS qualification"
+  ],
+  "atomicQualification": "Existing six-scenario peer-TLS evidence preserved; not rerun here; does not qualify other Fabric identity rotation",
+  "thirdPeerTokenInspection": {
+    "peer": "org1-peer-2",
+    "podUID": "e9c28878-020b-4eed-99c9-c2973084e7ba",
+    "automountServiceAccountToken": false,
+    "projectedAPITokenAbsent": true,
+    "readOnlyInspection": true
+  }
+}

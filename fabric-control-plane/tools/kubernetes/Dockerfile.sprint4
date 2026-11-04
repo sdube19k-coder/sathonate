@@ -1,0 +1,6 @@
+ARG WORKER_BASE_IMAGE=sathonate/fabric-worker:sprint2
+FROM ${WORKER_BASE_IMAGE}
+USER root
+COPY bin/fabric-worker-sprint4 /usr/local/bin/fabric-worker
+USER 10001:10001
+ENTRYPOINT ["/usr/local/bin/fabric-worker"]

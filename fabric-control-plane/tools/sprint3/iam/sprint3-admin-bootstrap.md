@@ -1,0 +1,48 @@
+# Sprint 3 administrator bootstrap — account 429488690613
+
+Run: `sathonate-s3-20261027`; region: `ap-south-1`; actual permission set: `Sprint3-permissions`. Use `sprint3-permissions-policy.json` for that permission set. Earlier references below to `SathonateSprint3Deployer` describe the superseded draft name; do not create another permission set. Nothing has been created or changed by preparing these instructions. Static validation is not live deployment acceptance.
+
+## On your current Identity Center screen
+
+1. **Specify policies and permissions boundary → Inline policy → JSON**: paste the complete final JSON. Leave AWS managed/customer managed policies empty. Do not attach AdministratorAccess, IAMFullAccess or PowerUserAccess. Leave the optional boundary unset unless your administrator supplies an existing approved boundary; a boundary limits these grants and does not replace them.
+2. Edit the existing **Sprint3-permissions** permission set; do not create a duplicate. Set session duration **4 hours**, subject to organization policy. Session expiry does not delete AWS resources.
+3. **Multi-account permissions → AWS accounts → 429488690613 → Assign users or groups**: select the approved Sprint 3 operator/group, select only this permission set, review and submit. For an existing assignment, update/reprovision it after editing the inline policy. This requires an organization instance of Identity Center; if multi-account permissions are unavailable, stop rather than creating an organization or changing the Free plan.
+4. The `sathonate-sprint3` profile is already authenticated; no repeated SSO setup is required. Use its actual `AWSReservedSSO_Sprint3-permissions_<suffix>` IAM role ARN, including its path, as `OperatorRoleArn`. Do not use root or the STS session ARN. Identity Center login needs no additional human `sts:AssumeRole` grant.
+
+## Separate IAM roles — administrator only
+
+**IAM → Roles → Create role → Custom trust policy**: paste the appropriate trust JSON, select the policies below, set the exact name, apply the organization's required boundary if any, and tag `SathonateRun=sathonate-s3-20261027`. The deployer cannot create/edit/delete these roles or attach policies.
+
+| Exact role name | Trust file | Attach AWS managed policies |
+| --- | --- | --- |
+| `sathonate-s3-20261027-clusterrole` | `sprint3-cluster-trust.json` | `arn:aws:iam::aws:policy/AmazonEKSClusterPolicy` |
+| `sathonate-s3-20261027-noderole` | `sprint3-node-trust.json` | `arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy`; `arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly` |
+| `sathonate-s3-20261027-cnirole` | `sprint3-cni-trust.template.json` after resolving issuer | `arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy` |
+| `sathonate-s3-20261027-ebsrole` | `sprint3-ebs-trust.template.json` after resolving issuer | `arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy` |
+
+The addon trust files are deliberately templates: their issuer cannot be known before the real cluster exists. Never paste them with `REPLACE_WITH_VERIFIED_CLUSTER_OIDC_ID` unresolved. After the approved cluster-only phase, **EKS → Clusters → sathonate-s3-20261027 → Overview**, copy its exact **OpenID Connect provider URL**. **IAM → Identity providers → Add provider → OpenID Connect**: enter that exact URL, audience `sts.amazonaws.com`, and verify provider TLS trust. Replace the entire issuer host/path in BOTH addon files with that verified issuer (without `https://`), keeping the exact account and exact service-account subject. Then create the two addon roles or update administrator-created non-assumable placeholders. Do not wildcard issuer, subject or audience. Prearrange this staged admin work so a billable cluster does not sit waiting for participation.
+
+Cluster trust is exactly service `eks.amazonaws.com` with `sts:AssumeRole`; node trust is service `ec2.amazonaws.com` with `sts:AssumeRole`. Addon trust is the exact IAM OIDC provider with `sts:AssumeRoleWithWebIdentity`, audience `sts.amazonaws.com`, and subject respectively `system:serviceaccount:kube-system:aws-node` or `system:serviceaccount:kube-system:ebs-csi-controller-sa`.
+
+Ensure these AWS-managed service-linked roles already exist before deployment: `AWSServiceRoleForAmazonEKS`, `AWSServiceRoleForAmazonEKSNodegroup`, `AWSServiceRoleForAutoScaling`. **IAM → Roles → Create role → AWS service** can create supported service-linked roles; if unavailable in the console, the administrator must use the documented `iam create-service-linked-role` operation with service names `eks.amazonaws.com`, `eks-nodegroup.amazonaws.com`, `autoscaling.amazonaws.com`. Do not grant that action to the deployer. Preserve preexisting/shared service-linked roles.
+
+## Private image repository — administrator only
+
+**ECR → Private registry → Repositories → Create repository**, region Mumbai: name `sathonate-s3-20261027`, private, immutable tags, AES-256 encryption (no new KMS key), tag `SathonateRun=sathonate-s3-20261027`. Do not add a public/cross-account policy. The deployer can push/pull verified images and empty/delete only this repository. The approved node role pulls using its ECR policy. No repository creation or policy editing is granted to the deployer.
+
+## Mandatory preparation before any deployment
+
+- Use `tools/sprint3/prepare_admin_owned.py`: it now generates an administrator-owned, two-phase template without IAM resources. The original `prepare.py` is an offline source template, not the deployment artifact. Do not grant IAM creation to make the old template work.
+- Set the EKS template's `UpgradePolicy: {SupportType: STANDARD}` explicitly; the current generator omits it, whereas this policy requires it. Keep version `1.34` only while it remains in standard support; API authentication; creator admin bootstrap and self-managed addons disabled; exact run/stack name; all run tags; operator public IPv4 `/32`; fixed three-AZ nodegroups; encrypted gp3 and IMDSv2. No delegated CloudFormation role is permitted.
+- Stack updates and cancellation/rollback recovery are allowed only on this named stack. New clusters require the exact run tag, region/version/support/authentication conditions. AWS does not support ARN/name scoping for `CreateCluster`; use the exact run name and verify before submitting. Subsequent EKS grants are scoped to that cluster. Addon operations are scoped to this cluster (addon IDs are assigned by AWS); nodegroup operations use `zone-?` within this cluster. These patterns do not authorize another cluster.
+- `iam:GetRole` and `iam:PassRole` are the ONLY IAM actions. They cover only the four exact role ARNs; PassRole is restricted to EKS, plus EC2 for the node role. EKS access-entry creation covers only the named permission-set role family, with STANDARD type and no user-supplied Kubernetes groups. Kubernetes cluster-admin association is limited to its access entry on this disposable cluster. No AWS administrator access is granted.
+- The secure application-controlled EKS adapter is now locally implemented and tested separately from the standalone exporter. Live EKS acceptance, live Okta and historical private-key remediation are not implied by these local results. Kubernetes RBAC, admission, CNI isolation, tenant authorization and certificate checks remain mandatory.
+- Configure CSI-created PVC volumes with the exact run ownership tag. Delete PVCs while CSI is alive, then workloads/addons/nodes/cluster/stack/ECR; verify every relevant resource inventory. Human orphan deletion is restricted by preexisting exact run tags. Untagged/EKS-managed exceptional leftovers require ownership-verified administrator handling, never blanket deletion permissions. Admin removes only the new run's IAM roles/OIDC provider separately. Keep the $20/four-hour limits and automatic cleanup outside IAM: session duration and this policy do not enforce either limit.
+
+## Validation and unavoidable broad reads
+
+Run `python tools/sprint3/iam/validate_policy.py`; results are in `sprint3-policy-validation.json`. It checks JSON, Identity Center byte limits, current public AWS action names, condition-key support, compatible ARN resource kinds and exact IAM role/action restrictions. It does not evaluate SCPs, boundaries, actual caller identity, real resource ownership or AWS execution. No account Access Analyzer call or policy simulator has been run; review the inline editor's IAM findings before saving, and use an authorized non-root administrator for live validation.
+
+The validation JSON lists every literal `Resource:"*"` action. AWS lacks resource-level authorization for the selected EC2/ASG/ELB inventory reads, EKS cluster creation and list/version/addon-discovery reads, CloudFormation template validation, ECR authorization-token retrieval, STS identity and Free Tier plan inspection. Regional requests are limited to Mumbai; global STS/Free Tier reads are exceptions. These inventory APIs can reveal unrelated metadata. All mutations otherwise use account/region/run ARNs or exact existing/request ownership tags. No NAT gateway/EIP/load-balancer creation permission is granted.
+
+References: [EKS authorization](https://docs.aws.amazon.com/service-authorization/latest/reference/list_eks.html), [AWS service-reference JSON](https://servicereference.us-east-1.amazonaws.com/v1/ec2/ec2.json), [EKS standard-support configuration](https://docs.aws.amazon.com/cli/latest/reference/eks/create-cluster.html), [Identity Center limits](https://docs.aws.amazon.com/singlesignon/latest/userguide/limits.html), [permission set creation](https://docs.aws.amazon.com/singlesignon/latest/userguide/howtocreatepermissionset.html).
