@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -110,6 +111,12 @@ func TestConfigurationUpdateIsIdempotentAndSingleConsenter(t *testing.T) {
 	r, e = reconcile(grow)
 	if e != nil || !r.Changed || len(r.Update) == 0 {
 		t.Fatal("additive organization and single orderer update missing", e)
+	}
+	for i := 0; i < 5; i++ {
+		retry, e := reconcile(grow)
+		if e != nil || !bytes.Equal(r.Update, retry.Update) {
+			t.Fatal("uncommitted retry changed checkpoint bytes", e)
+		}
 	}
 	var env cb.Envelope
 	var payload cb.Payload

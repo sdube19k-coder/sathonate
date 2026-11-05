@@ -358,6 +358,16 @@ func reconcile(v Input) (Result, error) {
 	if e != nil {
 		return Result{}, denied
 	}
+	var canonicalUpdate cb.ConfigUpdate
+	if proto.Unmarshal(update, &canonicalUpdate) != nil {
+		return Result{}, denied
+	}
+	buffer := proto.NewBuffer(nil)
+	buffer.SetDeterministic(true)
+	if buffer.Marshal(&canonicalUpdate) != nil {
+		return Result{}, denied
+	}
+	update = buffer.Bytes()
 	ce := &cb.ConfigUpdateEnvelope{ConfigUpdate: update}
 	data, _ := proto.Marshal(ce)
 	ch, _ := proto.Marshal(&cb.ChannelHeader{Type: int32(cb.HeaderType_CONFIG_UPDATE), ChannelId: v.Channel})
