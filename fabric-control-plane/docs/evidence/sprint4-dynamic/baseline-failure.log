@@ -1,0 +1,31 @@
+=== RUN   TestSecureApplicationAPIOnDisposableKind
+    secure_api_e2e_test.go:369:  Operation recorded; execution queued in the local worker
+    secure_api_e2e_test.go:369:  Controller recovered operation; adopting its existing Kubernetes Job and replaying observed events
+    secure_api_e2e_test.go:369: validate Validate saved network JSON
+    secure_api_e2e_test.go:369: validate Authorized tenant/project and immutable secure runtime binding
+    secure_api_e2e_test.go:369: validate Validated explicit secure local application profile
+    secure_api_e2e_test.go:369: identity Resolve deployment identity
+    secure_api_e2e_test.go:369: identity Validated explicit secure local application profile
+    secure_api_e2e_test.go:369: kubernetes Prepare Kubernetes cluster
+    secure_api_e2e_test.go:369: kubernetes Validated explicit secure local application profile
+    secure_api_e2e_test.go:369: ca Enroll Fabric CA identities
+    secure_api_e2e_test.go:369: ca Reconciling protected root/TLS registries and independent registrars
+    secure_api_e2e_test.go:369: orderers Deploy ordering service
+    secure_api_e2e_test.go:369: orderers Validating external materials before candidate reconciliation
+    secure_api_e2e_test.go:369: peers Deploy organization peers
+    secure_api_e2e_test.go:369: peers Validating external materials before candidate reconciliation
+    secure_api_e2e_test.go:369: channels Create channels and join members
+    secure_api_e2e_test.go:369: channels Reconciling direct channel participation with isolated administrator identities
+    secure_api_e2e_test.go:369: channels Verified canonical channel genesis SHA256 f124f2ca08de4b5a16780b6505ace9db92b976f3e342db026ba229a37056e94e
+    secure_api_e2e_test.go:369: verify Verify network and transaction
+    secure_api_e2e_test.go:369: verify Reconciling pinned chaincode and verifying committed transactions on both peers
+    secure_api_e2e_test.go:369: verify Checking chaincode package on org1-peer-1
+    secure_api_e2e_test.go:369: verify Checking chaincode package on org2-peer-1
+    secure_api_e2e_test.go:369: verify Checking chaincode package on org1-peer-2
+    secure_api_e2e_test.go:369: verify protected peer chaincode-query on org1-peer-2: protected Fabric peer command failed (endorsement); private diagnostics withheld
+    secure_api_e2e_test.go:369: verify Operation failed: Bevel worker failed; see recorded redacted events and scoped workload events
+    secure_api_e2e_test.go:369: unexpected terminal operation failed Bevel worker failed; see recorded redacted events and scoped workload events
+--- FAIL: TestSecureApplicationAPIOnDisposableKind (432.53s)
+FAIL
+FAIL	sathonate.local/fabric-control-plane/internal/httpapi	432.896s
+FAIL
