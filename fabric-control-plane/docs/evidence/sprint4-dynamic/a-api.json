@@ -1,0 +1,2611 @@
+{
+  "apiToFabric": "PASS",
+  "authenticatedTenantProject": true,
+  "authenticationMode": "local-token",
+  "awsEnabled": false,
+  "checkedAt": "2026-11-05T11:51:32.826354Z",
+  "committedAndReadOnBothPeers": true,
+  "crossProjectDenied": true,
+  "crossTenantDenied": true,
+  "duplicateOperationReused": true,
+  "dynamicExpansion": {
+    "status": "PASS",
+    "steps": [
+      {
+        "after": [
+          {
+            "health": {
+              "checkedAt": "2026-11-05T11:47:57.714593049Z",
+              "ready": true,
+              "channel": "shipments",
+              "peers": [
+                {
+                  "peer": "retailer-p1",
+                  "mspId": "RetailerMSP",
+                  "available": true,
+                  "height": 8,
+                  "currentBlockHash": "BilAiieZ1JdMdykbOd9+mrcem+Tg8MYy6XOJYJgdff0="
+                },
+                {
+                  "peer": "warehouse-expanded",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 8,
+                  "currentBlockHash": "BilAiieZ1JdMdykbOd9+mrcem+Tg8MYy6XOJYJgdff0="
+                },
+                {
+                  "peer": "warehouse-p1",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 8,
+                  "currentBlockHash": "BilAiieZ1JdMdykbOd9+mrcem+Tg8MYy6XOJYJgdff0="
+                }
+              ],
+              "orderers": [
+                {
+                  "name": "raft-1",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 8
+                },
+                {
+                  "name": "raft-2",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 8
+                },
+                {
+                  "name": "raft-3",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 8
+                }
+              ],
+              "certificateAuthorities": [
+                {
+                  "name": "warehouse-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "retailer-issuer",
+                  "available": true,
+                  "tls": true
+                }
+              ],
+              "chaincode": {
+                "name": "customer-ledger",
+                "available": true,
+                "version": "1.0",
+                "sequence": 1
+              },
+              "alerts": []
+            },
+            "transactionId": "70d7a242710f44aba78a78ccf5e2c8c9fd061fa0b160ccc53282c7db4b1ea5e3",
+            "packageId": "customer-ledger_1:21e860d9e6f6d336b73b981ac1831ec09563ecfa292e705c8139ae90959f1aba",
+            "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+            "codeVersion": "1.0"
+          }
+        ],
+        "apiRestartAdopted": true,
+        "before": [
+          {
+            "health": {
+              "checkedAt": "2026-11-05T11:46:33.899005414Z",
+              "ready": true,
+              "channel": "shipments",
+              "peers": [
+                {
+                  "peer": "retailer-p1",
+                  "mspId": "RetailerMSP",
+                  "available": true,
+                  "height": 6,
+                  "currentBlockHash": "i7tFvp/iuWUJcLP6V6j+YicyDtOoUVOT/rtjdCUw2Ek="
+                },
+                {
+                  "peer": "warehouse-p1",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 6,
+                  "currentBlockHash": "i7tFvp/iuWUJcLP6V6j+YicyDtOoUVOT/rtjdCUw2Ek="
+                }
+              ],
+              "orderers": [
+                {
+                  "name": "raft-1",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                },
+                {
+                  "name": "raft-2",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                },
+                {
+                  "name": "raft-3",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                }
+              ],
+              "certificateAuthorities": [
+                {
+                  "name": "warehouse-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "retailer-issuer",
+                  "available": true,
+                  "tls": true
+                }
+              ],
+              "chaincode": {
+                "name": "customer-ledger",
+                "available": true,
+                "version": "1.0",
+                "sequence": 1
+              },
+              "alerts": []
+            },
+            "transactionId": "1d64b83bfab524ac722b26f5c9508029dc6923fec2c157d12eec9649e79ed2ed",
+            "packageId": "customer-ledger_1:21e860d9e6f6d336b73b981ac1831ec09563ecfa292e705c8139ae90959f1aba",
+            "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+            "codeVersion": "1.0"
+          }
+        ],
+        "existingWorkloadUIDsPreserved": true,
+        "preview": {
+          "parentOperationId": "op_fba5358fdc513bb1da9554e8da027f29",
+          "digest": "d0463887ff2d678cb3fff3e81e37095bdc064c83c8959cf0e726ffb05399d5c0",
+          "revision": 2,
+          "before": {
+            "apiVersion": "fabric.sathonate.io/v1alpha1",
+            "kind": "FabricNetwork",
+            "metadata": {
+              "id": "customer-a",
+              "name": "Customer topology A"
+            },
+            "spec": {
+              "configuration": {
+                "placements": {
+                  "approved-local": {
+                    "nodeSelector": {
+                      "kubernetes.io/hostname": "smp-sprint1-da3faa43-control-plane"
+                    }
+                  }
+                },
+                "nodes": {
+                  "raft-1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-2": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-3": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "retailer-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                },
+                "authorities": [
+                  {
+                    "id": "warehouse-issuer",
+                    "organizationRef": "warehouse",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "retailer-issuer",
+                    "organizationRef": "retailer",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                ],
+                "anchors": {
+                  "shipments": [
+                    "warehouse-p1",
+                    "retailer-p1"
+                  ]
+                },
+                "chaincodes": [
+                  {
+                    "name": "customer-ledger",
+                    "channelRef": "shipments",
+                    "version": "1.0",
+                    "sequence": 1,
+                    "packageSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+                    "runtimeImage": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+                    "endorsement": {
+                      "mspIds": [
+                        "WarehouseMSP",
+                        "RetailerMSP"
+                      ],
+                      "minimum": 2
+                    }
+                  }
+                ]
+              },
+              "environment": "development",
+              "fabricVersion": "2.5.15",
+              "deployment": {
+                "engine": "bevel",
+                "targetRef": "smp-dynamic-local-v1",
+                "runtime": "kubernetes",
+                "provider": "local"
+              },
+              "ordering": {
+                "consensus": "raft",
+                "channelCapability": "V2_0"
+              },
+              "organizations": [
+                {
+                  "id": "warehouse",
+                  "mspId": "WarehouseMSP",
+                  "identityProviderRef": "warehouse-issuer"
+                },
+                {
+                  "id": "retailer",
+                  "mspId": "RetailerMSP",
+                  "identityProviderRef": "retailer-issuer"
+                }
+              ],
+              "nodes": [
+                {
+                  "id": "warehouse-p1",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "retailer-p1",
+                  "organizationRef": "retailer",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-1",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-2",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-3",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                }
+              ],
+              "channels": [
+                {
+                  "id": "shipments",
+                  "organizationRefs": [
+                    "warehouse",
+                    "retailer"
+                  ],
+                  "ordererRefs": [
+                    "raft-1",
+                    "raft-2",
+                    "raft-3"
+                  ],
+                  "peerRefs": [
+                    "warehouse-p1",
+                    "retailer-p1"
+                  ]
+                }
+              ]
+            }
+          },
+          "after": {
+            "apiVersion": "fabric.sathonate.io/v1alpha1",
+            "kind": "FabricNetwork",
+            "metadata": {
+              "id": "customer-a",
+              "name": "Customer topology A"
+            },
+            "spec": {
+              "configuration": {
+                "placements": {
+                  "approved-local": {
+                    "nodeSelector": {
+                      "kubernetes.io/hostname": "smp-sprint1-da3faa43-control-plane"
+                    }
+                  }
+                },
+                "nodes": {
+                  "raft-1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-2": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-3": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "retailer-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-expanded": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                },
+                "authorities": [
+                  {
+                    "id": "warehouse-issuer",
+                    "organizationRef": "warehouse",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "retailer-issuer",
+                    "organizationRef": "retailer",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                ],
+                "anchors": {
+                  "shipments": [
+                    "retailer-p1",
+                    "warehouse-expanded"
+                  ]
+                },
+                "chaincodes": [
+                  {
+                    "name": "customer-ledger",
+                    "channelRef": "shipments",
+                    "version": "1.0",
+                    "sequence": 1,
+                    "packageSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+                    "runtimeImage": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+                    "endorsement": {
+                      "mspIds": [
+                        "WarehouseMSP",
+                        "RetailerMSP"
+                      ],
+                      "minimum": 2
+                    }
+                  }
+                ]
+              },
+              "environment": "development",
+              "fabricVersion": "2.5.15",
+              "deployment": {
+                "engine": "bevel",
+                "targetRef": "smp-dynamic-local-v1",
+                "runtime": "kubernetes",
+                "provider": "local"
+              },
+              "ordering": {
+                "consensus": "raft",
+                "channelCapability": "V2_0"
+              },
+              "organizations": [
+                {
+                  "id": "warehouse",
+                  "mspId": "WarehouseMSP",
+                  "identityProviderRef": "warehouse-issuer"
+                },
+                {
+                  "id": "retailer",
+                  "mspId": "RetailerMSP",
+                  "identityProviderRef": "retailer-issuer"
+                }
+              ],
+              "nodes": [
+                {
+                  "id": "warehouse-p1",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "retailer-p1",
+                  "organizationRef": "retailer",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-1",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-2",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-3",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "warehouse-expanded",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                }
+              ],
+              "channels": [
+                {
+                  "id": "shipments",
+                  "organizationRefs": [
+                    "warehouse",
+                    "retailer"
+                  ],
+                  "ordererRefs": [
+                    "raft-1",
+                    "raft-2",
+                    "raft-3"
+                  ],
+                  "peerRefs": [
+                    "warehouse-p1",
+                    "retailer-p1",
+                    "warehouse-expanded"
+                  ]
+                }
+              ]
+            }
+          },
+          "recovery": "Retry the recorded operation. Committed channel membership and code definitions recover forward; identities, PVCs and previous code services are preserved."
+        },
+        "stage": 1,
+        "status": "PASS"
+      },
+      {
+        "after": [
+          {
+            "health": {
+              "checkedAt": "2026-11-05T11:49:35.106478216Z",
+              "ready": true,
+              "channel": "shipments",
+              "peers": [
+                {
+                  "peer": "inspection-east",
+                  "mspId": "InspectionMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                },
+                {
+                  "peer": "retailer-p1",
+                  "mspId": "RetailerMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                },
+                {
+                  "peer": "warehouse-expanded",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                },
+                {
+                  "peer": "warehouse-p1",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                }
+              ],
+              "orderers": [
+                {
+                  "name": "raft-1",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 11
+                },
+                {
+                  "name": "raft-2",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 11
+                },
+                {
+                  "name": "raft-3",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 11
+                }
+              ],
+              "certificateAuthorities": [
+                {
+                  "name": "warehouse-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "retailer-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "inspection-root",
+                  "available": true,
+                  "tls": true
+                }
+              ],
+              "chaincode": {
+                "name": "customer-ledger",
+                "available": true,
+                "version": "1.0",
+                "sequence": 1
+              },
+              "alerts": []
+            },
+            "transactionId": "7d20f70945725f54ce5592b3fa4671a868221fdb9f499c6f9232c40332482720",
+            "packageId": "customer-ledger_1:21e860d9e6f6d336b73b981ac1831ec09563ecfa292e705c8139ae90959f1aba",
+            "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+            "codeVersion": "1.0"
+          }
+        ],
+        "apiRestartAdopted": true,
+        "before": [
+          {
+            "health": {
+              "checkedAt": "2026-11-05T11:47:57.714593049Z",
+              "ready": true,
+              "channel": "shipments",
+              "peers": [
+                {
+                  "peer": "retailer-p1",
+                  "mspId": "RetailerMSP",
+                  "available": true,
+                  "height": 8,
+                  "currentBlockHash": "BilAiieZ1JdMdykbOd9+mrcem+Tg8MYy6XOJYJgdff0="
+                },
+                {
+                  "peer": "warehouse-expanded",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 8,
+                  "currentBlockHash": "BilAiieZ1JdMdykbOd9+mrcem+Tg8MYy6XOJYJgdff0="
+                },
+                {
+                  "peer": "warehouse-p1",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 8,
+                  "currentBlockHash": "BilAiieZ1JdMdykbOd9+mrcem+Tg8MYy6XOJYJgdff0="
+                }
+              ],
+              "orderers": [
+                {
+                  "name": "raft-1",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 8
+                },
+                {
+                  "name": "raft-2",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 8
+                },
+                {
+                  "name": "raft-3",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 8
+                }
+              ],
+              "certificateAuthorities": [
+                {
+                  "name": "warehouse-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "retailer-issuer",
+                  "available": true,
+                  "tls": true
+                }
+              ],
+              "chaincode": {
+                "name": "customer-ledger",
+                "available": true,
+                "version": "1.0",
+                "sequence": 1
+              },
+              "alerts": []
+            },
+            "transactionId": "70d7a242710f44aba78a78ccf5e2c8c9fd061fa0b160ccc53282c7db4b1ea5e3",
+            "packageId": "customer-ledger_1:21e860d9e6f6d336b73b981ac1831ec09563ecfa292e705c8139ae90959f1aba",
+            "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+            "codeVersion": "1.0"
+          }
+        ],
+        "existingWorkloadUIDsPreserved": true,
+        "preview": {
+          "parentOperationId": "op_6439ec4e07e6a26efaa0567056102303",
+          "digest": "46fd446021e2bd9e6c132db36df24ea9e09338dc48b427710df250551c9ce759",
+          "revision": 3,
+          "before": {
+            "apiVersion": "fabric.sathonate.io/v1alpha1",
+            "kind": "FabricNetwork",
+            "metadata": {
+              "id": "customer-a",
+              "name": "Customer topology A"
+            },
+            "spec": {
+              "configuration": {
+                "placements": {
+                  "approved-local": {
+                    "nodeSelector": {
+                      "kubernetes.io/hostname": "smp-sprint1-da3faa43-control-plane"
+                    }
+                  }
+                },
+                "nodes": {
+                  "raft-1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-2": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-3": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "retailer-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-expanded": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                },
+                "authorities": [
+                  {
+                    "id": "warehouse-issuer",
+                    "organizationRef": "warehouse",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "retailer-issuer",
+                    "organizationRef": "retailer",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                ],
+                "anchors": {
+                  "shipments": [
+                    "retailer-p1",
+                    "warehouse-expanded"
+                  ]
+                },
+                "chaincodes": [
+                  {
+                    "name": "customer-ledger",
+                    "channelRef": "shipments",
+                    "version": "1.0",
+                    "sequence": 1,
+                    "packageSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+                    "runtimeImage": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+                    "endorsement": {
+                      "mspIds": [
+                        "WarehouseMSP",
+                        "RetailerMSP"
+                      ],
+                      "minimum": 2
+                    }
+                  }
+                ]
+              },
+              "environment": "development",
+              "fabricVersion": "2.5.15",
+              "deployment": {
+                "engine": "bevel",
+                "targetRef": "smp-dynamic-local-v1",
+                "runtime": "kubernetes",
+                "provider": "local"
+              },
+              "ordering": {
+                "consensus": "raft",
+                "channelCapability": "V2_0"
+              },
+              "organizations": [
+                {
+                  "id": "warehouse",
+                  "mspId": "WarehouseMSP",
+                  "identityProviderRef": "warehouse-issuer"
+                },
+                {
+                  "id": "retailer",
+                  "mspId": "RetailerMSP",
+                  "identityProviderRef": "retailer-issuer"
+                }
+              ],
+              "nodes": [
+                {
+                  "id": "warehouse-p1",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "retailer-p1",
+                  "organizationRef": "retailer",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-1",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-2",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-3",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "warehouse-expanded",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                }
+              ],
+              "channels": [
+                {
+                  "id": "shipments",
+                  "organizationRefs": [
+                    "warehouse",
+                    "retailer"
+                  ],
+                  "ordererRefs": [
+                    "raft-1",
+                    "raft-2",
+                    "raft-3"
+                  ],
+                  "peerRefs": [
+                    "warehouse-p1",
+                    "retailer-p1",
+                    "warehouse-expanded"
+                  ]
+                }
+              ]
+            }
+          },
+          "after": {
+            "apiVersion": "fabric.sathonate.io/v1alpha1",
+            "kind": "FabricNetwork",
+            "metadata": {
+              "id": "customer-a",
+              "name": "Customer topology A"
+            },
+            "spec": {
+              "configuration": {
+                "placements": {
+                  "approved-local": {
+                    "nodeSelector": {
+                      "kubernetes.io/hostname": "smp-sprint1-da3faa43-control-plane"
+                    }
+                  }
+                },
+                "nodes": {
+                  "inspection-east": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-2": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-3": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "retailer-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-expanded": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                },
+                "authorities": [
+                  {
+                    "id": "warehouse-issuer",
+                    "organizationRef": "warehouse",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "retailer-issuer",
+                    "organizationRef": "retailer",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "inspection-root",
+                    "organizationRef": "inspection",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                ],
+                "anchors": {
+                  "shipments": [
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ]
+                },
+                "chaincodes": [
+                  {
+                    "name": "customer-ledger",
+                    "channelRef": "shipments",
+                    "version": "1.0",
+                    "sequence": 1,
+                    "packageSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+                    "runtimeImage": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+                    "endorsement": {
+                      "mspIds": [
+                        "WarehouseMSP",
+                        "RetailerMSP"
+                      ],
+                      "minimum": 2
+                    }
+                  }
+                ]
+              },
+              "environment": "development",
+              "fabricVersion": "2.5.15",
+              "deployment": {
+                "engine": "bevel",
+                "targetRef": "smp-dynamic-local-v1",
+                "runtime": "kubernetes",
+                "provider": "local"
+              },
+              "ordering": {
+                "consensus": "raft",
+                "channelCapability": "V2_0"
+              },
+              "organizations": [
+                {
+                  "id": "warehouse",
+                  "mspId": "WarehouseMSP",
+                  "identityProviderRef": "warehouse-issuer"
+                },
+                {
+                  "id": "retailer",
+                  "mspId": "RetailerMSP",
+                  "identityProviderRef": "retailer-issuer"
+                },
+                {
+                  "id": "inspection",
+                  "mspId": "InspectionMSP",
+                  "identityProviderRef": "inspection-root"
+                }
+              ],
+              "nodes": [
+                {
+                  "id": "warehouse-p1",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "retailer-p1",
+                  "organizationRef": "retailer",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-1",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-2",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-3",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "warehouse-expanded",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "inspection-east",
+                  "organizationRef": "inspection",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                }
+              ],
+              "channels": [
+                {
+                  "id": "shipments",
+                  "organizationRefs": [
+                    "warehouse",
+                    "retailer",
+                    "inspection"
+                  ],
+                  "ordererRefs": [
+                    "raft-1",
+                    "raft-2",
+                    "raft-3"
+                  ],
+                  "peerRefs": [
+                    "warehouse-p1",
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ]
+                }
+              ]
+            }
+          },
+          "recovery": "Retry the recorded operation. Committed channel membership and code definitions recover forward; identities, PVCs and previous code services are preserved."
+        },
+        "stage": 2,
+        "status": "PASS"
+      },
+      {
+        "after": [
+          {
+            "health": {
+              "checkedAt": "2026-11-05T11:51:11.658142095Z",
+              "ready": true,
+              "channel": "shipments",
+              "peers": [
+                {
+                  "peer": "inspection-east",
+                  "mspId": "InspectionMSP",
+                  "available": true,
+                  "height": 18,
+                  "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+                },
+                {
+                  "peer": "retailer-p1",
+                  "mspId": "RetailerMSP",
+                  "available": true,
+                  "height": 18,
+                  "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+                },
+                {
+                  "peer": "warehouse-expanded",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 18,
+                  "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+                },
+                {
+                  "peer": "warehouse-p1",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 18,
+                  "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+                }
+              ],
+              "orderers": [
+                {
+                  "name": "raft-1",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 18
+                },
+                {
+                  "name": "raft-2",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 18
+                },
+                {
+                  "name": "raft-3",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 18
+                },
+                {
+                  "name": "raft-expanded-east",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 18
+                },
+                {
+                  "name": "raft-expanded-west",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 18
+                }
+              ],
+              "certificateAuthorities": [
+                {
+                  "name": "warehouse-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "retailer-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "inspection-root",
+                  "available": true,
+                  "tls": true
+                }
+              ],
+              "chaincode": {
+                "name": "customer-ledger",
+                "available": true,
+                "version": "2.0",
+                "sequence": 2
+              },
+              "alerts": []
+            },
+            "transactionId": "551ce2ed3c9436538af4c66414fce0611e8a23c4165a6f623b4c0df4d1251256",
+            "packageId": "customer-ledger_2:a5c1b7484aec37f5c933773fa0d90d15838c478b3f7dd699ef09357391411fcc",
+            "artifactSHA256": "8fd35c7d8577ff57b0b3feec433a69ca4cb7037e85fd53ae32d174bb2be9ece5",
+            "codeVersion": "2.0"
+          },
+          {
+            "health": {
+              "checkedAt": "2026-11-05T11:51:29.456772211Z",
+              "ready": true,
+              "channel": "customer-added-ledger",
+              "peers": [
+                {
+                  "peer": "inspection-east",
+                  "mspId": "InspectionMSP",
+                  "available": true,
+                  "height": 6,
+                  "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+                },
+                {
+                  "peer": "retailer-p1",
+                  "mspId": "RetailerMSP",
+                  "available": true,
+                  "height": 6,
+                  "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+                },
+                {
+                  "peer": "warehouse-expanded",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 6,
+                  "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+                },
+                {
+                  "peer": "warehouse-p1",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 6,
+                  "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+                }
+              ],
+              "orderers": [
+                {
+                  "name": "raft-1",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                },
+                {
+                  "name": "raft-2",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                },
+                {
+                  "name": "raft-3",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                },
+                {
+                  "name": "raft-expanded-east",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                },
+                {
+                  "name": "raft-expanded-west",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 6
+                }
+              ],
+              "certificateAuthorities": [
+                {
+                  "name": "warehouse-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "retailer-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "inspection-root",
+                  "available": true,
+                  "tls": true
+                }
+              ],
+              "chaincode": {
+                "name": "customer-ledger",
+                "available": true,
+                "version": "2.0",
+                "sequence": 1
+              },
+              "alerts": []
+            },
+            "transactionId": "83d8a7a63e08bf7ea6969d5028366643660c5656f2614354dc7cde136916bc45",
+            "packageId": "customer-ledger_1:590907a10ec70d4479971f8dff609361493827c796ab7b6167871773dc45e5fd",
+            "artifactSHA256": "8fd35c7d8577ff57b0b3feec433a69ca4cb7037e85fd53ae32d174bb2be9ece5",
+            "codeVersion": "2.0"
+          }
+        ],
+        "apiRestartAdopted": true,
+        "before": [
+          {
+            "health": {
+              "checkedAt": "2026-11-05T11:49:35.106478216Z",
+              "ready": true,
+              "channel": "shipments",
+              "peers": [
+                {
+                  "peer": "inspection-east",
+                  "mspId": "InspectionMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                },
+                {
+                  "peer": "retailer-p1",
+                  "mspId": "RetailerMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                },
+                {
+                  "peer": "warehouse-expanded",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                },
+                {
+                  "peer": "warehouse-p1",
+                  "mspId": "WarehouseMSP",
+                  "available": true,
+                  "height": 11,
+                  "currentBlockHash": "EGHmcce97WA3jD8bURcY3x2sThYRoBACxoK4sg/hkXQ="
+                }
+              ],
+              "orderers": [
+                {
+                  "name": "raft-1",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 11
+                },
+                {
+                  "name": "raft-2",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 11
+                },
+                {
+                  "name": "raft-3",
+                  "status": "active",
+                  "consensusRelation": "consenter",
+                  "height": 11
+                }
+              ],
+              "certificateAuthorities": [
+                {
+                  "name": "warehouse-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "retailer-issuer",
+                  "available": true,
+                  "tls": true
+                },
+                {
+                  "name": "inspection-root",
+                  "available": true,
+                  "tls": true
+                }
+              ],
+              "chaincode": {
+                "name": "customer-ledger",
+                "available": true,
+                "version": "1.0",
+                "sequence": 1
+              },
+              "alerts": []
+            },
+            "transactionId": "7d20f70945725f54ce5592b3fa4671a868221fdb9f499c6f9232c40332482720",
+            "packageId": "customer-ledger_1:21e860d9e6f6d336b73b981ac1831ec09563ecfa292e705c8139ae90959f1aba",
+            "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+            "codeVersion": "1.0"
+          }
+        ],
+        "existingWorkloadUIDsPreserved": true,
+        "preview": {
+          "parentOperationId": "op_eb976e5dc5008e788e27d3901d09b0d6",
+          "digest": "101daaa3ac836e3cbf3343640ebeb96b4084cc6a5c7d2d480c41ac70c86c8835",
+          "revision": 4,
+          "before": {
+            "apiVersion": "fabric.sathonate.io/v1alpha1",
+            "kind": "FabricNetwork",
+            "metadata": {
+              "id": "customer-a",
+              "name": "Customer topology A"
+            },
+            "spec": {
+              "configuration": {
+                "placements": {
+                  "approved-local": {
+                    "nodeSelector": {
+                      "kubernetes.io/hostname": "smp-sprint1-da3faa43-control-plane"
+                    }
+                  }
+                },
+                "nodes": {
+                  "inspection-east": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-2": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-3": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "retailer-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-expanded": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                },
+                "authorities": [
+                  {
+                    "id": "warehouse-issuer",
+                    "organizationRef": "warehouse",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "retailer-issuer",
+                    "organizationRef": "retailer",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "inspection-root",
+                    "organizationRef": "inspection",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                ],
+                "anchors": {
+                  "shipments": [
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ]
+                },
+                "chaincodes": [
+                  {
+                    "name": "customer-ledger",
+                    "channelRef": "shipments",
+                    "version": "1.0",
+                    "sequence": 1,
+                    "packageSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+                    "runtimeImage": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+                    "endorsement": {
+                      "mspIds": [
+                        "WarehouseMSP",
+                        "RetailerMSP"
+                      ],
+                      "minimum": 2
+                    }
+                  }
+                ]
+              },
+              "environment": "development",
+              "fabricVersion": "2.5.15",
+              "deployment": {
+                "engine": "bevel",
+                "targetRef": "smp-dynamic-local-v1",
+                "runtime": "kubernetes",
+                "provider": "local"
+              },
+              "ordering": {
+                "consensus": "raft",
+                "channelCapability": "V2_0"
+              },
+              "organizations": [
+                {
+                  "id": "warehouse",
+                  "mspId": "WarehouseMSP",
+                  "identityProviderRef": "warehouse-issuer"
+                },
+                {
+                  "id": "retailer",
+                  "mspId": "RetailerMSP",
+                  "identityProviderRef": "retailer-issuer"
+                },
+                {
+                  "id": "inspection",
+                  "mspId": "InspectionMSP",
+                  "identityProviderRef": "inspection-root"
+                }
+              ],
+              "nodes": [
+                {
+                  "id": "warehouse-p1",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "retailer-p1",
+                  "organizationRef": "retailer",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-1",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-2",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-3",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "warehouse-expanded",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "inspection-east",
+                  "organizationRef": "inspection",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                }
+              ],
+              "channels": [
+                {
+                  "id": "shipments",
+                  "organizationRefs": [
+                    "warehouse",
+                    "retailer",
+                    "inspection"
+                  ],
+                  "ordererRefs": [
+                    "raft-1",
+                    "raft-2",
+                    "raft-3"
+                  ],
+                  "peerRefs": [
+                    "warehouse-p1",
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ]
+                }
+              ]
+            }
+          },
+          "after": {
+            "apiVersion": "fabric.sathonate.io/v1alpha1",
+            "kind": "FabricNetwork",
+            "metadata": {
+              "id": "customer-a",
+              "name": "Customer topology A"
+            },
+            "spec": {
+              "configuration": {
+                "placements": {
+                  "approved-local": {
+                    "nodeSelector": {
+                      "kubernetes.io/hostname": "smp-sprint1-da3faa43-control-plane"
+                    }
+                  }
+                },
+                "nodes": {
+                  "inspection-east": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-2": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-3": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-expanded-east": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "raft-expanded-west": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "retailer-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-expanded": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  "warehouse-p1": {
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                },
+                "authorities": [
+                  {
+                    "id": "warehouse-issuer",
+                    "organizationRef": "warehouse",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "retailer-issuer",
+                    "organizationRef": "retailer",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  },
+                  {
+                    "id": "inspection-root",
+                    "organizationRef": "inspection",
+                    "roles": [
+                      "signing",
+                      "tls"
+                    ],
+                    "placementRef": "approved-local",
+                    "resources": {
+                      "cpuRequestMilli": 100,
+                      "cpuLimitMilli": 1000,
+                      "memoryRequestMiB": 128,
+                      "memoryLimitMiB": 1024
+                    },
+                    "storage": {
+                      "class": "standard",
+                      "capacityGiB": 1
+                    }
+                  }
+                ],
+                "anchors": {
+                  "customer-added-ledger": [
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ],
+                  "shipments": [
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ]
+                },
+                "chaincodes": [
+                  {
+                    "name": "customer-ledger",
+                    "channelRef": "shipments",
+                    "version": "2.0",
+                    "sequence": 2,
+                    "packageSHA256": "8fd35c7d8577ff57b0b3feec433a69ca4cb7037e85fd53ae32d174bb2be9ece5",
+                    "runtimeImage": "sathonate/smp-smoke@sha256:0137d3ea4c7f10155d32fd2ca5c9d99fd8e444954a8b918a52fa8191d35fbe57",
+                    "endorsement": {
+                      "mspIds": [
+                        "WarehouseMSP",
+                        "RetailerMSP",
+                        "InspectionMSP"
+                      ],
+                      "minimum": 3
+                    }
+                  },
+                  {
+                    "name": "customer-ledger",
+                    "channelRef": "customer-added-ledger",
+                    "version": "2.0",
+                    "sequence": 1,
+                    "packageSHA256": "8fd35c7d8577ff57b0b3feec433a69ca4cb7037e85fd53ae32d174bb2be9ece5",
+                    "runtimeImage": "sathonate/smp-smoke@sha256:0137d3ea4c7f10155d32fd2ca5c9d99fd8e444954a8b918a52fa8191d35fbe57",
+                    "endorsement": {
+                      "mspIds": [
+                        "WarehouseMSP",
+                        "RetailerMSP",
+                        "InspectionMSP"
+                      ],
+                      "minimum": 3
+                    }
+                  }
+                ]
+              },
+              "environment": "development",
+              "fabricVersion": "2.5.15",
+              "deployment": {
+                "engine": "bevel",
+                "targetRef": "smp-dynamic-local-v1",
+                "runtime": "kubernetes",
+                "provider": "local"
+              },
+              "ordering": {
+                "consensus": "raft",
+                "channelCapability": "V2_0"
+              },
+              "organizations": [
+                {
+                  "id": "warehouse",
+                  "mspId": "WarehouseMSP",
+                  "identityProviderRef": "warehouse-issuer"
+                },
+                {
+                  "id": "retailer",
+                  "mspId": "RetailerMSP",
+                  "identityProviderRef": "retailer-issuer"
+                },
+                {
+                  "id": "inspection",
+                  "mspId": "InspectionMSP",
+                  "identityProviderRef": "inspection-root"
+                }
+              ],
+              "nodes": [
+                {
+                  "id": "warehouse-p1",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "retailer-p1",
+                  "organizationRef": "retailer",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-1",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-2",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-3",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "warehouse-expanded",
+                  "organizationRef": "warehouse",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "inspection-east",
+                  "organizationRef": "inspection",
+                  "role": "peer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-expanded-east",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                },
+                {
+                  "id": "raft-expanded-west",
+                  "organizationRef": "warehouse",
+                  "role": "orderer",
+                  "placementRef": "approved-local",
+                  "failureDomain": "local-host"
+                }
+              ],
+              "channels": [
+                {
+                  "id": "shipments",
+                  "organizationRefs": [
+                    "warehouse",
+                    "retailer",
+                    "inspection"
+                  ],
+                  "ordererRefs": [
+                    "raft-1",
+                    "raft-2",
+                    "raft-3",
+                    "raft-expanded-east",
+                    "raft-expanded-west"
+                  ],
+                  "peerRefs": [
+                    "warehouse-p1",
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ]
+                },
+                {
+                  "id": "customer-added-ledger",
+                  "organizationRefs": [
+                    "warehouse",
+                    "retailer",
+                    "inspection"
+                  ],
+                  "ordererRefs": [
+                    "raft-1",
+                    "raft-2",
+                    "raft-3",
+                    "raft-expanded-east",
+                    "raft-expanded-west"
+                  ],
+                  "peerRefs": [
+                    "warehouse-p1",
+                    "retailer-p1",
+                    "warehouse-expanded",
+                    "inspection-east"
+                  ]
+                }
+              ]
+            }
+          },
+          "recovery": "Retry the recorded operation. Committed channel membership and code definitions recover forward; identities, PVCs and previous code services are preserved."
+        },
+        "stage": 3,
+        "status": "PASS"
+      }
+    ]
+  },
+  "dynamicTopology": "a",
+  "expectedReleases": [
+    "warehouse-issuer",
+    "retailer-issuer",
+    "inspection-root",
+    "warehouse-p1",
+    "retailer-p1",
+    "raft-1",
+    "raft-2",
+    "raft-3",
+    "warehouse-expanded",
+    "inspection-east",
+    "raft-expanded-east",
+    "raft-expanded-west"
+  ],
+  "expectedWorkloads": [
+    "warehouse-issuer",
+    "retailer-issuer",
+    "inspection-root",
+    "warehouse-p1",
+    "retailer-p1",
+    "raft-1",
+    "raft-2",
+    "raft-3",
+    "warehouse-expanded",
+    "inspection-east",
+    "raft-expanded-east",
+    "raft-expanded-west",
+    "cc-be491fd5b4aa73a7-s2",
+    "cc-657f2e9a10d79e45-s1"
+  ],
+  "failedWorkerRetriedThroughAPI": true,
+  "initialOperationId": "op_a31e04a7fa5a26dbe86194a8a41c66ea",
+  "initialTransactionId": "1b3c0adbaca388b791ffacde0b1cffd0f623f45e0423ead92892e585cca91e91",
+  "inspectionPeers": [
+    "warehouse-p1",
+    "retailer-p1",
+    "warehouse-expanded",
+    "inspection-east"
+  ],
+  "lifecycleChanges": [],
+  "mode": "secure-local",
+  "namespace": "smp-s-ad8289d638ffd263902ec2e37a2ead23",
+  "operationId": "op_bc11a4d1919c921af3bb2ff93de772b2",
+  "persistentClaimsUnchangedAfterPeerRestart": true,
+  "postRestartLedgerHealth": {
+    "checkedAt": "2026-11-05T11:46:33.899005414Z",
+    "ready": true,
+    "channel": "shipments",
+    "peers": [
+      {
+        "peer": "retailer-p1",
+        "mspId": "RetailerMSP",
+        "available": true,
+        "height": 6,
+        "currentBlockHash": "i7tFvp/iuWUJcLP6V6j+YicyDtOoUVOT/rtjdCUw2Ek="
+      },
+      {
+        "peer": "warehouse-p1",
+        "mspId": "WarehouseMSP",
+        "available": true,
+        "height": 6,
+        "currentBlockHash": "i7tFvp/iuWUJcLP6V6j+YicyDtOoUVOT/rtjdCUw2Ek="
+      }
+    ],
+    "orderers": [
+      {
+        "name": "raft-1",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "raft-2",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "raft-3",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      }
+    ],
+    "certificateAuthorities": [
+      {
+        "name": "warehouse-issuer",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "retailer-issuer",
+        "available": true,
+        "tls": true
+      }
+    ],
+    "chaincode": {
+      "name": "customer-ledger",
+      "available": true,
+      "version": "1.0",
+      "sequence": 1
+    },
+    "alerts": []
+  },
+  "processArguments": {
+    "samples": 540,
+    "caCommands": 19,
+    "protectedCLICommands": 3,
+    "credentialsAbsent": true
+  },
+  "productionEnabled": false,
+  "schema": "sathonate.sprint1-api/v1",
+  "transactionId": "83d8a7a63e08bf7ea6969d5028366643660c5656f2614354dc7cde136916bc45",
+  "verifications": [
+    {
+      "health": {
+        "checkedAt": "2026-11-05T11:51:11.658142095Z",
+        "ready": true,
+        "channel": "shipments",
+        "peers": [
+          {
+            "peer": "inspection-east",
+            "mspId": "InspectionMSP",
+            "available": true,
+            "height": 18,
+            "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+          },
+          {
+            "peer": "retailer-p1",
+            "mspId": "RetailerMSP",
+            "available": true,
+            "height": 18,
+            "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+          },
+          {
+            "peer": "warehouse-expanded",
+            "mspId": "WarehouseMSP",
+            "available": true,
+            "height": 18,
+            "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+          },
+          {
+            "peer": "warehouse-p1",
+            "mspId": "WarehouseMSP",
+            "available": true,
+            "height": 18,
+            "currentBlockHash": "HF2/n+EtFHdaoSevbBqR5V2NP+S7hQiGLPAbkE4u8SM="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "raft-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 18
+          },
+          {
+            "name": "raft-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 18
+          },
+          {
+            "name": "raft-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 18
+          },
+          {
+            "name": "raft-expanded-east",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 18
+          },
+          {
+            "name": "raft-expanded-west",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 18
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "warehouse-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "retailer-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "inspection-root",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "customer-ledger",
+          "available": true,
+          "version": "2.0",
+          "sequence": 2
+        },
+        "alerts": []
+      },
+      "transactionId": "551ce2ed3c9436538af4c66414fce0611e8a23c4165a6f623b4c0df4d1251256",
+      "packageId": "customer-ledger_2:a5c1b7484aec37f5c933773fa0d90d15838c478b3f7dd699ef09357391411fcc",
+      "artifactSHA256": "8fd35c7d8577ff57b0b3feec433a69ca4cb7037e85fd53ae32d174bb2be9ece5",
+      "codeVersion": "2.0"
+    },
+    {
+      "health": {
+        "checkedAt": "2026-11-05T11:51:29.456772211Z",
+        "ready": true,
+        "channel": "customer-added-ledger",
+        "peers": [
+          {
+            "peer": "inspection-east",
+            "mspId": "InspectionMSP",
+            "available": true,
+            "height": 6,
+            "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+          },
+          {
+            "peer": "retailer-p1",
+            "mspId": "RetailerMSP",
+            "available": true,
+            "height": 6,
+            "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+          },
+          {
+            "peer": "warehouse-expanded",
+            "mspId": "WarehouseMSP",
+            "available": true,
+            "height": 6,
+            "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+          },
+          {
+            "peer": "warehouse-p1",
+            "mspId": "WarehouseMSP",
+            "available": true,
+            "height": 6,
+            "currentBlockHash": "56VUDjeROTJmOLnTd0ncEoEQgBR33WwE2rvaEkMqCqI="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "raft-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-expanded-east",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-expanded-west",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "warehouse-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "retailer-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "inspection-root",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "customer-ledger",
+          "available": true,
+          "version": "2.0",
+          "sequence": 1
+        },
+        "alerts": []
+      },
+      "transactionId": "83d8a7a63e08bf7ea6969d5028366643660c5656f2614354dc7cde136916bc45",
+      "packageId": "customer-ledger_1:590907a10ec70d4479971f8dff609361493827c796ab7b6167871773dc45e5fd",
+      "artifactSHA256": "8fd35c7d8577ff57b0b3feec433a69ca4cb7037e85fd53ae32d174bb2be9ece5",
+      "codeVersion": "2.0"
+    }
+  ],
+  "viewerEscalationDenied": true,
+  "workerJobAdoptedAfterApplicationRestart": true
+}

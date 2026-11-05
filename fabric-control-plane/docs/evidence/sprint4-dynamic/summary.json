@@ -1,0 +1,282 @@
+{
+  "schema": "sathonate.sprint4-dynamic-acceptance/v1",
+  "status": "PARTIAL",
+  "recordedAt": "2026-11-05T16:21:25.138796+00:00",
+  "awsAccessed": false,
+  "productionEnabled": false,
+  "sourceHead": "1f529d8593bc8234259e25fa2d771dc1f4be243f",
+  "executionChangesUncommitted": true,
+  "topologies": {
+    "a": {
+      "status": "PASS",
+      "run": "dynamic-a-20261105-170824",
+      "checkedAt": "2026-11-05T11:51:32.826354Z",
+      "initialTransactionId": "1b3c0adbaca388b791ffacde0b1cffd0f623f45e0423ead92892e585cca91e91",
+      "finalTransactions": [
+        {
+          "channel": "shipments",
+          "transactionId": "551ce2ed3c9436538af4c66414fce0611e8a23c4165a6f623b4c0df4d1251256",
+          "peers": 4,
+          "height": 18,
+          "orderers": 5,
+          "codeVersion": "2.0"
+        },
+        {
+          "channel": "customer-added-ledger",
+          "transactionId": "83d8a7a63e08bf7ea6969d5028366643660c5656f2614354dc7cde136916bc45",
+          "peers": 4,
+          "height": 6,
+          "orderers": 5,
+          "codeVersion": "2.0"
+        }
+      ],
+      "artifactHashes": {
+        "a-api.json": "e2d9371c42befb558792a80475e9378bd17de45d683f107660535243c310db12",
+        "a-qualification.json": "386dd1c7c3f2f63be742a720edcdf852440a93acf8334206d881788984fa4489"
+      },
+      "cleanup": "PASS",
+      "retainedReadOnly": {
+        "readOnly": true,
+        "readyDeployments": 8,
+        "total": 8,
+        "ready": true
+      }
+    },
+    "b": {
+      "status": "PASS",
+      "run": "dynamic-b-20261105-172209",
+      "checkedAt": "2026-11-05T12:03:27.7127837Z",
+      "initialTransactionId": "f40541bc7b9a6ff05ab4a4b9e1bb3dfda80e8b937300e4720c9c43b5636940e9",
+      "finalTransactions": [
+        {
+          "channel": "supply",
+          "transactionId": "7538586794e8afeae79c19c36eda2989a85dfd91ab18ce5c5c123231fa75fd01",
+          "peers": 4,
+          "height": 7,
+          "orderers": 3,
+          "codeVersion": "1.0"
+        },
+        {
+          "channel": "audit",
+          "transactionId": "72bcc6077e5ff46af558877e4e73eeb7dd36dbf8f9f14eee008f4690eae488a7",
+          "peers": 4,
+          "height": 7,
+          "orderers": 3,
+          "codeVersion": "1.0"
+        }
+      ],
+      "artifactHashes": {
+        "b-api.json": "27229e8a2edbcacb18cb202bfa4369f178659600ffe5980cf9b3a8044c260ca6",
+        "b-qualification.json": "e5b5b9ceb3223ea861e55314a169e43b75f41709e4eb7eb429057c38121c4537"
+      },
+      "cleanup": "PASS",
+      "retainedReadOnly": {
+        "readOnly": true,
+        "readyDeployments": 8,
+        "total": 8,
+        "ready": true
+      }
+    },
+    "c": {
+      "status": "PASS",
+      "run": "dynamic-c-20261105-173401",
+      "checkedAt": "2026-11-05T12:14:43.0565982Z",
+      "initialTransactionId": "4ef454fcd6bcd2f2ed8de7f3a050befbddc6e93e4707a84d2a8d29e9501c1ff9",
+      "finalTransactions": [
+        {
+          "channel": "settlements",
+          "transactionId": "e24ed51aadcfc7f13136279f77e1bc4d2c3c1bff9f1d95a235cd106457a78d12",
+          "peers": 3,
+          "height": 6,
+          "orderers": 5,
+          "codeVersion": "1.0"
+        }
+      ],
+      "artifactHashes": {
+        "c-api.json": "0ce6a1d2202289027a5642e07d400f453b397864e59385996d1cefef4aa0d065",
+        "c-qualification.json": "4066996d2ea9d3c5eb65ce50e22c6d349a3f20da9647c26a4fa2244437912aa8"
+      },
+      "cleanup": "PASS",
+      "retainedReadOnly": {
+        "readOnly": true,
+        "readyDeployments": 8,
+        "total": 8,
+        "ready": true
+      }
+    }
+  },
+  "gates": {
+    "dynamicABC": "PASS",
+    "independentRunningExpansions": "PASS",
+    "actualExecutableUpgrade": "PASS",
+    "runtimeCredentialInspection": "PASS",
+    "calicoIsolation": "PASS",
+    "fixedTopologyFinalRegression": "FAIL",
+    "dynamicBrowserRuntime": "NOT_TESTED_DOCKER_UNAVAILABLE",
+    "finalPostgresRegressions": "BLOCKED_DOCKER_UNAVAILABLE",
+    "realOkta": "BLOCKED_INTERACTIVE_MFA",
+    "historicalKeyRemediation": "BLOCKED_OWNER_APPROVAL",
+    "awsEKS": "PENDING_NOT_EXECUTED",
+    "multiServerKubernetes": "NOT_TESTED"
+  },
+  "dockerError": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.",
+  "expansions": [
+    {
+      "stage": 1,
+      "status": "PASS",
+      "apiRestartAdopted": true,
+      "existingWorkloadUIDsPreserved": true,
+      "transactions": [
+        {
+          "channel": "shipments",
+          "transactionId": "70d7a242710f44aba78a78ccf5e2c8c9fd061fa0b160ccc53282c7db4b1ea5e3",
+          "height": 8,
+          "peers": 3,
+          "orderers": 3,
+          "codeVersion": "1.0"
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "status": "PASS",
+      "apiRestartAdopted": true,
+      "existingWorkloadUIDsPreserved": true,
+      "transactions": [
+        {
+          "channel": "shipments",
+          "transactionId": "7d20f70945725f54ce5592b3fa4671a868221fdb9f499c6f9232c40332482720",
+          "height": 11,
+          "peers": 4,
+          "orderers": 3,
+          "codeVersion": "1.0"
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "status": "PASS",
+      "apiRestartAdopted": true,
+      "existingWorkloadUIDsPreserved": true,
+      "transactions": [
+        {
+          "channel": "shipments",
+          "transactionId": "551ce2ed3c9436538af4c66414fce0611e8a23c4165a6f623b4c0df4d1251256",
+          "height": 18,
+          "peers": 4,
+          "orderers": 5,
+          "codeVersion": "2.0"
+        },
+        {
+          "channel": "customer-added-ledger",
+          "transactionId": "83d8a7a63e08bf7ea6969d5028366643660c5656f2614354dc7cde136916bc45",
+          "height": 6,
+          "peers": 4,
+          "orderers": 5,
+          "codeVersion": "2.0"
+        }
+      ]
+    }
+  ],
+  "fixedTopologyFailure": {
+    "status": "FAIL",
+    "run": "dynamic-baseline-20261105-174515",
+    "peer": "org1-peer-2",
+    "operation": "chaincode-query",
+    "category": "endorsement",
+    "exactRootCause": "NOT_ESTABLISHED_PRIVATE_DIAGNOSTICS_UNAVAILABLE",
+    "reportCorrupted": true,
+    "reportSHA256": "117cf1fa20a387b5e572bc7d3fd30eef2759b21cb243f6938f54cc25fbecb083",
+    "cleanup": "UNVERIFIED_WHILE_DOCKER_UNAVAILABLE"
+  },
+  "localTests": {
+    "go": {
+      "status": "PASS",
+      "testEvents": {
+        "pass": 344,
+        "fail": 0,
+        "skip": 18
+      },
+      "logSHA256": "5941a65a0e2e3b91585f38f342a8702b4bb650a9c893b2e627587a0f1ec78af9"
+    },
+    "configHelper": {
+      "status": "PASS",
+      "testEvents": {
+        "pass": 8,
+        "fail": 0,
+        "skip": 0
+      },
+      "logSHA256": "73d4f19f27070ca5bc72d5e60708b13312467df5c9561c4ad170899cb70005fd"
+    },
+    "console": {
+      "status": "PASS",
+      "tests": 25,
+      "logSHA256": "bd4ded6abb49f8cf4130e07f3b6a15df2641df6b086ffbd6e1fa159011bd46ee"
+    },
+    "vet": "PASS",
+    "consoleBuildAndFormat": "PASS",
+    "currentDiffCredentialScan": {
+      "status": "PASS",
+      "filesScanned": 68,
+      "falsePositives": "Nine exact public SHA256 checksums, with exact path/line exceptions only."
+    }
+  },
+  "currentReviewSourceSHA256": {
+    "fabric-console/.prettierrc.json": "7752dba7407ce87e2bc87866f69a8f41d38b9d6ae30e7ebcf04bbbebdf9458d5",
+    "fabric-console/src/CustomNetworks.tsx": "9658031dc68ba367f7e37548ead386f12b66af0c561a06dd12d53d5aaa40dd5d",
+    "fabric-console/src/custom-configuration.test.ts": "469070d21d6aef2c920a8de1184db9eb1cd5957a02cd3a314c48e42cc227da66",
+    "fabric-console/src/custom-configuration.ts": "71e2315e5e0d380cf3456ba5590fbaaf0b8a0263241991cee9f57e5c06cb3da0",
+    "fabric-console/tools/browser-dynamic.mjs": "20c467c167f83a587ea7f3f5714fcc1cdd5a64716988db060d1f3ad8f033139c",
+    "fabric-control-plane/cmd/local-chaincode/main_test.go": "c006c0ff10dba8583856a8e4ea231b23fccb56fb3569187572e7dfccbbbefdfa",
+    "fabric-control-plane/examples/dynamic/a.json": "1039f08fa3eae414ba9aa457f26c5300d21098094275811b8dab27d2b12a50e9",
+    "fabric-control-plane/examples/dynamic/b.json": "1f8ef7cf8653f68c7cd15960b0be3d2bb721e1a9956be3915b368db3b68d41e2",
+    "fabric-control-plane/examples/dynamic/c.json": "d7eefbb769b565beb27fdb730823eb8e3e9969794f88cdbb09186417445920f2",
+    "fabric-control-plane/internal/deployment/dynamic.go": "4a807298ec7323299016ecae70ce9cf7ae347aee0d6edce5e142c05cbbe0dc53",
+    "fabric-control-plane/internal/deployment/dynamic_evidence.go": "c5cd03429d8e63c7ef2429392eba32037ef62f05c66953d1b0e5e824a0646dd4",
+    "fabric-control-plane/internal/deployment/dynamic_postgres_test.go": "91112e274e1d8fc0bf09a0df87efabeb6888f552365d535096f517048950ac95",
+    "fabric-control-plane/internal/deployment/dynamic_test.go": "4efdc0adef8a50a919f9326718573a0f27509fca1d4294145e55f205ed43b202",
+    "fabric-control-plane/internal/domain/configuration.go": "89c826602b70e575a7286ed23276d565505beb5d3b7139f5eaae5de92699eba3",
+    "fabric-control-plane/internal/domain/configuration_test.go": "44d3c9fa111034f9c836eb8ba53a1ba0825105e904cfbdacf1aba207278e7cbc",
+    "fabric-control-plane/internal/drafts/dynamic_test.go": "8c8c6e32ec3f1032b7fdb71d95fab1b7ea7d8741c70616a26ec4f79696f0e140",
+    "fabric-control-plane/internal/httpapi/dynamic.go": "7f8f8e4b45921834270a5aa18a2cb642f1038e6a52337099389f28a18e408fcf",
+    "fabric-control-plane/internal/httpapi/dynamic_expansion_e2e_test.go": "89ffe0d956f2edd12b7684d0c90cc11160f7327511abf9208219c3f39a6d91b5",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic.go": "c0d6b254d975547b9db101778013094b647cf946a0e8bad2618a05b9efdbdada",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic_issuer.go": "8747cc2e8739a9bd9a0b2093818d94b4ebf4b08a449d25b0346e51be86821338",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic_names.go": "ec952e26cb10ad03b213d3bc900fad6fa6be024c47d1af68cdaf685161677c86",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic_policy.go": "8cdce22d4ac877bff8953090d7c8af60868dd6b6b97920503bca0e5dabdb9246",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic_policy_test.go": "bd39f2d623db30e5a2ed8a85c7b03215daa8e734d104c2f5ff1e94d65c30b9d7",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic_reconcile.go": "46b53139d910dacc517114af57f622d34feccf616ca0dfca51e31146331c8317",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic_test.go": "1b45a0932cabd356fde8f65acc0fe204dcbb533afbf6015d37b9bf14972bdc02",
+    "fabric-control-plane/internal/kubernetesfabric/dynamic_validate.go": "b3ac0ee7620c948bf09cdb89cc6e02a95b5787eb824463b7f5cf023da0b9c6ef",
+    "fabric-control-plane/tools/sprint4/qualify-dynamic.ps1": "e9fbc2fd0f23d36e74bbb5f5467c8e2eb87425d2d5b1172bf31be80453c95ed0",
+    "fabric-console/src/SmpApp.tsx": "5bb29eb2c6a66e32fb2e48d0a99badafc7c81b123345176ef9b224ba9c40aa9c",
+    "fabric-console/src/api.ts": "4550cbb720d3832e9260ede61e5acdf404d7d33eb7be85cf6a0228b381d493d1",
+    "fabric-console/src/types.ts": "5a433a2f08898c651554696ab2431e1ec8c86663dfa57726fe4e7e1ccd2eb0ab",
+    "fabric-console/tools/qualify-ui.py": "24c59c7432f747fe3e01408762d995bb5f0007048a2477fcd0af3719de030a1c",
+    "fabric-control-plane/cmd/fabric-worker/main.go": "89dfcb84b515ed59d8352043834a86f09c85d4e31ed8888e6f9567a7778c8e99",
+    "fabric-control-plane/cmd/local-chaincode/main.go": "88f19288bb96674507ddaeb4d22bc63f54c190610393f1ee72c4426bfcfa1bc2",
+    "fabric-control-plane/internal/deployment/evidence.go": "49fd3fea979e9ffbc5db31fca40865d8e42ecdaf04b2c49171a0f2a9cf7a696e",
+    "fabric-control-plane/internal/deployment/kubernetes.go": "9d67699dffa482e6c4169b6e4db4c2416a2244b05648b71e6a870533a944da13",
+    "fabric-control-plane/internal/deployment/lifecycle.go": "e4f3e3d1b8d079f8be6f182947568de5d769bc668ba02896cbc270ec4815aacc",
+    "fabric-control-plane/internal/deployment/manager.go": "32004f7980d0d1b47628933597516af98301ce3528abaf947520e360b81d7d23",
+    "fabric-control-plane/internal/deployment/runner.go": "c2e478a40d6565025aac951e5f33aa757be226de136590574861c135b98ff369",
+    "fabric-control-plane/internal/deployment/secure_profile.go": "a690edb04f684b61bcacfd87d8fe3f30b8073c8a9376a6d2744cc49418953c01",
+    "fabric-control-plane/internal/deployment/secure_runner.go": "82d895f7556151b75a6f79be51f27567abb6618e2e467675c32f0982f3eb7947",
+    "fabric-control-plane/internal/domain/spec.go": "e846df0d8e7a4d8ee9934796c87d4c793fff2556c9a25fb81e5ef6f08da1436e",
+    "fabric-control-plane/internal/domain/validate.go": "e2b27591d084cef88e28d27845f6c612d2a4187a3a0740d12d3b03d90555d0b0",
+    "fabric-control-plane/internal/httpapi/api.go": "6d11e2632faccea98a325973b27754af100cf54209474fe08c6c3e96532f5884",
+    "fabric-control-plane/internal/httpapi/deployment.go": "159b8597261a6c36ae045069756fdabca2b88706c52d6f136bc1f5477d0277e0",
+    "fabric-control-plane/internal/httpapi/secure_api_e2e_test.go": "eee0ff2e8729d7ba3e2853eacc80a26f3a67208ef689f6a96762269aadeee126",
+    "fabric-control-plane/internal/kubernetesfabric/runtime.go": "8d9aedc91bfebe0e5745359618499d9efd077c4b2ba19d26102ee19717ee9e81",
+    "fabric-control-plane/internal/kubernetesfabric/secure_issuer.go": "834cedb0c9d1498bff468babb62af4605b316f3229eccea26d536a2e63729074",
+    "fabric-control-plane/internal/kubernetesfabric/worker.go": "358f72a52a2bc3b14cbb05e5d07839555f5296c5927d55f60c84521501e2b37d",
+    "fabric-control-plane/internal/topology/contract.go": "eb9e8507ce4f1109f4abb60fc384821d5707c7cdcaa27f04236a92275fbd8ad6",
+    "fabric-control-plane/internal/topology/contract_test.go": "6cd41bc073da143d04b7287e72effa415207914cb86f4b903ffd8b7d8c88247e",
+    "fabric-control-plane/tools/fabric-config-tool/main.go": "840bd1f583d0e9702e1a8b49c36948dd3759370cd18c8f569db925a47d4494f6",
+    "fabric-control-plane/tools/fabric-config-tool/main_test.go": "a367070195ddddd44133eff16a2afdda6bf56eae65cea2878f83607ebaa8b936",
+    "fabric-control-plane/tools/sprint1/qualify.py": "8a94fad10a89f1330c38b1852153870239ccda73da072be6d1ac46ea278a6db7",
+    "fabric-control-plane/tools/sprint2/isolation.py": "6f06aefa3462bdcb3842fd919cace7a373628358eedec14b86f2b4a33a91e2eb",
+    "fabric-control-plane/tools/sprint2/postgres.py": "207555ce59a25655e393c6756d3aa317c75374fe035e173bc283720df0fd461c"
+  },
+  "independentlyVerifiedHelperCommit": "3f633ab"
+}

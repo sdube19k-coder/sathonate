@@ -97,3 +97,48 @@ regexes = [
   "^\\s*\"\\.logs\\\\\\\\local\\-final\\-20261030\\\\\\\\current\\-api\\-kind\\.json\":\\ \"76d51ab647d832d5003f86890fa258ca019f6ba2a69c03d12b1317c71b5f5901\",\\s*$",
   "^\\s*\"\\.logs\\\\\\\\local\\-final\\-20261030\\\\\\\\current\\-api\\-kind\\.log\":\\ \"fc31cf99e50a4713c1dbf7284b938245b781729d6b05acdcdb949002fb7cae06\",\\s*$",
 ]
+
+[[allowlists]]
+description = "Exact reviewed public evidence and source SHA256 checksums"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic/a\\-qualification\\.json$"]
+regexes = [
+  "^\\s*\"apiEvidenceSHA256\":\\ \"e2d9371c42befb558792a80475e9378bd17de45d683f107660535243c310db12\",\\s*$",
+]
+
+[[allowlists]]
+description = "Exact reviewed public evidence and source SHA256 checksums"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic/b\\-qualification\\.json$"]
+regexes = [
+  "^\\s*\"apiEvidenceSHA256\":\\ \"27229e8a2edbcacb18cb202bfa4369f178659600ffe5980cf9b3a8044c260ca6\",\\s*$",
+]
+
+[[allowlists]]
+description = "Exact reviewed public evidence and source SHA256 checksums"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic/c\\-qualification\\.json$"]
+regexes = [
+  "^\\s*\"apiEvidenceSHA256\":\\ \"0ce6a1d2202289027a5642e07d400f453b397864e59385996d1cefef4aa0d065\",\\s*$",
+]
+
+[[allowlists]]
+description = "Exact reviewed public evidence and source SHA256 checksums"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic/summary\\.json$"]
+regexes = [
+  "^\\s*\"a\\-api\\.json\":\\ \"e2d9371c42befb558792a80475e9378bd17de45d683f107660535243c310db12\",\\s*$",
+  "^\\s*\"b\\-api\\.json\":\\ \"27229e8a2edbcacb18cb202bfa4369f178659600ffe5980cf9b3a8044c260ca6\",\\s*$",
+  "^\\s*\"c\\-api\\.json\":\\ \"0ce6a1d2202289027a5642e07d400f453b397864e59385996d1cefef4aa0d065\",\\s*$",
+  "^\\s*\"fabric\\-console/src/api\\.ts\":\\ \"4550cbb720d3832e9260ede61e5acdf404d7d33eb7be85cf6a0228b381d493d1\",\\s*$",
+  "^\\s*\"fabric\\-control\\-plane/internal/httpapi/api\\.go\":\\ \"6d11e2632faccea98a325973b27754af100cf54209474fe08c6c3e96532f5884\",\\s*$",
+  "^\\s*\"fabric\\-control\\-plane/internal/httpapi/secure_api_e2e_test\\.go\":\\ \"eee0ff2e8729d7ba3e2853eacc80a26f3a67208ef689f6a96762269aadeee126\",\\s*$",
+]

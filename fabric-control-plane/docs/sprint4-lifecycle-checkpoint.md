@@ -1,5 +1,38 @@
 # Sprint 4 lifecycle implementation checkpoint
 
+## 5 November: A/B/C passed; completion blocked
+
+Active workspace: `E:/Sathonate/sathonate`, private repository `sdube19k-coder/sathonate`. Preserve all uncommitted execution/dashboard work. The original repositories, qualified controller and retained network are unchanged. AWS and production remain disabled.
+
+Fresh sequential disposable acceptance passed for all three customer-defined configurations:
+
+- A: two initial organizations, two peers and three Raft orderers; independently approved peer addition, organization/membership/anchor addition, then Raft expansion to five, new channel and executable 1.0 to 2.0 upgrade. Four peers converged at height 18 on shipments and height 6 on the added channel.
+- B: three organizations, four peers, three orderers distributed across organizations and two channels. All four peers reached height 7 on each channel.
+- C: two organizations, three peers, five orderers and split signing/TLS authorities. All three peers reached height 6.
+
+Every case passed authenticated API orchestration, actor/project isolation, API restart/adoption, worker failure/retry, persistent claims after peer restart, live certificate checks, credential/private-key inspection and effective Calico network isolation. A's three change operations preserved existing workload UIDs. Each A/B/C disposable cluster was removed. Retained readiness was checked read-only at 8/8 in each successful run. These observations are dated 5 November; they do not establish current readiness while Docker is unavailable.
+
+The subsequent fixed-topology lifecycle regression FAILED on an endorsement error from a `chaincode-query` against `org1-peer-2`. The redacted error does not establish its precise root cause. Its final JSON receipt is NUL-corrupted, so teardown is unverified. Preserve the failed attempt; do not classify it as an environment-only failure or PASS. Docker now reports the Linux engine pipe missing. Runtime tests are stopped until Docker is restored; do not repeatedly probe the inaccessible engine.
+
+Fresh local verification: Go 344 test events PASS / 18 opt-in skips, vet PASS; isolated config helper 8 test events PASS and vet PASS; console 25 tests, build and format PASS. Final PostgreSQL rerun, fixed-topology regression, live dashboard acceptance and final review/commit of the engine remain open. Runtime changes stay uncommitted until those gates pass. Deterministic public CONFIG update serialization is an independently tested helper increment.
+
+Evidence and exact transaction IDs: `docs/evidence/sprint4-dynamic/summary.json`, matching A/B/C API and security receipts, and `baseline-failure.log`. Current source review hashes are explicitly separate from execution-image provenance. Older failed/debug attempts remain under `.logs/dynamic-*`; never substitute them for complete acceptance.
+
+Resume in normal PowerShell with Docker's Linux engine running, from the backend:
+
+```powershell
+$env:GOCACHE='E:/Sathonate/.cache/go-build'
+$env:GOPATH='E:/Sathonate/.cache/go'
+$env:GOPROXY='off'
+$env:SMP_CACHE_ROOT='E:/Sathonate/.cache'
+python tools/sprint2/postgres.py --output .logs/sprint4-dynamic-resume-postgres.jsonl
+./tools/sprint4/qualify-dynamic.ps1 -Topology baseline
+```
+
+First inspect disposable leftovers using `E:/Sathonate/tools/kind.exe get clusters`; clean only the failed run's recorded `smp-sprint1-*` cluster after context/provider-ID validation. Never delete `smp-qualification`. Diagnose the baseline error without exporting private diagnostics or weakening endorsement/MSP/TLS. Only after its PASS, refresh the dynamic image/API build receipt and execute `fabric-console/tools/qualify-ui.py` with `SMP_UI_DYNAMIC=1`, an exact `SMP_UI_API_SHA256`, shared cache/kind/backend paths and a unique evidence label. Browser qualification is NOT TESTED; its script is not acceptance evidence.
+
+Sprint 4 remains PARTIAL. Sprint 3 remains OPEN: LOCAL QUALIFICATION PASSED / AWS EKS QUALIFICATION PENDING. Real Okta MFA, historical-key remediation owner approvals, EKS/IRSA/CNI/EBS, genuine multi-server testing and production readiness remain open. BFT, removals, private collections and replacement of roots/storage/placement are not qualified and must remain rejected. Public runtime configuration uses reviewed server-approved executable artifacts; arbitrary customer executable images are not permitted.
+
 ## 4 November resume
 
 The 31 October final browser run completed PASS: all 25 browser checks, the
