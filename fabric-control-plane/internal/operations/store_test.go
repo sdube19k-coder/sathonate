@@ -132,3 +132,41 @@ func TestFailedPersistenceDoesNotLeaseNetwork(t *testing.T) {
 		t.Fatal("failed write retained lease", e)
 	}
 }
+
+func TestMonitoringHistoryPreservesTerminalExecutionAndDeduplicates(t *testing.T) {
+	root := t.TempDir()
+	s, e := Open(root)
+	if e != nil {
+		t.Fatal(e)
+	}
+	op := begin(t, s, "monitoring")
+	if s.Advance(op.ID, "validate") != nil || s.Advance(op.ID, "deploy") != nil || s.Finish(op.ID, nil) != nil {
+		t.Fatal("terminal fixture")
+	}
+	before, _ := s.Get("tenant-a", op.ID)
+	fp := strings.Repeat("a", 64)
+	if s.Observe("foreign", op.ID, false, 1, fp) == nil {
+		t.Fatal("foreign observation")
+	}
+	if s.Observe("tenant-a", op.ID, false, 1, "private-arbitrary-text") == nil {
+		t.Fatal("untyped diagnostics accepted")
+	}
+	if s.Observe("tenant-a", op.ID, false, 1, fp) != nil || s.Observe("tenant-a", op.ID, false, 1, fp) != nil {
+		t.Fatal("terminal monitoring rejected")
+	}
+	after, _ := s.Get("tenant-a", op.ID)
+	if after.Status != before.Status || after.CurrentStage != before.CurrentStage || !after.FinishedAt.Equal(*before.FinishedAt) || len(after.Events) != len(before.Events)+1 {
+		t.Fatal("monitoring changed execution state or duplicated checkpoint")
+	}
+	if s.Advance(op.ID, "deploy") == nil || s.Finish(op.ID, nil) == nil {
+		t.Fatal("monitoring reopened terminal execution")
+	}
+	reopened, e := Open(root)
+	if e != nil {
+		t.Fatal(e)
+	}
+	again, _ := reopened.Get("tenant-a", op.ID)
+	if len(again.Events) != len(after.Events) || again.Status != "succeeded" {
+		t.Fatal("observation not durable")
+	}
+}

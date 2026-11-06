@@ -7,12 +7,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sathonate.local/fabric-control-plane/internal/redact"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -315,6 +317,40 @@ func (s *Store) Advance(id, key string) error {
 func (s *Store) Event(id, message string) error {
 	return s.mutate(id, func(o *Operation) error { appendEvent(o, message); return nil })
 }
+
+// Observe records typed monitoring history without reopening or advancing an
+// operation. Execution mutations remain forbidden once an operation is terminal.
+func (s *Store) Observe(tenant, id string, ready bool, alerts int, fingerprint string) error {
+	if s.readOnly {
+		return ErrReadOnly
+	}
+	if !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(fingerprint) || alerts < 0 || alerts > 10000 {
+		return errors.New("invalid monitoring observation")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	o, ok := s.items[id]
+	if !ok || o.TenantID != tenant {
+		return ErrNotFound
+	}
+	message := fmt.Sprintf("Monitoring checkpoint: ready=%t; alerts=%d; fingerprint=%s", ready, alerts, fingerprint)
+	for i := len(o.Events) - 1; i >= 0; i-- {
+		if strings.HasPrefix(o.Events[i].Message, "Monitoring checkpoint:") {
+			if o.Events[i].Message == message {
+				return nil
+			}
+			break
+		}
+	}
+	o = clone(o)
+	appendEvent(&o, message)
+	if e := s.persist(o); e != nil {
+		return e
+	}
+	s.items[id] = o
+	return nil
+}
+
 func (s *Store) Finish(id string, executionError error) error {
 	return s.mutate(id, func(o *Operation) error {
 		now := time.Now().UTC()
