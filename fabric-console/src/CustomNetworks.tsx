@@ -11,6 +11,7 @@ import {
   customerSummary,
 } from "./custom-configuration";
 import OperationDiagnosticsButton from "./OperationDiagnostics";
+import WorkloadStatus from "./WorkloadStatus";
 
 export default function CustomNetworks({
   initialId,
@@ -354,6 +355,7 @@ export default function CustomNetworks({
             </button>
           )}
           <OperationDiagnosticsButton operationId={operation.operationId} />
+          <WorkloadStatus operationId={operation.operationId} />
         </section>
       )}
       {observed && (

@@ -1,0 +1,123 @@
+{
+  "apiBindingQualified": false,
+  "commands": "GET_ONLY",
+  "mutations": false,
+  "observation": {
+    "operationId": "",
+    "revision": 0,
+    "checkedAt": "2026-11-06T05:46:23.8477708Z",
+    "readOnly": true,
+    "ledgerChecked": false,
+    "workloadsReady": true,
+    "pods": [
+      {
+        "name": "orderer-1-846957bfd9-5gddq",
+        "component": "orderer-1",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      },
+      {
+        "name": "orderer-2-7d8fd5b5c4-6c88v",
+        "component": "orderer-2",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      },
+      {
+        "name": "orderer-3-594dfb9f75-88bq6",
+        "component": "orderer-3",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      },
+      {
+        "name": "org1-ca-7f9ff5cc6d-dnsg9",
+        "component": "org1-ca",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      },
+      {
+        "name": "org1-peer-1-59ccc8c4f4-7w87z",
+        "component": "org1-peer-1",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      },
+      {
+        "name": "org2-ca-79f67bd9dd-lcgrc",
+        "component": "org2-ca",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      },
+      {
+        "name": "org2-peer-1-5989f5fd6c-g2ph5",
+        "component": "org2-peer-1",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      },
+      {
+        "name": "smp-smoke-8446d95557-52cvg",
+        "component": "smp-smoke",
+        "kind": "retained-component",
+        "phase": "Running",
+        "ready": true,
+        "restarts": 18,
+        "lastExitReason": "Other"
+      }
+    ],
+    "volumes": [
+      {
+        "name": "orderer-1",
+        "phase": "Bound"
+      },
+      {
+        "name": "orderer-2",
+        "phase": "Bound"
+      },
+      {
+        "name": "orderer-3",
+        "phase": "Bound"
+      },
+      {
+        "name": "org1-ca",
+        "phase": "Bound"
+      },
+      {
+        "name": "org1-peer-1",
+        "phase": "Bound"
+      },
+      {
+        "name": "org2-ca",
+        "phase": "Bound"
+      },
+      {
+        "name": "org2-peer-1",
+        "phase": "Bound"
+      }
+    ],
+    "missing": [],
+    "guidance": [
+      "Workload readiness does not prove ledger consistency. Run an authorized transaction verification for fresh Fabric evidence."
+    ]
+  },
+  "schema": "sathonate.sprint5-read-only-projection/v1",
+  "status": "PASS_PROJECTION_ONLY"
+}

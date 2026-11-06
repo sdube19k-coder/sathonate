@@ -110,6 +110,13 @@ export const api = {
     }),
   deployment: (id: string) =>
     request<DeploymentState>(`/deployments/${encodeURIComponent(id)}`),
+  workloads: (id: string, signal?: AbortSignal) =>
+    request<WorkloadSnapshot>(
+      `/deployments/${encodeURIComponent(id)}/workloads`,
+      {
+        signal,
+      },
+    ),
   lifecyclePreview: (id: string, action: LifecycleAction) =>
     request<ChangePreview>(
       `/deployments/${encodeURIComponent(id)}/lifecycle/${action}/preview`,
@@ -408,3 +415,25 @@ export type LaunchReadiness = {
     required?: string;
   }[];
 };
+
+export interface WorkloadSnapshot {
+  operationId: string;
+  revision: number;
+  checkedAt: string;
+  readOnly: boolean;
+  ledgerChecked: boolean;
+  workloadsReady: boolean;
+  pods: {
+    name: string;
+    component: string;
+    kind: string;
+    phase: string;
+    ready: boolean;
+    restarts: number;
+    waitingReason?: string;
+    lastExitReason?: string;
+  }[];
+  volumes: { name: string; phase: string }[];
+  missing: string[];
+  guidance: string[];
+}

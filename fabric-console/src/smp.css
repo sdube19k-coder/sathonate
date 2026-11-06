@@ -2249,3 +2249,12 @@
 .smp-custom-networks .smp-inline-actions {
   flex-wrap: wrap;
 }
+.smp-workload-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.smp-workload-scroll table {
+  width: 100%;
+  min-width: 640px;
+  text-align: left;
+}

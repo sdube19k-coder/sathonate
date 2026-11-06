@@ -1,0 +1,5 @@
+=== RUN   TestLiveReadOnlyWorkloadProjection
+    workloads_live_test.go:60: Read-only live projection: eight ready workloads and seven bound claims; ledger not queried
+--- PASS: TestLiveReadOnlyWorkloadProjection (0.30s)
+PASS
+ok  	sathonate.local/fabric-control-plane/internal/deployment	0.621s

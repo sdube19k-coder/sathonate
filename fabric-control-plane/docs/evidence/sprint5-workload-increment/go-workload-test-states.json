@@ -1,0 +1,58 @@
+[
+  {
+    "Time": "2026-11-06T11:17:19.4197063+05:30",
+    "Action": "skip",
+    "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+    "Test": "TestLiveReadOnlyWorkloadProjection",
+    "Elapsed": 0
+  },
+  {
+    "Time": "2026-11-06T11:17:19.4202283+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+    "Test": "TestWorkloadProjectionKeepsOnlyCurrentOperationalFields",
+    "Elapsed": 0
+  },
+  {
+    "Time": "2026-11-06T11:17:19.4202283+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+    "Test": "TestWorkloadProjectionDistinguishesFailureMissingAndStorage",
+    "Elapsed": 0
+  },
+  {
+    "Time": "2026-11-06T11:17:19.4202283+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+    "Test": "TestWorkloadProjectionRejectsForeignScopeAndWrongPayload",
+    "Elapsed": 0
+  },
+  {
+    "Time": "2026-11-06T11:17:19.4202283+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+    "Test": "TestWorkloadProjectionAcceptsKubectlListsButRejectsWrongItemTypes",
+    "Elapsed": 0
+  },
+  {
+    "Time": "2026-11-06T11:17:19.4202283+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/deployment",
+    "Test": "TestWorkloadProjectionHonorsPodReadinessGate",
+    "Elapsed": 0
+  },
+  {
+    "Time": "2026-11-06T11:17:19.4276392+05:30",
+    "Action": "skip",
+    "Package": "sathonate.local/fabric-control-plane/internal/httpapi",
+    "Test": "TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction",
+    "Elapsed": 0
+  },
+  {
+    "Time": "2026-11-06T11:17:19.4302358+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/httpapi",
+    "Test": "TestWorkloadRouteRejectsSimulationAndImplicitDevelopmentIdentity",
+    "Elapsed": 0
+  }
+]

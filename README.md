@@ -16,7 +16,7 @@ Private source repository for the Sathonate Fabric control plane and React conso
 
 See [current acceptance](fabric-control-plane/docs/sprint4-dynamic-acceptance.md), [source-linked evidence](fabric-control-plane/docs/evidence/sprint4-dynamic-final/summary.json) and the [configuration/API guide](fabric-control-plane/docs/sprint4-dynamic-local.md). The fixed topology remains a regression fixture.
 
-Production release remains **BLOCKED** by real Okta acceptance, historical-key remediation and infrastructure/storage qualification. Sprint 3 remains **LOCAL QUALIFICATION PASSED / AWS EKS QUALIFICATION PENDING**. BFT, removals and replacement operations are unqualified; no unsupported consensus is advertised. Sprint 5 begins with the authorized local operations/recovery backlog. AWS and production remain disabled.
+Production release remains **BLOCKED** by real Okta acceptance, historical-key remediation and infrastructure/storage qualification. Sprint 3 remains **LOCAL QUALIFICATION PASSED / AWS EKS QUALIFICATION PENDING**. BFT, removals and replacement operations are unqualified; no unsupported consensus is advertised. Sprint 5 has begun with [read-only workload troubleshooting](fabric-control-plane/docs/sprint5-local-operations.md); its new API/widget runtime acceptance and broader recovery work remain pending. AWS and production remain disabled.
 
 ## Local development
 

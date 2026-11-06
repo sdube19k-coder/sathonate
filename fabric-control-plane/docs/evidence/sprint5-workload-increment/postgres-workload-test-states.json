@@ -1,0 +1,23 @@
+[
+  {
+    "Time": "2026-11-06T11:15:37.2813797+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/httpapi",
+    "Test": "TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction/successful-read",
+    "Elapsed": 0.04
+  },
+  {
+    "Time": "2026-11-06T11:15:37.3183391+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/httpapi",
+    "Test": "TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction/provider-failure",
+    "Elapsed": 0.04
+  },
+  {
+    "Time": "2026-11-06T11:15:37.3183391+05:30",
+    "Action": "pass",
+    "Package": "sathonate.local/fabric-control-plane/internal/httpapi",
+    "Test": "TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction",
+    "Elapsed": 0.08
+  }
+]

@@ -1,0 +1,54 @@
+{
+  "schema": "sathonate.sprint5-workload-increment/v1",
+  "status": "IN_PROGRESS_FIRST_READ_ONLY_INCREMENT",
+  "checkedAt": "2026-11-06T05:49:09.731921+00:00",
+  "qualifiedSprint4Commit": "52fcae1",
+  "scope": "User-approved local operations/recovery backlog",
+  "awsAccessed": false,
+  "productionEnabled": false,
+  "mutatingKubernetesVerbs": false,
+  "gates": {
+    "projectionUnitTests": "PASS",
+    "postgresHTTPAuthorizationWithFixtureProvider": "PASS",
+    "liveReadOnlyInventoryProjection": "PASS_PROJECTION_ONLY",
+    "consoleTestsBuildFormat": "PASS",
+    "newHTTPToKubernetesBindingAcceptance": "NOT_TESTED",
+    "newWidgetBrowserAcceptance": "NOT_TESTED",
+    "backupRestoreAndSafeDeletion": "NOT_IMPLEMENTED"
+  },
+  "tests": {
+    "go": {
+      "status": "PASS",
+      "testEvents": {
+        "pass": 354,
+        "fail": 0,
+        "skip": 20
+      }
+    },
+    "postgres": {
+      "status": "PASS",
+      "testEvents": {
+        "pass": 45,
+        "fail": 0,
+        "skip": 1
+      }
+    },
+    "console": {
+      "status": "PASS",
+      "tests": 25
+    },
+    "goVet": "PASS",
+    "apiBuild": "PASS",
+    "consoleBuildAndFormat": "PASS"
+  },
+  "localEvidenceLogs": [
+    "E:\\Sathonate\\sathonate\\fabric-control-plane\\.logs\\sprint5-go.jsonl",
+    "E:\\Sathonate\\sathonate\\fabric-control-plane\\.logs\\sprint5-postgres.jsonl"
+  ],
+  "binaryDigest": "7ed2be65a6fcdbcced81fa597b27d5dca1a5397a96e69b076f30bb8b0ecd0f52",
+  "credentialInspection": {
+    "status": "PASS",
+    "sourceAndEvidenceFiles": 18,
+    "broadExclusionsAdded": false
+  }
+}
