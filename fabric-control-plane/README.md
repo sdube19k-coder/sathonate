@@ -1,6 +1,10 @@
 # Fabric SMP — Sathonate control plane
 
-Sathonate's Go API for designing Hyperledger Fabric networks. This is an independent Git repository. The React console lives in `E:/Sathonate/fabric-console` and communicates only through HTTP.
+Sathonate's Go API for designing Hyperledger Fabric networks. This component shares the private Sathonate source repository with the React console in `../fabric-console`, communicating only through HTTP.
+
+## Current local MVP
+
+Customer-defined local Raft provisioning, peer/organization/orderer additions, channels/anchors and actual approved executable upgrades passed A/B/C runtime and live dashboard acceptance. See [verified acceptance and limits](docs/sprint4-dynamic-acceptance.md) and the [customer configuration guide](docs/sprint4-dynamic-local.md). Production and AWS remain disabled.
 
 ## What works
 
@@ -20,7 +24,7 @@ Sathonate's Go API for designing Hyperledger Fabric networks. This is an indepen
 - Persist desired configuration, revision history and review metadata across API restarts.
 - Reject stale updates, duplicate active network IDs, unknown input fields, arbitrary browser origins and untrusted Host headers.
 
-Optional Okta access-token authentication, tenant-scoped PostgreSQL persistence, a server-managed EKS target registry, read-only cloud preflight checks and non-executable Bevel candidate exports are implemented. Local development containers and CA enrollment work through a dedicated runtime. Deployment of arbitrary saved designs, remote server agents and production Fabric monitoring remain unavailable. Drafts and plans are never reported as live networks.
+Optional Okta access-token authentication, tenant-scoped PostgreSQL persistence, a server-managed EKS target registry, read-only cloud preflight checks and non-executable Bevel candidate exports are implemented. Local development containers and CA enrollment work through a dedicated runtime. Customer-defined local execution requires the explicit protected dynamic profile and approved target/artifacts. Arbitrary cloud execution, remote server agents and production monitoring remain unavailable. Drafts and plans are never reported as live networks.
 
 ## Run
 

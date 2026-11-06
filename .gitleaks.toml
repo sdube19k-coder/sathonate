@@ -142,3 +142,43 @@ regexes = [
   "^\\s*\"fabric\\-control\\-plane/internal/httpapi/api\\.go\":\\ \"6d11e2632faccea98a325973b27754af100cf54209474fe08c6c3e96532f5884\",\\s*$",
   "^\\s*\"fabric\\-control\\-plane/internal/httpapi/secure_api_e2e_test\\.go\":\\ \"eee0ff2e8729d7ba3e2853eacc80a26f3a67208ef689f6a96762269aadeee126\",\\s*$",
 ]
+
+[[allowlists]]
+description = "Exact reviewed public qualification checksum"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic\\-final/a\\-qualification\\.json$"]
+regexes = ["^\\s*\"apiEvidenceSHA256\":\\ \"ae7292f37eae1b3eed9564fc3e3c030b38ee1f12158620018897ab996eeccf5f\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public qualification checksum"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic\\-final/b\\-qualification\\.json$"]
+regexes = ["^\\s*\"apiEvidenceSHA256\":\\ \"548cac01ff43272013095672bda2b3204b644d8fb98e4c6256ef3cd5167cc7df\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public qualification checksum"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic\\-final/c\\-qualification\\.json$"]
+regexes = ["^\\s*\"apiEvidenceSHA256\":\\ \"f22b97f278ac51fc454323ae88e3d206ec47434145133e5739d77e13e8450a62\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public qualification checksum"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic\\-final/baseline\\-qualification\\.json$"]
+regexes = ["^\\s*\"apiEvidenceSHA256\":\\ \"118ea7f1581e054cf0688b46e78ff3bd6e190012f07e15629a4a7da34ed6ed61\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public qualification checksum"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic\\-final/ui\\-qualification\\.json$"]
+regexes = ["^\\s*\"apiBinarySHA256\":\\ \"d6aee1363066861396d94613962ccf24865416585b410825568dea07e51ecb50\",\\s*$"]

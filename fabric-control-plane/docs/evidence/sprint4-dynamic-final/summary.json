@@ -1,0 +1,346 @@
+{
+  "schema": "sathonate.sprint4-dynamic-final/v1",
+  "status": "LOCAL_DYNAMIC_MVP_PASS",
+  "qualifiedAt": "2026-11-06T05:32:08.876893+00:00",
+  "backendCommit": "e61e216ef2e720048d29ccba72f6f729b1d3580a",
+  "consoleCommit": "c4926fb6ac3ec9fa6abb087df488bc01baae7af1",
+  "awsAccessed": false,
+  "productionEnabled": false,
+  "mandatoryLocalGates": {
+    "baseline": "PASS",
+    "a": "PASS",
+    "b": "PASS",
+    "c": "PASS",
+    "liveDashboard": "PASS",
+    "postgresAuthorization": "PASS",
+    "regressions": "PASS",
+    "credentialInspection": "PASS",
+    "cleanup": "PASS"
+  },
+  "runs": {
+    "baseline": {
+      "status": "PASS",
+      "run": "dynamic-baseline-20261105-223436",
+      "checkedAt": "2026-11-05T17:16:41.4246707Z",
+      "initialTransactionId": "6679dca061b7c9beafedfe18027b6c3806559686a2f69e573b01471eccb94c3b",
+      "finalTransactionId": "72067fa89afc8d0ae4f2055704e05561e8384aa0a78a39f0fd7781eeaabc0e8a",
+      "securityChecks": 15,
+      "cleanup": "PASS",
+      "lifecycle": [
+        {
+          "action": "add-peer",
+          "transactionId": "3db38b005ab8d2ec59a23e47e0c0d349a1e6b729fef2e19b96258f16889372d2",
+          "peerHeights": [
+            7,
+            7,
+            7
+          ]
+        },
+        {
+          "action": "upgrade-chaincode",
+          "transactionId": "638cdbd82fe8f41eab8e63bb5506edda07b7e1157a55c70b04245da9dd65a00e",
+          "peerHeights": [
+            11,
+            11,
+            11
+          ]
+        },
+        {
+          "action": "restart-peer",
+          "transactionId": "7a4a470245903af99b0017409dae4a5f47ab42b61260ebf0f994c97c67021315",
+          "peerHeights": [
+            12,
+            12,
+            12
+          ]
+        },
+        {
+          "action": "verify-network",
+          "transactionId": "72067fa89afc8d0ae4f2055704e05561e8384aa0a78a39f0fd7781eeaabc0e8a",
+          "peerHeights": [
+            13,
+            13,
+            13
+          ]
+        }
+      ]
+    },
+    "a": {
+      "status": "PASS",
+      "run": "dynamic-a-20261105-224709",
+      "checkedAt": "2026-11-05T17:30:27.0452644Z",
+      "initialTransactionId": "7193d0c3c5a0fa88c0f539e8f105aab427638ec7267a1b6a51d06e0f3d606128",
+      "finalTransactionId": "f333dc718ad1c757b2cd5353fcbba0e6476b46961f468437209aa4e3d1d55be5",
+      "securityChecks": 15,
+      "cleanup": "PASS",
+      "contracts": [
+        {
+          "channel": "shipments",
+          "transactionId": "030d90f9eaa94e17c5e563357fbf69b9afe268476561e704e6c4f7a70d06d14d",
+          "peers": 4,
+          "height": 18,
+          "orderers": 5,
+          "authorities": 3,
+          "codeVersion": "2.0"
+        },
+        {
+          "channel": "customer-added-ledger",
+          "transactionId": "f333dc718ad1c757b2cd5353fcbba0e6476b46961f468437209aa4e3d1d55be5",
+          "peers": 4,
+          "height": 6,
+          "orderers": 5,
+          "authorities": 3,
+          "codeVersion": "2.0"
+        }
+      ]
+    },
+    "b": {
+      "status": "PASS",
+      "run": "dynamic-b-20261105-230055",
+      "checkedAt": "2026-11-05T17:42:08.5781938Z",
+      "initialTransactionId": "2694916a80ac3a0676ea39bdcf6a23ad1c72e519c996e14df525ebc73ef4fd13",
+      "finalTransactionId": "51bebddcde8fa37dcb613da5d294cceab261bc02f9dcbb3cc602fefd4ab6739e",
+      "securityChecks": 15,
+      "cleanup": "PASS",
+      "contracts": [
+        {
+          "channel": "supply",
+          "transactionId": "e7812604ca88e506e6d78f9a18db5f36361730a3e8ea8330d97cd2003503d78a",
+          "peers": 4,
+          "height": 7,
+          "orderers": 3,
+          "authorities": 3,
+          "codeVersion": "1.0"
+        },
+        {
+          "channel": "audit",
+          "transactionId": "51bebddcde8fa37dcb613da5d294cceab261bc02f9dcbb3cc602fefd4ab6739e",
+          "peers": 4,
+          "height": 7,
+          "orderers": 3,
+          "authorities": 3,
+          "codeVersion": "1.0"
+        }
+      ]
+    },
+    "c": {
+      "status": "PASS",
+      "run": "dynamic-c-20261106-103403",
+      "checkedAt": "2026-11-06T05:17:16.8608949Z",
+      "initialTransactionId": "2901132bbc3a0334b5b2550a0336e2ba8ca969c04fc2548ed3dd08136d2a12dd",
+      "finalTransactionId": "58da2aa5555821b54741f5f8804050a0d17b3363f4b71c6e92907f04fb3ff10f",
+      "securityChecks": 15,
+      "cleanup": "PASS",
+      "contracts": [
+        {
+          "channel": "settlements",
+          "transactionId": "58da2aa5555821b54741f5f8804050a0d17b3363f4b71c6e92907f04fb3ff10f",
+          "peers": 3,
+          "height": 6,
+          "orderers": 5,
+          "authorities": 3,
+          "codeVersion": "1.0"
+        }
+      ]
+    }
+  },
+  "externalGates": {
+    "realOktaLogin": "BLOCKED_INTERACTIVE_MFA",
+    "historicalKeyRemediation": "BLOCKED_OWNER_APPROVAL_AND_ROTATION_EVIDENCE",
+    "sprint3": "OPEN_LOCAL_QUALIFIED_AWS_EKS_PENDING",
+    "eksIRSA_CNI_EBS": "NOT_QUALIFIED",
+    "multiServerKubernetes": "NOT_TESTED_KIND_SINGLE_HOST_ONLY",
+    "BFT": "NOT_SUPPORTED",
+    "removalRootStoragePlacementReplacementPrivateCollections": "NOT_QUALIFIED_FAIL_CLOSED"
+  },
+  "independentExpansionStages": [
+    {
+      "stage": 1,
+      "status": "PASS",
+      "existingWorkloadUIDsPreserved": true,
+      "apiRestartAdopted": true,
+      "transactions": [
+        {
+          "channel": "shipments",
+          "transactionId": "46ae55a2dd7f65b7fee8138e87970587ab5edc6eaf8e95386f449acf197ac256",
+          "height": 8,
+          "peers": 3,
+          "orderers": 3,
+          "codeVersion": "1.0"
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "status": "PASS",
+      "existingWorkloadUIDsPreserved": true,
+      "apiRestartAdopted": true,
+      "transactions": [
+        {
+          "channel": "shipments",
+          "transactionId": "87695e335f22312fc9e8337b0dd4d7a1e8f198924731cbec8657b29c1a1b12fc",
+          "height": 11,
+          "peers": 4,
+          "orderers": 3,
+          "codeVersion": "1.0"
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "status": "PASS",
+      "existingWorkloadUIDsPreserved": true,
+      "apiRestartAdopted": true,
+      "transactions": [
+        {
+          "channel": "shipments",
+          "transactionId": "030d90f9eaa94e17c5e563357fbf69b9afe268476561e704e6c4f7a70d06d14d",
+          "height": 18,
+          "peers": 4,
+          "orderers": 5,
+          "codeVersion": "2.0"
+        },
+        {
+          "channel": "customer-added-ledger",
+          "transactionId": "f333dc718ad1c757b2cd5353fcbba0e6476b46961f468437209aa4e3d1d55be5",
+          "height": 6,
+          "peers": 4,
+          "orderers": 5,
+          "codeVersion": "2.0"
+        }
+      ]
+    }
+  ],
+  "workerRuntimeReference": "sathonate/fabric-worker@sha256:b38d1af7b5e38a50806daad7a2c9b73259f6226527f26203b8196b07380d0f78",
+  "browser": {
+    "status": "PASS",
+    "run": "dynamic-browser-20261106-104804",
+    "checks": {
+      "invalidToken": "PASS",
+      "customerConfigurationSaved": "PASS",
+      "missingDeploymentGrantDenied": "PASS",
+      "initialBrowserProvisioningAndTransaction": "PASS",
+      "refreshRestoresServerOwnedOperation": "PASS",
+      "reviewedExpansionMembershipChannelAnchorAndCodeUpgrade": "PASS",
+      "crossTenantProjectDenied": "PASS",
+      "credentialsMemoryOnly": "PASS",
+      "responsiveDashboard": "PASS"
+    },
+    "initialTransactionId": "e2e8e9edd74f4d95bb5ff87010060d66a81f510340e2d86313de04264e596da7",
+    "contracts": [
+      {
+        "channel": "shipments",
+        "transactionId": "defd617862efc4d46a2e8898d6343057e971409767a8fa5914cff9f0ccc2250b",
+        "peerHeights": [
+          12,
+          12,
+          12,
+          12
+        ],
+        "orderers": 5,
+        "codeVersion": "2.0"
+      },
+      {
+        "channel": "customer-added-ledger",
+        "transactionId": "66c0e53d3e20f50ff3bcfbb9cf2f8b65731305cd09c3d83c81b468a87b892268",
+        "peerHeights": [
+          6,
+          6,
+          6,
+          6
+        ],
+        "orderers": 5,
+        "codeVersion": "2.0"
+      }
+    ],
+    "cleanup": "PASS"
+  },
+  "tests": {
+    "go": {
+      "status": "PASS",
+      "testEvents": {
+        "pass": 348,
+        "fail": 0,
+        "skip": 18
+      },
+      "skippedTests": [
+        "TestOperationDeploymentRLSUnderRestrictedRole",
+        "TestPreparedCloudSubmissionIsAtomic",
+        "TestSecureEKSPostgresDurableRecoveryAndIdempotency",
+        "TestPostgresOIDCMembershipAuthorityAndOwnership",
+        "TestPostgresTenantIsolationAndRevisions",
+        "TestProductionPostgresTLSAndRoleOnDocker",
+        "TestPostgresMaintenanceRecoveryAndCAS",
+        "TestPostgresDynamicApprovalRecoveryAndIsolation",
+        "TestEKSWorkerLifecycleOnKind",
+        "TestLocalWorkerRegressionOnKind",
+        "TestEKSPostgresRecoveryRetryCancellation",
+        "TestPostgresHistorySnapshotDoesNotRecoverJobsOrCrossScope",
+        "TestPostgresLifecycleApprovalScopeStalenessAndIdempotency",
+        "TestProtectedCAConfigOnDocker",
+        "TestPostgresOIDCReadOnlyAuthorization",
+        "TestSecureApplicationAPIOnDisposableKind",
+        "TestPostgresJobAndNetworkStateSurviveRestart",
+        "TestSecureEKSPostgresDoesNotAdoptForeignScope"
+      ]
+    },
+    "configHelper": {
+      "status": "PASS",
+      "testEvents": {
+        "pass": 8,
+        "fail": 0,
+        "skip": 0
+      },
+      "skippedTests": []
+    },
+    "postgres": {
+      "status": "PASS",
+      "testEvents": {
+        "pass": 42,
+        "fail": 0,
+        "skip": 1
+      },
+      "skippedTests": [
+        "TestProductionPostgresTLSAndRoleOnDocker"
+      ]
+    },
+    "console": {
+      "status": "PASS",
+      "tests": 25
+    },
+    "goVet": "PASS",
+    "helperVet": "PASS",
+    "consoleBuildAndFormat": "PASS",
+    "pythonSafety": {
+      "status": "PASS",
+      "tests": 19
+    }
+  },
+  "committedGoSourceMatchesQualifiedBuildReceipt": true,
+  "qualifiedGoSourceFiles": 184,
+  "workerImageID": "sha256:25e250821fc530886d76f1d0c0331fe467b203f8f282fde0a5e6ea0fc090242d",
+  "workerBinarySHA256": "e2a66da2863516fb1e7e4bba65afb732aa42c922ad0596c378fb14eb7afff43a",
+  "configToolBinarySHA256": "7d6c3ad81a6d4d9f2a6a816ffe6b376032c7e5dfb702ad0939d734cca203eb95",
+  "controllerReference": "sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c",
+  "controllerSubmoduleCommit": "cd236ccc61d1d159b3dadb4625d08bb5682a8451",
+  "retainedNetwork": {
+    "readOnly": true,
+    "readyDeployments": 8,
+    "total": 8,
+    "agentMutations": false
+  },
+  "cleanup": {
+    "kindClustersRemaining": [
+      "smp-qualification"
+    ],
+    "existingPostgresFixturePreserved": true,
+    "awsResourcesCreated": false
+  },
+  "credentialScan": {
+    "sourceDiff": "PASS_63_FILES",
+    "deliveryDiff": "PASS_26_FILES",
+    "sourceHistory": "PASS_7_COMMITS",
+    "publicChecksumExceptions": "Five exact path/line SHA256 values, no broad exclusions",
+    "screenshots": "VISUALLY_REVIEWED_NO_CREDENTIALS"
+  }
+}

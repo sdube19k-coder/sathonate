@@ -1,5 +1,8 @@
 # Sprint 4 — local operations and troubleshooting
 
+Historical increment report. For the 5-6 November dynamic MVP result, see [current acceptance](sprint4-dynamic-acceptance.md). Original dates and results below remain unchanged.
+
+
 Scope selected on 30 October 2026 after reviewing the existing API, console,
 architecture and qualification tools. No numbered Sprint 4 backlog existed in
 the repository. Existing network design/project authorization, provisioning,

@@ -1,5 +1,8 @@
 # Sprint 4 bounded lifecycle acceptance
 
+Historical increment report. For the 5-6 November dynamic MVP result, see [current acceptance](sprint4-dynamic-acceptance.md). Original dates and results below remain unchanged.
+
+
 4 November 2026. **Verified lifecycle increment PASS; Sprint 4 overall PARTIAL.**
 Sprint 3 remains **LOCAL QUALIFICATION PASSED / AWS EKS QUALIFICATION PENDING**.
 No AWS access or production deployment occurred. The retained network was

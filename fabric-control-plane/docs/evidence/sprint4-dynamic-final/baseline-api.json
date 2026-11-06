@@ -1,0 +1,464 @@
+{
+  "apiToFabric": "PASS",
+  "authenticatedTenantProject": true,
+  "authenticationMode": "local-token",
+  "awsEnabled": false,
+  "checkedAt": "2026-11-05T17:16:41.4246707Z",
+  "committedAndReadOnBothPeers": true,
+  "crossProjectDenied": true,
+  "crossTenantDenied": true,
+  "duplicateOperationReused": true,
+  "dynamicExpansion": {},
+  "failedWorkerRetriedThroughAPI": true,
+  "initialOperationId": "op_e600d71d7516262805aad975bca2fd67",
+  "initialTransactionId": "6679dca061b7c9beafedfe18027b6c3806559686a2f69e573b01471eccb94c3b",
+  "lifecycleChanges": [
+    {
+      "action": "add-peer",
+      "apiRestartAdopted": true,
+      "approvedPreview": {
+        "parentOperationId": "op_d1dffe562df3ed32d5050ce211db1ed5",
+        "action": "add-peer",
+        "digest": "8c848405a592e7e607933c2233a46aa5cc94a0d94d61c2ca032d5da17a8b713b",
+        "before": {
+          "peerAdded": false,
+          "sequence": 1
+        },
+        "after": {
+          "peerAdded": true,
+          "sequence": 1
+        },
+        "impact": [
+          "Enroll independent org1-peer-2 signing/TLS identities using Org1 CA",
+          "Create one peer and persistent claim in the owned namespace",
+          "Join smpchannel, install the approved package and verify synchronized ledgers on three peers",
+          "Existing Raft membership, organization membership and endorsement policy stay unchanged"
+        ],
+        "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+        "liveHealthChecked": true
+      },
+      "health": {
+        "checkedAt": "2026-11-05T17:15:03.820561554Z",
+        "ready": true,
+        "channel": "smpchannel",
+        "peers": [
+          {
+            "peer": "org1-peer-1",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "ExiR+YfL58oanfSickxDxwvAtPKY/1zvcs5WQBSDNbI="
+          },
+          {
+            "peer": "org2-peer-1",
+            "mspId": "Org2MSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "ExiR+YfL58oanfSickxDxwvAtPKY/1zvcs5WQBSDNbI="
+          },
+          {
+            "peer": "org1-peer-2",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "ExiR+YfL58oanfSickxDxwvAtPKY/1zvcs5WQBSDNbI="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "orderer-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          },
+          {
+            "name": "orderer-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          },
+          {
+            "name": "orderer-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "org1-ca",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "org2-ca",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "smp_smoke",
+          "available": true,
+          "version": "1.0",
+          "sequence": 1
+        },
+        "alerts": []
+      },
+      "operationId": "op_b33cd11f3a7ed76bc4bdc44a930c2b39",
+      "transactionId": "3db38b005ab8d2ec59a23e47e0c0d349a1e6b729fef2e19b96258f16889372d2"
+    },
+    {
+      "action": "upgrade-chaincode",
+      "apiRestartAdopted": true,
+      "approvedPreview": {
+        "parentOperationId": "op_b33cd11f3a7ed76bc4bdc44a930c2b39",
+        "action": "upgrade-chaincode",
+        "digest": "d132bf40b5fcdf58a20430156f47e70f06dbbfe04632bfcaaf1101994df04d63",
+        "before": {
+          "peerAdded": true,
+          "sequence": 1
+        },
+        "after": {
+          "peerAdded": true,
+          "sequence": 2
+        },
+        "impact": [
+          "Approve smp_smoke version 2.0 sequence 2 with both organization administrators",
+          "Check commit readiness and commit with Org1 AND Org2 endorsements",
+          "Retain the qualified package/image and existing ledger; this upgrades the definition, not arbitrary code",
+          "Verify a new committed transaction on every managed peer"
+        ],
+        "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+        "liveHealthChecked": true
+      },
+      "health": {
+        "checkedAt": "2026-11-05T17:15:26.451553603Z",
+        "ready": true,
+        "channel": "smpchannel",
+        "peers": [
+          {
+            "peer": "org1-peer-1",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 11,
+            "currentBlockHash": "kKaD/OuvmT8GT5Y57ef6wR45WWRqP8AGJ8JBmQAfVR0="
+          },
+          {
+            "peer": "org2-peer-1",
+            "mspId": "Org2MSP",
+            "available": true,
+            "height": 11,
+            "currentBlockHash": "kKaD/OuvmT8GT5Y57ef6wR45WWRqP8AGJ8JBmQAfVR0="
+          },
+          {
+            "peer": "org1-peer-2",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 11,
+            "currentBlockHash": "kKaD/OuvmT8GT5Y57ef6wR45WWRqP8AGJ8JBmQAfVR0="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "orderer-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 11
+          },
+          {
+            "name": "orderer-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 11
+          },
+          {
+            "name": "orderer-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 11
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "org1-ca",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "org2-ca",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "smp_smoke",
+          "available": true,
+          "version": "2.0",
+          "sequence": 2
+        },
+        "alerts": []
+      },
+      "operationId": "op_5a41642cdd07ecee6425283ebdb1b10f",
+      "transactionId": "638cdbd82fe8f41eab8e63bb5506edda07b7e1157a55c70b04245da9dd65a00e"
+    },
+    {
+      "action": "restart-peer",
+      "apiRestartAdopted": true,
+      "approvedPreview": {
+        "parentOperationId": "op_5a41642cdd07ecee6425283ebdb1b10f",
+        "action": "restart-peer",
+        "digest": "a5d55c853a7be01ba407151fe5ed97a20aa3bc2afdc7b56be304de3cfb78312d",
+        "before": {
+          "peerAdded": true,
+          "sequence": 2
+        },
+        "after": {
+          "peerAdded": true,
+          "sequence": 2
+        },
+        "impact": [
+          "Restart org1-peer-1 through an owned UID-checked pod-template update",
+          "Keep identities and persistent claims; wait for rollout, then commit and query a new transaction on every managed peer"
+        ],
+        "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+        "liveHealthChecked": true
+      },
+      "health": {
+        "checkedAt": "2026-11-05T17:16:22.665366215Z",
+        "ready": true,
+        "channel": "smpchannel",
+        "peers": [
+          {
+            "peer": "org1-peer-1",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 12,
+            "currentBlockHash": "pPCirH36Vm9jbSRz95VHhmw34OOnJd91f4mUm7Nz3mY="
+          },
+          {
+            "peer": "org2-peer-1",
+            "mspId": "Org2MSP",
+            "available": true,
+            "height": 12,
+            "currentBlockHash": "pPCirH36Vm9jbSRz95VHhmw34OOnJd91f4mUm7Nz3mY="
+          },
+          {
+            "peer": "org1-peer-2",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 12,
+            "currentBlockHash": "pPCirH36Vm9jbSRz95VHhmw34OOnJd91f4mUm7Nz3mY="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "orderer-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 12
+          },
+          {
+            "name": "orderer-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 12
+          },
+          {
+            "name": "orderer-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 12
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "org1-ca",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "org2-ca",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "smp_smoke",
+          "available": true,
+          "version": "2.0",
+          "sequence": 2
+        },
+        "alerts": []
+      },
+      "operationId": "op_e99f56885f287f2dc5c015142556f858",
+      "transactionId": "7a4a470245903af99b0017409dae4a5f47ab42b61260ebf0f994c97c67021315"
+    },
+    {
+      "action": "verify-network",
+      "apiRestartAdopted": true,
+      "approvedPreview": {
+        "parentOperationId": "op_e99f56885f287f2dc5c015142556f858",
+        "action": "verify-network",
+        "digest": "b288e84a3e6acf91900a59d754313ae2d15890d668d0ce7e5984b48a14c01af7",
+        "before": {
+          "peerAdded": true,
+          "sequence": 2
+        },
+        "after": {
+          "peerAdded": true,
+          "sequence": 2
+        },
+        "impact": [
+          "Reconcile the current approved member set without changing membership",
+          "Submit a NEW qualification Put and verify Get and equal ledger state on every managed peer"
+        ],
+        "recovery": "Retry the recorded operation to reconcile the same identities and resources. Do not delete PVCs or roll back committed Fabric definitions.",
+        "liveHealthChecked": true
+      },
+      "health": {
+        "checkedAt": "2026-11-05T17:16:37.534221206Z",
+        "ready": true,
+        "channel": "smpchannel",
+        "peers": [
+          {
+            "peer": "org1-peer-1",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 13,
+            "currentBlockHash": "E0iKGYJpSeTEPakojXxgd0pZt0iDykbuhh9lW+LLZXE="
+          },
+          {
+            "peer": "org2-peer-1",
+            "mspId": "Org2MSP",
+            "available": true,
+            "height": 13,
+            "currentBlockHash": "E0iKGYJpSeTEPakojXxgd0pZt0iDykbuhh9lW+LLZXE="
+          },
+          {
+            "peer": "org1-peer-2",
+            "mspId": "Org1MSP",
+            "available": true,
+            "height": 13,
+            "currentBlockHash": "E0iKGYJpSeTEPakojXxgd0pZt0iDykbuhh9lW+LLZXE="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "orderer-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 13
+          },
+          {
+            "name": "orderer-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 13
+          },
+          {
+            "name": "orderer-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 13
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "org1-ca",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "org2-ca",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "smp_smoke",
+          "available": true,
+          "version": "2.0",
+          "sequence": 2
+        },
+        "alerts": []
+      },
+      "operationId": "op_e65183ef751c244d9ac9b12ac427288d",
+      "transactionId": "72067fa89afc8d0ae4f2055704e05561e8384aa0a78a39f0fd7781eeaabc0e8a"
+    }
+  ],
+  "mode": "secure-local",
+  "namespace": "smp-s-527c948a901c57698d842ad5e78fb802",
+  "operationId": "op_e65183ef751c244d9ac9b12ac427288d",
+  "persistentClaimsUnchangedAfterPeerRestart": true,
+  "postRestartLedgerHealth": {
+    "checkedAt": "2026-11-05T17:13:36.346327577Z",
+    "ready": true,
+    "channel": "smpchannel",
+    "peers": [
+      {
+        "peer": "org1-peer-1",
+        "mspId": "Org1MSP",
+        "available": true,
+        "height": 6,
+        "currentBlockHash": "m7YvCOYpfnuH1swH8k/Q+l62X7NR+wiwvWdB90H75XA="
+      },
+      {
+        "peer": "org2-peer-1",
+        "mspId": "Org2MSP",
+        "available": true,
+        "height": 6,
+        "currentBlockHash": "m7YvCOYpfnuH1swH8k/Q+l62X7NR+wiwvWdB90H75XA="
+      }
+    ],
+    "orderers": [
+      {
+        "name": "orderer-1",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "orderer-2",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "orderer-3",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      }
+    ],
+    "certificateAuthorities": [
+      {
+        "name": "org1-ca",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "org2-ca",
+        "available": true,
+        "tls": true
+      }
+    ],
+    "chaincode": {
+      "name": "smp_smoke",
+      "available": true,
+      "version": "1.0",
+      "sequence": 1
+    },
+    "alerts": []
+  },
+  "processArguments": {
+    "samples": 177,
+    "caCommands": 2,
+    "protectedCLICommands": 5,
+    "credentialsAbsent": true
+  },
+  "productionEnabled": false,
+  "schema": "sathonate.sprint1-api/v1",
+  "transactionId": "72067fa89afc8d0ae4f2055704e05561e8384aa0a78a39f0fd7781eeaabc0e8a",
+  "viewerEscalationDenied": true,
+  "workerJobAdoptedAfterApplicationRestart": true
+}

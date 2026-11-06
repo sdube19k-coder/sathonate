@@ -12,17 +12,11 @@ Private source repository for the Sathonate Fabric control plane and React conso
 
 ## Qualification status
 
-The bounded local lifecycle increment is verified: approved third-peer addition,
-chaincode definition sequence upgrade, UID-checked peer restart, new committed
-transactions, API restart/adoption, tenant authorization and Kubernetes isolation.
-See [acceptance and limitations](fabric-control-plane/docs/sprint4-lifecycle-acceptance.md)
-and its [source-linked evidence](fabric-control-plane/docs/evidence/sprint4-lifecycle-verification.json).
+**Sprint 4 dynamic local Raft MVP PASS (5-6 November 2026).** One customer-configuration engine now provisions and reconciles organizations, peers, authorities, Raft orderers, channels, anchors and approved chaincode artifacts. Three distinct customer topologies, independent running expansions, actual executable upgrades, authenticated API/Edge dashboard acceptance and runtime security/cleanup passed.
 
-**Sprint 4 remains PARTIAL.** Generic customer-configured provisioning,
-organization/Raft membership changes, general channel/anchor management, actual
-chaincode code upgrades and BFT execution remain unfinished. Real Okta acceptance
-and historical key remediation remain open production gates. Sprint 3 AWS EKS
-qualification is deferred. Production and cloud deployment must remain disabled.
+See [current acceptance](fabric-control-plane/docs/sprint4-dynamic-acceptance.md), [source-linked evidence](fabric-control-plane/docs/evidence/sprint4-dynamic-final/summary.json) and the [configuration/API guide](fabric-control-plane/docs/sprint4-dynamic-local.md). The fixed topology remains a regression fixture.
+
+Production release remains **BLOCKED** by real Okta acceptance, historical-key remediation and infrastructure/storage qualification. Sprint 3 remains **LOCAL QUALIFICATION PASSED / AWS EKS QUALIFICATION PENDING**. BFT, removals and replacement operations are unqualified; no unsupported consensus is advertised. Sprint 5 begins with the authorized local operations/recovery backlog. AWS and production remain disabled.
 
 ## Local development
 

@@ -1,0 +1,315 @@
+{
+  "apiToFabric": "PASS",
+  "authenticatedTenantProject": true,
+  "authenticationMode": "local-token",
+  "awsEnabled": false,
+  "checkedAt": "2026-11-05T17:42:08.5781938Z",
+  "committedAndReadOnBothPeers": true,
+  "crossProjectDenied": true,
+  "crossTenantDenied": true,
+  "duplicateOperationReused": true,
+  "dynamicExpansion": {},
+  "dynamicTopology": "b",
+  "expectedReleases": [
+    "producer-issuer",
+    "carrier-issuer",
+    "auditor-issuer",
+    "producer-p1",
+    "carrier-p1",
+    "carrier-p2",
+    "auditor-p1",
+    "raft-1",
+    "raft-2",
+    "raft-3"
+  ],
+  "expectedWorkloads": [
+    "producer-issuer",
+    "carrier-issuer",
+    "auditor-issuer",
+    "producer-p1",
+    "carrier-p1",
+    "carrier-p2",
+    "auditor-p1",
+    "raft-1",
+    "raft-2",
+    "raft-3",
+    "cc-f78c103bdf5da906-s1",
+    "cc-065e91b72ae25cb9-s1"
+  ],
+  "failedWorkerRetriedThroughAPI": true,
+  "initialOperationId": "op_cda292b969caebe584d87c7b73341fe1",
+  "initialTransactionId": "2694916a80ac3a0676ea39bdcf6a23ad1c72e519c996e14df525ebc73ef4fd13",
+  "inspectionPeers": [
+    "producer-p1",
+    "carrier-p1",
+    "carrier-p2",
+    "auditor-p1"
+  ],
+  "lifecycleChanges": [],
+  "mode": "secure-local",
+  "namespace": "smp-s-c73a2083f855a734c3d0263e91d4b993",
+  "operationId": "op_477b1e4ddbf84d18db41c99f52a73253",
+  "persistentClaimsUnchangedAfterPeerRestart": true,
+  "postRestartLedgerHealth": {
+    "checkedAt": "2026-11-05T17:42:03.279634174Z",
+    "ready": true,
+    "channel": "audit",
+    "peers": [
+      {
+        "peer": "auditor-p1",
+        "mspId": "AuditorMSP",
+        "available": true,
+        "height": 7,
+        "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+      },
+      {
+        "peer": "carrier-p1",
+        "mspId": "CarrierMSP",
+        "available": true,
+        "height": 7,
+        "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+      },
+      {
+        "peer": "carrier-p2",
+        "mspId": "CarrierMSP",
+        "available": true,
+        "height": 7,
+        "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+      },
+      {
+        "peer": "producer-p1",
+        "mspId": "ProducerMSP",
+        "available": true,
+        "height": 7,
+        "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+      }
+    ],
+    "orderers": [
+      {
+        "name": "raft-1",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 7
+      },
+      {
+        "name": "raft-2",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 7
+      },
+      {
+        "name": "raft-3",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 7
+      }
+    ],
+    "certificateAuthorities": [
+      {
+        "name": "producer-issuer",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "carrier-issuer",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "auditor-issuer",
+        "available": true,
+        "tls": true
+      }
+    ],
+    "chaincode": {
+      "name": "customer-ledger",
+      "available": true,
+      "version": "1.0",
+      "sequence": 1
+    },
+    "alerts": []
+  },
+  "processArguments": {
+    "samples": 303,
+    "caCommands": 3,
+    "protectedCLICommands": 1,
+    "credentialsAbsent": true
+  },
+  "productionEnabled": false,
+  "schema": "sathonate.sprint1-api/v1",
+  "transactionId": "51bebddcde8fa37dcb613da5d294cceab261bc02f9dcbb3cc602fefd4ab6739e",
+  "verifications": [
+    {
+      "health": {
+        "checkedAt": "2026-11-05T17:41:59.061537941Z",
+        "ready": true,
+        "channel": "supply",
+        "peers": [
+          {
+            "peer": "auditor-p1",
+            "mspId": "AuditorMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "IV/KhZZGOmckS5CA3g8SDo+8c4OfQToUDJyyDtvAPIA="
+          },
+          {
+            "peer": "carrier-p1",
+            "mspId": "CarrierMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "IV/KhZZGOmckS5CA3g8SDo+8c4OfQToUDJyyDtvAPIA="
+          },
+          {
+            "peer": "carrier-p2",
+            "mspId": "CarrierMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "IV/KhZZGOmckS5CA3g8SDo+8c4OfQToUDJyyDtvAPIA="
+          },
+          {
+            "peer": "producer-p1",
+            "mspId": "ProducerMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "IV/KhZZGOmckS5CA3g8SDo+8c4OfQToUDJyyDtvAPIA="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "raft-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          },
+          {
+            "name": "raft-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          },
+          {
+            "name": "raft-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "producer-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "carrier-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "auditor-issuer",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "customer-ledger",
+          "available": true,
+          "version": "1.0",
+          "sequence": 1
+        },
+        "alerts": []
+      },
+      "transactionId": "e7812604ca88e506e6d78f9a18db5f36361730a3e8ea8330d97cd2003503d78a",
+      "packageId": "customer-ledger_1:bb7bcf3984f620db3604d5f19cf1a96f6674aa34c1f49fd22bc7b5042caa0c0c",
+      "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+      "codeVersion": "1.0"
+    },
+    {
+      "health": {
+        "checkedAt": "2026-11-05T17:42:03.279634174Z",
+        "ready": true,
+        "channel": "audit",
+        "peers": [
+          {
+            "peer": "auditor-p1",
+            "mspId": "AuditorMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+          },
+          {
+            "peer": "carrier-p1",
+            "mspId": "CarrierMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+          },
+          {
+            "peer": "carrier-p2",
+            "mspId": "CarrierMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+          },
+          {
+            "peer": "producer-p1",
+            "mspId": "ProducerMSP",
+            "available": true,
+            "height": 7,
+            "currentBlockHash": "1GnxBZDbHBTafUGqYQ+Px+vph3f61Rafx1ctIG53vZ4="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "raft-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          },
+          {
+            "name": "raft-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          },
+          {
+            "name": "raft-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 7
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "producer-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "carrier-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "auditor-issuer",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "customer-ledger",
+          "available": true,
+          "version": "1.0",
+          "sequence": 1
+        },
+        "alerts": []
+      },
+      "transactionId": "51bebddcde8fa37dcb613da5d294cceab261bc02f9dcbb3cc602fefd4ab6739e",
+      "packageId": "customer-ledger_1:dbdd8ea57e2d0807c7414d72559fa5299d08f1693e12519a3b6877d5cfdde331",
+      "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+      "codeVersion": "1.0"
+    }
+  ],
+  "viewerEscalationDenied": true,
+  "workerJobAdoptedAfterApplicationRestart": true
+}

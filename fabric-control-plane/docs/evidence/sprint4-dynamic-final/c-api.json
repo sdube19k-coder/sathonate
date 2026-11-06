@@ -1,0 +1,240 @@
+{
+  "apiToFabric": "PASS",
+  "authenticatedTenantProject": true,
+  "authenticationMode": "local-token",
+  "awsEnabled": false,
+  "checkedAt": "2026-11-06T05:17:16.8608949Z",
+  "committedAndReadOnBothPeers": true,
+  "crossProjectDenied": true,
+  "crossTenantDenied": true,
+  "duplicateOperationReused": true,
+  "dynamicExpansion": {},
+  "dynamicTopology": "c",
+  "expectedReleases": [
+    "clearing-issuer",
+    "settlement-issuer",
+    "clearing-tls-issuer",
+    "clearing-p1",
+    "clearing-p2",
+    "settlement-p1",
+    "raft-1",
+    "raft-2",
+    "raft-3",
+    "raft-4",
+    "raft-5"
+  ],
+  "expectedWorkloads": [
+    "clearing-issuer",
+    "settlement-issuer",
+    "clearing-tls-issuer",
+    "clearing-p1",
+    "clearing-p2",
+    "settlement-p1",
+    "raft-1",
+    "raft-2",
+    "raft-3",
+    "raft-4",
+    "raft-5",
+    "cc-e3ce7b9d05f61045-s1"
+  ],
+  "failedWorkerRetriedThroughAPI": true,
+  "initialOperationId": "op_605d55ec35f222cc3a4726a6d179ffb6",
+  "initialTransactionId": "2901132bbc3a0334b5b2550a0336e2ba8ca969c04fc2548ed3dd08136d2a12dd",
+  "inspectionPeers": [
+    "clearing-p1",
+    "clearing-p2",
+    "settlement-p1"
+  ],
+  "lifecycleChanges": [],
+  "mode": "secure-local",
+  "namespace": "smp-s-04dc422be8ad5cab3e14ddecb498e5c7",
+  "operationId": "op_75824f44665db955fc7ce5b2e28ed5e1",
+  "persistentClaimsUnchangedAfterPeerRestart": true,
+  "postRestartLedgerHealth": {
+    "checkedAt": "2026-11-06T05:17:11.88452357Z",
+    "ready": true,
+    "channel": "settlements",
+    "peers": [
+      {
+        "peer": "clearing-p1",
+        "mspId": "ClearingMSP",
+        "available": true,
+        "height": 6,
+        "currentBlockHash": "8qyyXEvHNJz71bcolx6TJS2GVjqcTC2oBFOcKr+nGz0="
+      },
+      {
+        "peer": "clearing-p2",
+        "mspId": "ClearingMSP",
+        "available": true,
+        "height": 6,
+        "currentBlockHash": "8qyyXEvHNJz71bcolx6TJS2GVjqcTC2oBFOcKr+nGz0="
+      },
+      {
+        "peer": "settlement-p1",
+        "mspId": "SettlementMSP",
+        "available": true,
+        "height": 6,
+        "currentBlockHash": "8qyyXEvHNJz71bcolx6TJS2GVjqcTC2oBFOcKr+nGz0="
+      }
+    ],
+    "orderers": [
+      {
+        "name": "raft-1",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "raft-2",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "raft-3",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "raft-4",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      },
+      {
+        "name": "raft-5",
+        "status": "active",
+        "consensusRelation": "consenter",
+        "height": 6
+      }
+    ],
+    "certificateAuthorities": [
+      {
+        "name": "clearing-issuer",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "settlement-issuer",
+        "available": true,
+        "tls": true
+      },
+      {
+        "name": "clearing-tls-issuer",
+        "available": true,
+        "tls": true
+      }
+    ],
+    "chaincode": {
+      "name": "customer-ledger",
+      "available": true,
+      "version": "1.0",
+      "sequence": 1
+    },
+    "alerts": []
+  },
+  "processArguments": {
+    "samples": 202,
+    "caCommands": 3,
+    "protectedCLICommands": 1,
+    "credentialsAbsent": true
+  },
+  "productionEnabled": false,
+  "schema": "sathonate.sprint1-api/v1",
+  "transactionId": "58da2aa5555821b54741f5f8804050a0d17b3363f4b71c6e92907f04fb3ff10f",
+  "verifications": [
+    {
+      "health": {
+        "checkedAt": "2026-11-06T05:17:11.88452357Z",
+        "ready": true,
+        "channel": "settlements",
+        "peers": [
+          {
+            "peer": "clearing-p1",
+            "mspId": "ClearingMSP",
+            "available": true,
+            "height": 6,
+            "currentBlockHash": "8qyyXEvHNJz71bcolx6TJS2GVjqcTC2oBFOcKr+nGz0="
+          },
+          {
+            "peer": "clearing-p2",
+            "mspId": "ClearingMSP",
+            "available": true,
+            "height": 6,
+            "currentBlockHash": "8qyyXEvHNJz71bcolx6TJS2GVjqcTC2oBFOcKr+nGz0="
+          },
+          {
+            "peer": "settlement-p1",
+            "mspId": "SettlementMSP",
+            "available": true,
+            "height": 6,
+            "currentBlockHash": "8qyyXEvHNJz71bcolx6TJS2GVjqcTC2oBFOcKr+nGz0="
+          }
+        ],
+        "orderers": [
+          {
+            "name": "raft-1",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-2",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-3",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-4",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          },
+          {
+            "name": "raft-5",
+            "status": "active",
+            "consensusRelation": "consenter",
+            "height": 6
+          }
+        ],
+        "certificateAuthorities": [
+          {
+            "name": "clearing-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "settlement-issuer",
+            "available": true,
+            "tls": true
+          },
+          {
+            "name": "clearing-tls-issuer",
+            "available": true,
+            "tls": true
+          }
+        ],
+        "chaincode": {
+          "name": "customer-ledger",
+          "available": true,
+          "version": "1.0",
+          "sequence": 1
+        },
+        "alerts": []
+      },
+      "transactionId": "58da2aa5555821b54741f5f8804050a0d17b3363f4b71c6e92907f04fb3ff10f",
+      "packageId": "customer-ledger_1:8c30c058220d362b55ec0e1591a1ec25facfc00293bd47f9409c97f1a340893d",
+      "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+      "codeVersion": "1.0"
+    }
+  ],
+  "viewerEscalationDenied": true,
+  "workerJobAdoptedAfterApplicationRestart": true
+}

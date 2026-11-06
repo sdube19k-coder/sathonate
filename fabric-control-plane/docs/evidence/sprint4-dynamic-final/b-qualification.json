@@ -1,0 +1,65 @@
+{
+  "schema": "sathonate.sprint4-qualification/v1",
+  "status": "SPRINT4_LOCAL_SECURITY_PASS_EXTERNAL_GATES_BLOCKED",
+  "apiToFabric": "PASS",
+  "uiToFabric": "NOT_RERUN_SPRINT4",
+  "cluster": "smp-sprint1-e6162101",
+  "awsEnabled": false,
+  "productionEnabled": false,
+  "checks": {
+    "publicResourcesNoCredentials": "PASS",
+    "helmHistoryNoCredentials": "PASS",
+    "runtimeLogsNoCredentials": "PASS",
+    "sourceAndEvidenceNoActualCredentials": "PASS",
+    "controllerIssuerForeignAndClusterDenials": "PASS",
+    "foreignResourcePreserved": "PASS",
+    "bothLivePeerCertificatesVerified": "PASS",
+    "peerTLSUntrustedIssuerAndHostnameRejected": "PASS",
+    "privilegedAdmissionDenied": "PASS",
+    "containerLimitAdmissionDenied": "PASS",
+    "effectiveCrossNamespaceIngressDenied": "PASS",
+    "effectiveCrossNamespaceEgressDenied": "PASS",
+    "ownFabricConnectivity": "PASS",
+    "fabricServiceAccountTokenMountsAbsent": "PASS",
+    "defaultServiceAccountTokenDisabled": "PASS"
+  },
+  "startedAt": 1793899855.9776258,
+  "networkPolicyFixture": {
+    "provider": "Calico",
+    "version": "v3.31.4",
+    "manifestURL": "https://raw.githubusercontent.com/projectcalico/calico/v3.31.4/manifests/calico.yaml",
+    "manifestSHA256": "6e89ee080d6dae58c620c47e3fcb7a9bfc40748422c868c924b7482dd5145ce2",
+    "images": {
+      "quay.io/calico/cni:v3.31.4": "quay.io/calico/cni@sha256:a43a7dd4ed67adad4535fc948b483dac0a3c905bae64b007fae05e4d0867a02b",
+      "quay.io/calico/kube-controllers:v3.31.4": "quay.io/calico/kube-controllers@sha256:8a41b637f143971a95ce78234ece53e43201361bd38bad7fc65508f5798306d0",
+      "quay.io/calico/node:v3.31.4": "quay.io/calico/node@sha256:972f29ffd956ca83688b41ef5c696b633c6c63529bc63e2b058413fd4fff0cd0"
+    },
+    "enforcement": "PASS"
+  },
+  "apiTestExitCode": 0,
+  "apiEvidenceSHA256": "548cac01ff43272013095672bda2b3204b644d8fb98e4c6256ef3cd5167cc7df",
+  "images": {
+    "sathonate/controller-candidate:atomic": "sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c",
+    "hyperledger/fabric-ca:1.5.15": "hyperledger/fabric-ca@sha256:61ed7bd64819ef935833c747cce9e5dbd1c05dc516f930e70f4ca8355cdc3975",
+    "hyperledger/fabric-peer:2.5.15": "hyperledger/fabric-peer@sha256:b046b46c05cfe8ecd68def9e001990d59d96a25dfac58b4f4892cedf54e2ba20",
+    "hyperledger/fabric-orderer:2.5.15": "hyperledger/fabric-orderer@sha256:26bd18aabe441b05d7b03e1356200bbb7261cc5bdecb676ddc7e4578c77e6e04",
+    "sathonate/smp-smoke:local": "sathonate/smp-smoke@sha256:85bc9e7966dc9d439c69c623cf8a721156fa10ef6acd7c4a10c1902dfc4cb7fc",
+    "sathonate/fabric-worker:sprint4-dynamic": "sathonate/fabric-worker@sha256:b38d1af7b5e38a50806daad7a2c9b73259f6226527f26203b8196b07380d0f78",
+    "sathonate/smp-smoke:dynamic-v1": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+    "sathonate/smp-smoke:dynamic-v2": "sathonate/smp-smoke@sha256:0137d3ea4c7f10155d32fd2ca5c9d99fd8e444954a8b918a52fa8191d35fbe57"
+  },
+  "sourceEvidenceFilesInspected": 343,
+  "inspection": {
+    "helmReleases": 16,
+    "logStreams": 15,
+    "knownPrivateValues": 124
+  },
+  "retainedNetwork": {
+    "readOnly": true,
+    "readyDeployments": 8,
+    "total": 8,
+    "ready": true
+  },
+  "disposableClusterRemoved": true,
+  "finishedAt": 1793900559.2403722
+}

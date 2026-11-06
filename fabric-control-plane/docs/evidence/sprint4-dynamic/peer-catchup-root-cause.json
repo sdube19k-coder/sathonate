@@ -1,0 +1,53 @@
+{
+  "schema": "sathonate.sprint4-peer-catchup-failure/v1",
+  "status": "FAIL_REPRODUCED",
+  "cluster": "smp-sprint1-e7984211",
+  "namespace": "smp-s-ca9988239fb19ad37ab8b3cbbe24f1f8",
+  "peer": "org1-peer-2",
+  "rootCause": "Chaincode query ran after canonical genesis join but before this peer committed the existing channel history/definition.",
+  "events": [
+    {
+      "timeUTC": "2026-11-05 17:00:32.837",
+      "event": "blockCommitted",
+      "block": 0
+    },
+    {
+      "timeUTC": "2026-11-05 17:00:38.031",
+      "event": "chaincodeQueryRejected",
+      "reason": "chaincode smp_smoke not found"
+    },
+    {
+      "timeUTC": "2026-11-05 17:00:38.142",
+      "event": "blockCommitted",
+      "block": 1
+    },
+    {
+      "timeUTC": "2026-11-05 17:00:38.147",
+      "event": "blockCommitted",
+      "block": 2
+    },
+    {
+      "timeUTC": "2026-11-05 17:00:38.154",
+      "event": "blockCommitted",
+      "block": 3
+    },
+    {
+      "timeUTC": "2026-11-05 17:00:38.159",
+      "event": "blockCommitted",
+      "block": 4
+    },
+    {
+      "timeUTC": "2026-11-05 17:00:38.163",
+      "event": "blockCommitted",
+      "block": 5
+    },
+    {
+      "timeUTC": "2026-11-05 17:00:38.169",
+      "event": "blockCommitted",
+      "block": 6
+    }
+  ],
+  "privateDiagnosticsExported": false,
+  "endorsementPolicyChanged": false,
+  "tlsChanged": false
+}
