@@ -69,6 +69,25 @@ function intentKey(action: string) {
 }
 
 export const api = {
+  previewDynamic: (network: Network, parent: string) =>
+    request<DynamicPreview>(
+      `/networks/${encodeURIComponent(network.id)}/dynamic/preview?parent=${encodeURIComponent(parent)}`,
+      { headers: { "If-Match": `"${network.revision}"` } },
+    ),
+  applyDynamic: (network: Network, parent: string, approval: string) =>
+    request<Operation>(
+      `/networks/${encodeURIComponent(network.id)}/dynamic/deploy`,
+      {
+        method: "POST",
+        headers: {
+          "If-Match": `"${network.revision}"`,
+          "Idempotency-Key": intentKey(
+            `dynamic:${network.id}:${parent}:${approval}`,
+          ),
+        },
+        body: JSON.stringify({ parentOperationId: parent, approval }),
+      },
+    ),
   projects: () => request<{ items: Project[] }>("/projects"),
   verifiedIdentity: () =>
     request<{ issuer: string; subject: string }>("/auth/identity"),
@@ -243,6 +262,7 @@ export type DeploymentPackage = {
   kubernetesManifests?: unknown;
 };
 export type DeploymentState = {
+  verifications?: DynamicVerification[];
   lifecycle?: { peerAdded: boolean; sequence: number };
   lifecycleAction?: string;
   mode: string;
@@ -263,6 +283,22 @@ export type DeploymentState = {
     status: string;
     organization?: string;
   }[];
+};
+
+export type DynamicPreview = {
+  parentOperationId: string;
+  digest: string;
+  revision: number;
+  before: NetworkSpec;
+  after: NetworkSpec;
+  recovery: string;
+};
+export type DynamicVerification = {
+  health: RuntimeHealth;
+  transactionId: string;
+  packageId: string;
+  artifactSHA256: string;
+  codeVersion: string;
 };
 
 export type LifecycleAction =

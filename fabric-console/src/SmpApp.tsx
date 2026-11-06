@@ -62,11 +62,18 @@ import { SignOut } from "./AuthGate";
 import { useDialog } from "./use-dialog";
 import { readWithRecovery } from "./read-recovery";
 import { CloudReadiness } from "./LaunchReadiness";
+import CustomNetworks from "./CustomNetworks";
 import "./smp.css";
 import "./reference-design.css";
 
 type View =
-  "create" | "networks" | "nodes" | "chaincode" | "operations" | "settings";
+  | "create"
+  | "networks"
+  | "nodes"
+  | "chaincode"
+  | "operations"
+  | "settings"
+  | "custom";
 const titles = [
   "Connect Your Cloud Account",
   "Kubernetes Configuration",
@@ -102,6 +109,7 @@ export default function SmpApp() {
       : 0;
   });
   const [view, setView] = useState<View>("create");
+  const [customNetworkId, setCustomNetworkId] = useState("");
   const [selectedOperation, setSelectedOperation] = useState(
     draft.deploymentOperationId ?? "",
   );
@@ -775,6 +783,7 @@ export default function SmpApp() {
               {(
                 [
                   ["networks", "Networks"],
+                  ["custom", "Customer configurations"],
                   ["operations", "Operations"],
                   ["settings", "Cloud readiness"],
                 ] as const
@@ -1237,6 +1246,13 @@ export default function SmpApp() {
                   Create Network
                 </button>
               </div>
+              {view === "custom" && (
+                <CustomNetworks
+                  key={workspaceKey()}
+                  initialId={customNetworkId}
+                  capabilities={meta?.dynamicLocal}
+                />
+              )}
               {view === "networks" && (
                 <>
                   <div className="smp-search">
@@ -1285,7 +1301,17 @@ export default function SmpApp() {
                         <button
                           key={n.id}
                           className="smp-network-card smp-card"
-                          onClick={() => resume(n)}
+                          onClick={() => {
+                            if (
+                              n.desired.spec.deployment.targetRef ===
+                              "smp-dynamic-local-v1"
+                            ) {
+                              setCustomNetworkId(n.id);
+                              navigate("custom");
+                              return;
+                            }
+                            resume(n);
+                          }}
                         >
                           <div>
                             <span className="smp-tile">
@@ -1382,6 +1408,14 @@ export default function SmpApp() {
                                   const n = networks.find(
                                     (n) => n.id === op.networkId,
                                   );
+                                  if (
+                                    n?.desired.spec.deployment.targetRef ===
+                                    "smp-dynamic-local-v1"
+                                  ) {
+                                    setCustomNetworkId(n.id);
+                                    navigate("custom");
+                                    return;
+                                  }
                                   setSaved(n ?? null);
                                   setDraft({
                                     ...selectProvider(

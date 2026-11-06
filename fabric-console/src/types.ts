@@ -28,6 +28,7 @@ export type NetworkSpec = {
   kind: "FabricNetwork";
   metadata: { id: string; name: string };
   spec: {
+    configuration?: DynamicConfiguration;
     environment: "development" | "production";
     fabricVersion: string;
     ordering?: { consensus: Consensus; channelCapability: "V2_0" | "V3_0" };
@@ -96,6 +97,7 @@ export type Network = {
   archived: boolean;
 };
 export type Meta = {
+  dynamicLocal?: DynamicCapabilities;
   deploymentMode?:
     "disabled" | "mock" | "local-kubernetes" | "secure-local" | "history-only";
   name: string;
@@ -103,4 +105,46 @@ export type Meta = {
   executionEnabled: boolean;
   schemaVersion: string;
   storage: string;
+};
+
+export type DynamicResources = {
+  cpuRequestMilli: number;
+  cpuLimitMilli: number;
+  memoryRequestMiB: number;
+  memoryLimitMiB: number;
+};
+export type DynamicStorage = { class: string; capacityGiB: number };
+export type DynamicConfiguration = {
+  placements: Record<string, { nodeSelector: Record<string, string> }>;
+  nodes: Record<
+    string,
+    { resources: DynamicResources; storage: DynamicStorage }
+  >;
+  authorities: {
+    id: string;
+    organizationRef: string;
+    roles: ("signing" | "tls")[];
+    placementRef: string;
+    resources: DynamicResources;
+    storage: DynamicStorage;
+  }[];
+  anchors: Record<string, string[]>;
+  chaincodes: {
+    name: string;
+    channelRef: string;
+    version: string;
+    sequence: number;
+    packageSHA256: string;
+    runtimeImage: string;
+    endorsement: { mspIds: string[]; minimum: number };
+  }[];
+};
+export type DynamicCapabilities = {
+  enabled: boolean;
+  developmentOnly?: boolean;
+  productionEnabled?: boolean;
+  artifacts?: Record<string, { sha256: string; codeVersion: string }>;
+  placements?: Record<string, Record<string, string>>;
+  storageClass?: string;
+  maximumVolumeSize?: string;
 };

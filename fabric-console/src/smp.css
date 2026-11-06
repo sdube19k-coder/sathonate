@@ -2217,3 +2217,35 @@
   display: grid;
   gap: 0.7rem;
 }
+.smp-custom-networks {
+  min-width: 0;
+  padding: 24px;
+}
+.smp-custom-networks > label,
+.smp-custom-networks details > label {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.smp-custom-networks textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+}
+.smp-custom-networks pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.smp-custom-networks code {
+  overflow-wrap: anywhere;
+}
+.smp-custom-networks table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.smp-custom-networks .smp-inline-actions {
+  flex-wrap: wrap;
+}

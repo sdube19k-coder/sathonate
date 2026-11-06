@@ -4,11 +4,13 @@ No CA issuance, Fabric deployment or transaction is implemented by this script.
 import base64,gzip,hashlib,json,os,re,ssl,subprocess,sys,tarfile,time,uuid
 from pathlib import Path
 CONSOLE=Path(__file__).resolve().parents[1]
-ROOT=Path('E:/Sathonate/fabric-control-plane')
-LOG=CONSOLE/'.logs'
-LOG.mkdir(exist_ok=True)
-CACHE=ROOT.parent/'.cache'
-KIND=ROOT.parent/'tools/kind.exe'
+ROOT=Path(os.environ.get('SMP_BACKEND_ROOT',str(CONSOLE.parent/'fabric-control-plane'))).resolve()
+LABEL=os.environ.get('SMP_UI_EVIDENCE_LABEL','')
+if LABEL and not re.fullmatch('dynamic-browser-[a-z0-9-]{1,48}',LABEL):raise RuntimeError('Invalid browser evidence label')
+LOG=CONSOLE/'.logs'/LABEL if LABEL else CONSOLE/'.logs'
+LOG.mkdir(parents=True,exist_ok=True)
+CACHE=Path(os.environ.get('SMP_CACHE_ROOT',str(ROOT.parent/'.cache'))).resolve()
+KIND=Path(os.environ.get('SMP_KIND_PATH',str(ROOT.parent/'tools/kind.exe'))).resolve()
 NAME='smp-sprint1-'+uuid.uuid4().hex[:8]
 CONFIG=CACHE/(NAME+'.kubeconfig')
 RUNTIME=CACHE/(NAME+'-runtime.json')
@@ -18,7 +20,8 @@ BASE=['kubectl','--kubeconfig',str(CONFIG),'--context','kind-'+NAME,'--request-t
 report={'schema':'sathonate.sprint1-qualification/v1','status':'BLOCKED','apiToFabric':'NOT VERIFIED','uiToFabric':'BLOCKED','cluster':NAME,'awsEnabled':False,'productionEnabled':False,'checks':{},'startedAt':time.time()}
 created=False
 LIFECYCLE=os.environ.get('SMP_UI_LIFECYCLE')=='1'
-WORKER='sathonate/fabric-worker:sprint4-lifecycle' if LIFECYCLE else 'sathonate/fabric-worker:sprint3'
+DYNAMIC=os.environ.get('SMP_UI_DYNAMIC')=='1'
+WORKER='sathonate/fabric-worker:sprint4-dynamic' if DYNAMIC else ('sathonate/fabric-worker:sprint4-lifecycle' if LIFECYCLE else 'sathonate/fabric-worker:sprint3')
 
 def run(args,data=None,timeout=240):
  p=subprocess.run([str(x) for x in args],input=data,capture_output=True,text=True,encoding="utf-8",errors="replace",timeout=timeout)
@@ -61,7 +64,8 @@ def load(image):
  run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force','docker.io/'+image,'docker.io/'+image+'@'+row[2]])
  return pinned,image+'@'+row[2]
 
-def inspect(namespace,worker,additional_private=()):
+def inspect(namespace,worker,additional_private=(),runtime_result=None):
+ runtime_result=runtime_result or {}
  guard();secret_list=json.loads(kub('-n',namespace,'get','secrets','-o','json'))['items'];private=list(additional_private)
  def credentials(v):
   if isinstance(v,dict):
@@ -90,7 +94,7 @@ def inspect(namespace,worker,additional_private=()):
   release=gzip.decompress(base64.b64decode(base64.b64decode(item['data']['release']))).decode()
   if not clean(release):raise RuntimeError('Credential in decoded Helm history')
   release_count+=1;release_names.add(item['metadata']['labels'].get('name',''))
- if not {'org1-ca','org2-ca','org1-peer-1','org2-peer-1','orderer-1','orderer-2','orderer-3'}.issubset(release_names):raise RuntimeError('Incomplete Helm release/history inspection')
+ if not set(runtime_result.get('expectedReleases',['org1-ca','org2-ca','org1-peer-1','org2-peer-1','orderer-1','orderer-2','orderer-3'])).issubset(release_names):raise RuntimeError('Incomplete Helm release/history inspection')
  report['checks']['helmHistoryNoCredentials']='PASS'
  pods=json.loads(kub('-n',namespace,'get','pods','-o','json'))['items']
  log_count=0
@@ -102,8 +106,8 @@ def inspect(namespace,worker,additional_private=()):
  if log_count<9:raise RuntimeError('Incomplete log inspection')
  report['checks']['runtimeLogsNoCredentials']='PASS'
  inspected_files=0
- source_names=run(['git','-C',str(CONSOLE),'ls-files','--cached','--others','--exclude-standard','-z']).split('\0')
- for path in [CONSOLE/name for name in source_names if name]+list(LOG.glob('*.json'))+list(LOG.glob('*.log'))+list((CONSOLE/'dist').rglob('*')):
+ source_names=run(['git','-C',str(CONSOLE),'ls-files','--cached','--others','--exclude-standard','--full-name','-z']).split('\0')
+ for path in [Path(run(['git','-C',str(CONSOLE),'rev-parse','--show-toplevel']).strip())/name for name in source_names if name]+list(LOG.glob('*.json'))+list(LOG.glob('*.log'))+list((CONSOLE/'dist').rglob('*')):
   if not path.is_file():continue
   raw=path.read_text(encoding='utf-8',errors='replace')
   if any(x and x in raw for x in known):raise RuntimeError('Credential in source or evidence; private diagnostics withheld')
@@ -126,7 +130,7 @@ def inspect(namespace,worker,additional_private=()):
  apply({'apiVersion':'v1','kind':'Pod','metadata':{'name':'secure-tls-observer','namespace':namespace},'spec':{'automountServiceAccountToken':False,'restartPolicy':'Never','securityContext':{'runAsUser':10001,'runAsGroup':10001},'containers':[{'name':'observer','image':worker,'imagePullPolicy':'Never','command':['sleep','300'],'securityContext':{'allowPrivilegeEscalation':False,'capabilities':{'drop':['ALL']}}}]}})
  kub('-n',namespace,'wait','--for=condition=Ready','pod/secure-tls-observer','--timeout=90s')
  script="import json,ssl,socket,hashlib,sys;v=json.load(sys.stdin);c=ssl.create_default_context(cadata=v['root']);s=c.wrap_socket(socket.create_connection((v['host'],7051),timeout=5),server_hostname=v['host']);print(hashlib.sha256(s.getpeercert(binary_form=True)).hexdigest());s.close()"
- for peer in (('org1-peer-1','org2-peer-1','org1-peer-2') if LIFECYCLE else ('org1-peer-1','org2-peer-1')):
+ for peer in runtime_result.get('inspectionPeers',('org1-peer-1','org2-peer-1','org1-peer-2') if LIFECYCLE else ('org1-peer-1','org2-peer-1')):
   identity=json.loads(kub('-n',namespace,'get','secret',peer+'-tls-identity','-o','json'))['data']
   cert=base64.b64decode(identity['cert.pem']).decode();root=base64.b64decode(identity['root.pem']).decode();expected=hashlib.sha256(ssl.PEM_cert_to_DER_cert(cert)).hexdigest()
   actual=kub('-n',namespace,'exec','-i','secure-tls-observer','--','python','-c',script,data=json.dumps({'root':root,'host':peer+'.'+namespace})).strip()
@@ -164,18 +168,26 @@ try:
   path=source/('hlf.kungfusoftware.es_'+plural+'.yaml')
   kub('apply','--server-side','-f',str(path))
  images={}
- for image in ('sathonate/controller-candidate:atomic','hyperledger/fabric-ca:1.5.15','hyperledger/fabric-peer:2.5.15','hyperledger/fabric-orderer:2.5.15','sathonate/smp-smoke:local',WORKER):
+ for image in ('sathonate/controller-candidate:atomic','hyperledger/fabric-ca:1.5.15','hyperledger/fabric-peer:2.5.15','hyperledger/fabric-orderer:2.5.15','sathonate/smp-smoke:local',WORKER,*(['sathonate/smp-smoke:dynamic-v1','sathonate/smp-smoke:dynamic-v2'] if DYNAMIC else [])):
   print('Sprint 1: loading public image '+image,flush=True);images[image]=load(image)
  controller=images['sathonate/controller-candidate:atomic'][0]
  if controller!='sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c':raise RuntimeError('Controller differs from verified profile')
  runtime={'storageClass':'standard','capacity':'1Gi','smokeImage':images['sathonate/smp-smoke:local'][0],'images':{kind:images[image][1] for kind,image in [('FabricCA','hyperledger/fabric-ca:1.5.15'),('FabricPeer','hyperledger/fabric-peer:2.5.15'),('FabricOrdererNode','hyperledger/fabric-orderer:2.5.15')]},'brokerChannels':True,'nodeSelectors':{name:{'kubernetes.io/hostname':NAME+'-control-plane'} for name in ('orderer-1','orderer-2','orderer-3','org1-peer-1','org2-peer-1')}}
+ if DYNAMIC:
+  approved={}
+  for version in ('1','2'):
+   image='sathonate/smp-smoke:dynamic-v'+version
+   code_sha=run(['docker','image','inspect','--format','{{index .Config.Labels "org.sathonate.code.sha256"}}',image]).strip()
+   if not re.fullmatch('[a-f0-9]{64}',code_sha):raise RuntimeError('Approved executable digest missing')
+   approved[images[image][0]]={'sha256':code_sha,'codeVersion':version+'.0'}
+  runtime.update(dynamicEnabled=True,codeArtifacts=approved)
  config={'kubeconfig':str(CONFIG),'clusterName':NAME,'workerImage':images[WORKER][0],'runtime':runtime};RUNTIME.write_text(json.dumps(config))
 
  # The unchanged qualified worker is retained; the API must be a freshly built
  # binary with its SHA supplied by the local verification command.
- baseline=json.loads((ROOT/('.logs/sprint4-lifecycle-worker-build.json' if LIFECYCLE else '.logs/sprint3-worker-build.json')).read_text())
+ baseline=json.loads((ROOT/('.logs/sprint4-dynamic-build.json' if DYNAMIC else ('.logs/sprint4-lifecycle-worker-build.json' if LIFECYCLE else '.logs/sprint3-worker-build.json'))).read_text())
  if run(['docker','image','inspect','--format','{{.Id}}',WORKER]).strip()!=baseline['workerImageID']:raise RuntimeError('Qualified worker image differs')
- api_binary=ROOT/('bin/fabric-api-sprint4-lifecycle.exe' if LIFECYCLE else 'bin/fabric-api-sprint4.exe')
+ api_binary=ROOT/('bin/fabric-api-sprint4-dynamic.exe' if DYNAMIC else ('bin/fabric-api-sprint4-lifecycle.exe' if LIFECYCLE else 'bin/fabric-api-sprint4.exe'))
  expected_api=os.environ.get('SMP_UI_API_SHA256','')
  if not re.fullmatch('[a-f0-9]{64}',expected_api):raise RuntimeError('Fresh API binary SHA256 required')
  if hashlib.sha256(api_binary.read_bytes()).hexdigest()!=expected_api:raise RuntimeError('Verified API binary differs')
@@ -195,11 +207,11 @@ try:
  wait_url('http://127.0.0.1:8080/api/v1/auth/config');wait_url('http://127.0.0.1:5173/');wait_url('http://127.0.0.1:5174/')
  print('UI qualification: actual browser authentication, deployment, refresh, fault/retry and transactions',flush=True)
  with (LOG/'browser.log').open('w') as log:
-  test=subprocess.run(['node','tools/browser-acceptance.mjs'],cwd=CONSOLE,input=json.dumps({'tokens':tokens,'tenant':NAME,'project':'project-a','cluster':NAME,'kubeconfig':str(CONFIG),'result':str(RESULT),'logDirectory':str(LOG),'lifecycle':LIFECYCLE}),text=True,encoding='utf-8',stdout=log,stderr=subprocess.STDOUT,timeout=1800)
+  test=subprocess.run(['node','tools/browser-dynamic.mjs' if DYNAMIC else 'tools/browser-acceptance.mjs'],cwd=CONSOLE,input=json.dumps({'tokens':tokens,'tenant':NAME,'project':'project-a','cluster':NAME,'kubeconfig':str(CONFIG),'result':str(RESULT),'logDirectory':str(LOG),'lifecycle':LIFECYCLE,'runtime':runtime,'design':json.loads((ROOT/'examples/dynamic/a.json').read_text()) if DYNAMIC else None}),text=True,encoding='utf-8',stdout=log,stderr=subprocess.STDOUT,timeout=1800)
  report['browserExitCode']=test.returncode
  if test.returncode:raise RuntimeError('Browser acceptance failed; see redacted browser log')
  result=json.loads(RESULT.read_text());report['uiToFabric']='PASS';report['apiToFabric']='PASS';report['browser']=result;report['images']={k:v[0] for k,v in images.items()}
- inspect(result['namespace'],config['workerImage'],list(tokens.values())+[password])
+ inspect(result['namespace'],config['workerImage'],list(tokens.values())+[password],result)
  retained=json.loads(run(['kubectl','--kubeconfig',str(CACHE/'smp-qualification.kubeconfig'),'--context','kind-smp-qualification','-n','smp-n-968a212068be7d07','get','deployments','-o','json']))['items']
  ready=len(retained)==8 and all(x['status'].get('readyReplicas')==x['spec'].get('replicas',1)==1 for x in retained)
  report['retainedNetwork']={'readOnly':True,'ready':ready,'readyDeployments':sum(x['status'].get('readyReplicas',0)==1 for x in retained),'total':len(retained)}
