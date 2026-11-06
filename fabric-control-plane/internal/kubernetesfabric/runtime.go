@@ -15,6 +15,8 @@ const BevelCommit = "cd236ccc61d1d159b3dadb4625d08bb5682a8451"
 // Runtime is supplied by the trusted adapter, never by a tenant network document.
 // Empty Runtime retains the existing local profile.
 type Runtime struct {
+	DynamicEnabled          bool                         `json:"dynamicEnabled,omitempty"`
+	CodeArtifacts           map[string]CodeArtifact      `json:"codeArtifacts,omitempty"`
 	StorageClass            string                       `json:"storageClass"`
 	Capacity                string                       `json:"capacity"`
 	SmokeImage              string                       `json:"smokeImage"`
@@ -29,7 +31,7 @@ var pinnedImage = regexp.MustCompile(`^[a-zA-Z0-9./:_-]+@sha256:[a-f0-9]{64}$`)
 var qualifiedImage = regexp.MustCompile(`^[a-zA-Z0-9./_-]+:[a-zA-Z0-9._-]+@sha256:[a-f0-9]{64}$`)
 
 func ValidateProfile(s domain.NetworkSpec) error {
-	if s.Spec.Deployment.TargetRef == domain.SecureLocalProfile || s.Spec.Deployment.TargetRef == domain.SecureEKSProfile {
+	if s.Spec.Deployment.TargetRef == domain.SecureLocalProfile || s.Spec.Deployment.TargetRef == domain.SecureEKSProfile || s.Spec.Deployment.TargetRef == domain.DynamicLocalProfile {
 		return fmt.Errorf("legacy Fabric worker cannot execute the secure-local-v1 profile; protected application issuer integration is required")
 	}
 	if domain.HasErrors(domain.Validate(s)) || s.Spec.FabricVersion != "2.5.15" || s.Spec.Ordering.Consensus != "raft" || s.Spec.Ordering.ChannelCapability != "V2_0" || len(s.Spec.Organizations) != 2 || len(s.Spec.Channels) != 1 {
@@ -103,6 +105,9 @@ func (r Runtime) Validate(s domain.NetworkSpec) error {
 			return fmt.Errorf("invalid public certificate fingerprint")
 		}
 	}
+	if s.Spec.Deployment.TargetRef == domain.DynamicLocalProfile {
+		return ValidateDynamic(s, r)
+	}
 
 	if !regexp.MustCompile(`^[a-z][a-z0-9.-]{0,62}$`).MatchString(r.StorageClass) || !regexp.MustCompile(`^[1-9][0-9]{0,3}Gi$`).MatchString(r.Capacity) || !pinnedImage.MatchString(r.SmokeImage) || !r.BrokerChannels {
 		return fmt.Errorf("invalid approved worker runtime")
@@ -151,6 +156,23 @@ func (w *Worker) adapt(v Object) error {
 	}
 	spec := object(v["spec"])
 	kind := text(v["kind"])
+	if settings, ok := w.dynamicSettings(text(object(v["metadata"])["name"])); ok {
+		r := settings.Resources
+		resources := Object{"requests": Object{"cpu": fmt.Sprintf("%dm", r.CPURequestMilli), "memory": fmt.Sprintf("%dMi", r.MemoryRequestMiB)}, "limits": Object{"cpu": fmt.Sprintf("%dm", r.CPULimitMilli), "memory": fmt.Sprintf("%dMi", r.MemoryLimitMiB)}}
+		if kind == "FabricPeer" {
+			parts := object(spec["resources"])
+			parts["peer"] = resources
+			spec["resources"] = parts
+		} else {
+			spec["resources"] = resources
+		}
+		storage := Object{"storageClass": settings.Storage.Class, "size": fmt.Sprintf("%dGi", settings.Storage.CapacityGiB), "accessMode": "ReadWriteOnce"}
+		if kind == "FabricPeer" {
+			object(spec["storage"])["peer"] = storage
+		} else {
+			spec["storage"] = storage
+		}
+	}
 	if image := w.Runtime.Images[kind]; image != "" {
 		idx := strings.LastIndex(strings.Split(image, "@")[0], ":")
 		spec["image"] = image[:idx]

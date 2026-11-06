@@ -1,0 +1,5 @@
+FROM sathonate/smp-smoke:local
+ARG CODE_SHA256
+LABEL org.sathonate.code.sha256=$CODE_SHA256
+COPY bin/local-chaincode-dynamic /local-chaincode
+ENTRYPOINT ["/local-chaincode"]

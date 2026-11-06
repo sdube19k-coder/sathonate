@@ -1,6 +1,7 @@
 package deployment
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -97,12 +98,52 @@ func (m *Manager) Mode() string                  { return m.runner.Mode() }
 func (m *Manager) Start(tenant, actor, record string, s domain.NetworkSpec, revision int, key, fail, retryOf string) (operations.Operation, error) {
 	return m.start(tenant, actor, record, s, revision, key, fail, retryOf, nil, "", "", "", "")
 }
-func (m *Manager) start(tenant, actor, record string, s domain.NetworkSpec, revision int, key, fail, retryOf string, lifecycle *kubernetesfabric.LifecycleState, parent, action, expectedParent, approval string) (operations.Operation, error) {
+func (m *Manager) start(tenant, actor, record string, s domain.NetworkSpec, revision int, key, fail, retryOf string, lifecycle *kubernetesfabric.LifecycleState, parent, action, expectedParent, approval string, dynamicPrevious ...*domain.NetworkSpec) (operations.Operation, error) {
+	intent, e := json.Marshal(s)
+	if e != nil {
+		return operations.Operation{}, errors.New("invalid desired configuration")
+	}
+	var isolated domain.NetworkSpec
+	if json.Unmarshal(intent, &isolated) != nil {
+		return operations.Operation{}, errors.New("invalid desired configuration")
+	}
+	s = isolated
+	var previousNetwork *domain.NetworkSpec
+	if len(dynamicPrevious) > 1 {
+		return operations.Operation{}, errors.New("invalid dynamic transition")
+	}
+	if len(dynamicPrevious) == 1 && dynamicPrevious[0] != nil {
+		raw, _ := json.Marshal(dynamicPrevious[0])
+		var copy domain.NetworkSpec
+		if json.Unmarshal(raw, &copy) != nil {
+			return operations.Operation{}, errors.New("invalid previous network")
+		}
+		previousNetwork = &copy
+		if m.Mode() != "secure-local" || lifecycle != nil || action != "dynamic-reconcile" || parent == "" || approval == "" || kubernetesfabric.ValidateDynamicTransition(copy, s) != nil {
+			return operations.Operation{}, errors.New("invalid dynamic transition approval")
+		}
+	}
 	if m.history != nil {
 		return operations.Operation{}, operations.ErrReadOnly
 	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if previousNetwork != nil {
+		for _, op := range m.jobs.List(tenant) {
+			if op.IdempotencyKey == key {
+				stored, e := m.Status(tenant, op.ID)
+				if e != nil || op.NetworkID != record || op.Actor != actor || stored.PreviousNetwork == nil || stored.LifecycleParent != parent || stored.LifecycleAction != action || stored.LifecycleApproval != approval {
+					return operations.Operation{}, operations.ErrIdempotency
+				}
+				expected, _ := json.Marshal(s)
+				actual, _ := json.Marshal(stored.Network)
+				if !bytes.Equal(expected, actual) {
+					return operations.Operation{}, operations.ErrIdempotency
+				}
+				return op, nil
+			}
+		}
+	}
 	if retryOf != "" {
 		previous, e := m.Status(tenant, retryOf)
 		if e != nil || previous.Phase == "superseded" {
@@ -135,6 +176,16 @@ func (m *Manager) start(tenant, actor, record string, s domain.NetworkSpec, revi
 		for _, previous := range m.jobs.List(tenant) {
 			if previous.NetworkID == record {
 				state, e := m.Status(tenant, previous.ID)
+				if previousNetwork == nil && e == nil && state.PreviousNetwork != nil {
+					return operations.Operation{}, errors.New("use reviewed dynamic reconciliation for a managed expanded network")
+				}
+				if previousNetwork == nil && e == nil && (s.Spec.Deployment.TargetRef == domain.DynamicLocalProfile || state.Network.Spec.Deployment.TargetRef == domain.DynamicLocalProfile) {
+					current, _ := json.Marshal(state.Network)
+					desired, _ := json.Marshal(s)
+					if !bytes.Equal(current, desired) {
+						return operations.Operation{}, errors.New("dynamic running-network changes require qualified durable transition approval; initial deployment intent cannot replace membership")
+					}
+				}
 				if e != nil || state.Lifecycle != nil {
 					return operations.Operation{}, errors.New("use lifecycle reconciliation for a managed topology")
 				}
@@ -177,12 +228,15 @@ func (m *Manager) start(tenant, actor, record string, s domain.NetworkSpec, revi
 			Revision int
 		}{s, revision})
 	}
+	if previousNetwork != nil {
+		material, _ = json.Marshal([]any{s, revision, previousNetwork, parent, approval})
+	}
 	hash := sha256.Sum256(material)
 	if m.Mode() == "local-kubernetes" && (s.Spec.Deployment.Provider != "local" || s.Spec.Deployment.TargetRef != "smp-qualification" || s.Spec.Environment != "development") {
 		return operations.Operation{}, errors.New("this worker executes only the explicit local Kubernetes target")
 	}
 	if validator, ok := m.runner.(interface{ Validate(Request) error }); ok {
-		if err := validator.Validate(Request{TenantID: tenant, NetworkID: record, Network: s, Lifecycle: lifecycle}); err != nil {
+		if err := validator.Validate(Request{TenantID: tenant, NetworkID: record, Network: s, Lifecycle: lifecycle, PreviousNetwork: previousNetwork}); err != nil {
 			return operations.Operation{}, err
 		}
 	}
@@ -194,7 +248,7 @@ func (m *Manager) start(tenant, actor, record string, s domain.NetworkSpec, revi
 	if m.Mode() == "aws-eks" || m.Mode() == "secure-local" || m.Mode() == "secure-eks" {
 		begin = func(tenant, actor, record, kind, key, digest, version, retry string, stages []operations.Stage) (operations.Operation, bool, error) {
 			return m.jobs.BeginPrepared(tenant, actor, record, kind, key, digest, version, retry, stages, func(op operations.Operation) ([]byte, error) {
-				return json.Marshal(Result{Lifecycle: lifecycle, LifecycleParent: parent, LifecycleAction: action, LifecycleApproval: approval, TenantID: tenant, TargetSHA256: targetDigest, Mode: m.Mode(), Network: s, Revision: revision, OperationID: op.ID, Phase: "deploying", CheckedAt: time.Now().UTC(), Resources: []Resource{}, Notice: "Durable target-bound qualification deployment; cloud infrastructure provisioning is excluded."})
+				return json.Marshal(Result{PreviousNetwork: previousNetwork, Lifecycle: lifecycle, LifecycleParent: parent, LifecycleAction: action, LifecycleApproval: approval, TenantID: tenant, TargetSHA256: targetDigest, Mode: m.Mode(), Network: s, Revision: revision, OperationID: op.ID, Phase: "deploying", CheckedAt: time.Now().UTC(), Resources: []Resource{}, Notice: "Durable target-bound qualification deployment; cloud infrastructure provisioning is excluded."})
 			})
 		}
 	}
@@ -202,7 +256,7 @@ func (m *Manager) start(tenant, actor, record string, s domain.NetworkSpec, revi
 	if err != nil || reused {
 		return op, err
 	}
-	snapshot := Result{Lifecycle: lifecycle, LifecycleParent: parent, LifecycleAction: action, LifecycleApproval: approval, TargetSHA256: targetDigest, Mode: "mock", Simulated: true, Network: s, Revision: revision, OperationID: op.ID, Phase: "deploying", CheckedAt: time.Now().UTC(), Resources: []Resource{}, Notice: "MOCK DEPLOYMENT — simulated resources and transaction; no cloud, Kubernetes, CA or Fabric resources are created."}
+	snapshot := Result{PreviousNetwork: previousNetwork, Lifecycle: lifecycle, LifecycleParent: parent, LifecycleAction: action, LifecycleApproval: approval, TargetSHA256: targetDigest, Mode: "mock", Simulated: true, Network: s, Revision: revision, OperationID: op.ID, Phase: "deploying", CheckedAt: time.Now().UTC(), Resources: []Resource{}, Notice: "MOCK DEPLOYMENT — simulated resources and transaction; no cloud, Kubernetes, CA or Fabric resources are created."}
 	snapshot.TenantID = tenant
 	if m.Mode() == "secure-local" {
 		snapshot.Notice = "Explicit protected local candidate deployment; production and AWS are disabled."
@@ -237,13 +291,14 @@ func (m *Manager) dispatch(op operations.Operation, snapshot Result, fail string
 		defer m.workers.Done()
 		defer cancel()
 		defer func() { m.mu.Lock(); delete(m.running, op.ID); m.mu.Unlock() }()
-		outcome, runErr := m.runner.Run(runCtx, Request{TenantID: tenant, NetworkID: record, OperationID: op.ID, Network: s, Lifecycle: snapshot.Lifecycle, LifecycleAction: snapshot.LifecycleAction, LifecycleApproval: snapshot.LifecycleApproval, TargetSHA256: snapshot.TargetSHA256, FailureStage: fail}, func(stage, message string) error {
+		outcome, runErr := m.runner.Run(runCtx, Request{TenantID: tenant, NetworkID: record, OperationID: op.ID, Network: s, PreviousNetwork: snapshot.PreviousNetwork, Lifecycle: snapshot.Lifecycle, LifecycleAction: snapshot.LifecycleAction, LifecycleApproval: snapshot.LifecycleApproval, TargetSHA256: snapshot.TargetSHA256, FailureStage: fail}, func(stage, message string) error {
 			if err := m.jobs.Advance(op.ID, stage); err != nil {
 				return err
 			}
 			return m.jobs.Event(op.ID, message)
 		})
 		if runErr == nil {
+			snapshot.Verifications = outcome.Verifications
 			if m.Mode() != "mock" {
 				runErr = verifyLifecycleEvidence(s, snapshot.Lifecycle, outcome)
 			}
@@ -397,7 +452,7 @@ func (m *Manager) Retry(tenant, actor, id, key string) (operations.Operation, er
 			return operations.Operation{}, err
 		}
 	}
-	return m.start(tenant, actor, op.NetworkID, s.Network, s.Revision, key, "", op.ID, s.Lifecycle, s.LifecycleParent, s.LifecycleAction, "", s.LifecycleApproval)
+	return m.start(tenant, actor, op.NetworkID, s.Network, s.Revision, key, "", op.ID, s.Lifecycle, s.LifecycleParent, s.LifecycleAction, "", s.LifecycleApproval, s.PreviousNetwork)
 }
 
 func (m *Manager) Health(ctx context.Context, tenant, id string) (localfabric.Health, error) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"flag"
@@ -17,6 +18,7 @@ func main() {
 	namespace := flag.String("namespace", "", "dedicated local namespace")
 	secure := flag.Bool("secure-local", false, "explicit protected application issuer profile")
 	lifecycleFile := flag.String("lifecycle", "", "approved bounded local lifecycle state")
+	previousFile := flag.String("previous", "", "recorded approved previous dynamic intent")
 	flag.Parse()
 	if len(*namespace) < 6 || ((*namespace)[:6] != "smp-n-" && (!*secure || (*namespace)[:6] != "smp-s-")) {
 		fmt.Fprintln(os.Stderr, "worker requires a dedicated smp-n- namespace")
@@ -51,6 +53,19 @@ func main() {
 		}
 	}
 	worker := kubernetesfabric.Worker{Secure: *secure, Namespace: *namespace, Runtime: runtime, Spec: spec, Output: func(event kubernetesfabric.Event) error { return encoder.Encode(event) }}
+	if *previousFile != "" {
+		raw, e := os.ReadFile(*previousFile)
+		if !*secure || e != nil {
+			fmt.Fprintln(os.Stderr, "invalid previous dynamic intent")
+			os.Exit(1)
+		}
+		previous, e := domain.Decode(bytes.NewReader(raw))
+		if e != nil || kubernetesfabric.ValidateDynamicTransition(previous, spec) != nil {
+			fmt.Fprintln(os.Stderr, "invalid previous dynamic intent")
+			os.Exit(1)
+		}
+		worker.Previous = &previous
+	}
 	if *lifecycleFile != "" {
 		raw, e := os.ReadFile(*lifecycleFile)
 		var state kubernetesfabric.LifecycleState

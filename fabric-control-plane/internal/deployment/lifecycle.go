@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"sathonate.local/fabric-control-plane/internal/domain"
 	"sathonate.local/fabric-control-plane/internal/kubernetesfabric"
 	"sathonate.local/fabric-control-plane/internal/operations"
 )
@@ -57,7 +58,7 @@ func (m *Manager) PreviewLifecycle(ctx context.Context, tenant, actor, parent, a
 		return ChangePreview{}, fail
 	}
 	before, e := m.Status(tenant, parent)
-	if e != nil || !before.Verified || !before.Ready || before.Phase != "running" || before.Simulated {
+	if e != nil || !before.Verified || !before.Ready || before.Phase != "running" || before.Simulated || before.Network.Spec.Deployment.TargetRef != domain.SecureLocalProfile {
 		return ChangePreview{}, fail
 	}
 	after, impact, e := nextLifecycle(before.Lifecycle, action)

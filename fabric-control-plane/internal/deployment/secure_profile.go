@@ -67,7 +67,7 @@ var ErrSecureIntegrationBlocked = errors.New("secure-local-v1 requires the expli
 // Reject before operation creation or any Kubernetes call. This is deliberately
 // not an implementation of Runner: no disabled scaffold can report success.
 func rejectUnintegratedSecureProfile(s domain.NetworkSpec) error {
-	if s.Spec.Deployment.TargetRef == domain.SecureLocalProfile || s.Spec.Deployment.TargetRef == domain.SecureEKSProfile {
+	if s.Spec.Deployment.TargetRef == domain.SecureLocalProfile || s.Spec.Deployment.TargetRef == domain.SecureEKSProfile || s.Spec.Deployment.TargetRef == domain.DynamicLocalProfile {
 		return ErrSecureIntegrationBlocked
 	}
 	return nil

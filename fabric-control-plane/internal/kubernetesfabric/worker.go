@@ -34,14 +34,16 @@ import (
 
 type Object = map[string]any
 type Event struct {
-	Security      *ArgumentEvidence   `json:"security,omitempty"`
-	Stage         string              `json:"stage,omitempty"`
-	Message       string              `json:"message,omitempty"`
-	Health        *localfabric.Health `json:"health,omitempty"`
-	TransactionID string              `json:"transactionId,omitempty"`
-	Channel       Object              `json:"channelRequest,omitempty"`
+	Verification  *DynamicVerification `json:"verification,omitempty"`
+	Security      *ArgumentEvidence    `json:"security,omitempty"`
+	Stage         string               `json:"stage,omitempty"`
+	Message       string               `json:"message,omitempty"`
+	Health        *localfabric.Health  `json:"health,omitempty"`
+	TransactionID string               `json:"transactionId,omitempty"`
+	Channel       Object               `json:"channelRequest,omitempty"`
 }
 type Worker struct {
+	Previous        *domain.NetworkSpec
 	Lifecycle       *LifecycleState
 	Secure          bool
 	argumentSamples map[string]int
@@ -261,6 +263,9 @@ func (w *Worker) register(ca, user, password, registrarPassword, kind, msp strin
 	return err
 }
 func (w *Worker) Run(ctx context.Context) (runErr error) {
+	if w.Spec.Spec.Deployment.TargetRef == domain.DynamicLocalProfile {
+		return w.runDynamic(ctx)
+	}
 	if w.Secure {
 		return w.runSecure(ctx)
 	}

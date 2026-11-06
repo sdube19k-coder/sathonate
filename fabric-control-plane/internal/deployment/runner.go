@@ -24,26 +24,28 @@ var Stages = []operations.Stage{
 }
 
 type Result struct {
-	LifecycleApproval string                             `json:"lifecycleApproval,omitempty"`
-	LifecycleParent   string                             `json:"lifecycleParent,omitempty"`
-	LifecycleAction   string                             `json:"lifecycleAction,omitempty"`
-	Lifecycle         *kubernetesfabric.LifecycleState   `json:"lifecycle,omitempty"`
-	Security          *kubernetesfabric.ArgumentEvidence `json:"security,omitempty"`
-	TenantID          string                             `json:"-"`
-	Mode              string                             `json:"mode"`
-	Simulated         bool                               `json:"simulated"`
-	Network           domain.NetworkSpec                 `json:"network"`
-	Revision          int                                `json:"revision"`
-	OperationID       string                             `json:"operationId"`
-	TargetSHA256      string                             `json:"targetSHA256,omitempty"`
-	Phase             string                             `json:"phase"`
-	Ready             bool                               `json:"ready"`
-	Verified          bool                               `json:"verified"`
-	CheckedAt         time.Time                          `json:"checkedAt"`
-	Resources         []Resource                         `json:"resources"`
-	TransactionID     string                             `json:"transactionId,omitempty"`
-	Notice            string                             `json:"notice"`
-	Health            *localfabric.Health                `json:"health,omitempty"`
+	PreviousNetwork   *domain.NetworkSpec                    `json:"previousNetwork,omitempty"`
+	Verifications     []kubernetesfabric.DynamicVerification `json:"verifications,omitempty"`
+	LifecycleApproval string                                 `json:"lifecycleApproval,omitempty"`
+	LifecycleParent   string                                 `json:"lifecycleParent,omitempty"`
+	LifecycleAction   string                                 `json:"lifecycleAction,omitempty"`
+	Lifecycle         *kubernetesfabric.LifecycleState       `json:"lifecycle,omitempty"`
+	Security          *kubernetesfabric.ArgumentEvidence     `json:"security,omitempty"`
+	TenantID          string                                 `json:"-"`
+	Mode              string                                 `json:"mode"`
+	Simulated         bool                                   `json:"simulated"`
+	Network           domain.NetworkSpec                     `json:"network"`
+	Revision          int                                    `json:"revision"`
+	OperationID       string                                 `json:"operationId"`
+	TargetSHA256      string                                 `json:"targetSHA256,omitempty"`
+	Phase             string                                 `json:"phase"`
+	Ready             bool                                   `json:"ready"`
+	Verified          bool                                   `json:"verified"`
+	CheckedAt         time.Time                              `json:"checkedAt"`
+	Resources         []Resource                             `json:"resources"`
+	TransactionID     string                                 `json:"transactionId,omitempty"`
+	Notice            string                                 `json:"notice"`
+	Health            *localfabric.Health                    `json:"health,omitempty"`
 }
 type Resource struct {
 	Name         string `json:"name"`
@@ -59,6 +61,7 @@ type Runner interface {
 	Run(context.Context, Request, func(string, string) error) (Outcome, error)
 }
 type Request struct {
+	PreviousNetwork                                *domain.NetworkSpec
 	LifecycleAction, LifecycleApproval             string
 	Lifecycle                                      *kubernetesfabric.LifecycleState
 	TargetSHA256                                   string
@@ -66,6 +69,7 @@ type Request struct {
 	Network                                        domain.NetworkSpec
 }
 type Outcome struct {
+	Verifications []kubernetesfabric.DynamicVerification
 	Security      *kubernetesfabric.ArgumentEvidence
 	Resources     []Resource
 	Health        *localfabric.Health

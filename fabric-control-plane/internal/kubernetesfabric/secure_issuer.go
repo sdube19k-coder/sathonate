@@ -30,6 +30,11 @@ var secureDenied = errors.New("secure issuer ownership, trust or protected opera
 
 func securePeerFailure(raw []byte) error {
 	message := strings.ToLower(string(raw))
+	// A missing approved-definition key is distinct from transport, trust or
+	// authorization failures. Only this exact semantic case permits first approval.
+	if regexp.MustCompile(`(?m)could not fetch approved chaincode definition \(name: '[a-z][a-z0-9-]*', sequence: '[0-9]+'\) on channel '[a-z][a-z0-9-]*'\r?$`).MatchString(message) && !strings.Contains(message, "access denied") && !strings.Contains(message, "authorization failure") && !strings.Contains(message, "certificate") && !strings.Contains(message, "connection refused") && !strings.Contains(message, "deadline exceeded") {
+		return fmt.Errorf("protected Fabric peer command failed (approval-absent); private diagnostics withheld")
+	}
 	category := "unclassified"
 	for _, candidate := range []struct{ marker, category string }{
 		{"external builder", "chaincode-builder"},
@@ -210,10 +215,14 @@ func (w *Worker) validateIdentity(key, dns string, data map[string]string, expec
 	return w.restoreMSP(key, data)
 }
 func (w *Worker) issueIdentity(org, key, caname, kind, dns string) (map[string]string, error) {
+	org = w.authority(org, caname)
+	if org == "" {
+		return nil, secureDenied
+	}
 	if kind != "peer" && kind != "orderer" && kind != "client" && kind != "admin" {
 		return nil, secureDenied
 	}
-	ca, err := w.secureGet("fabriccas", org+"-ca")
+	ca, err := w.secureGet("fabriccas", w.caName(org))
 	if err != nil || ca == nil || text(object(object(ca["metadata"])["labels"])["sathonate.io/namespace"]) != w.Namespace {
 		return nil, secureDenied
 	}
@@ -237,7 +246,7 @@ func (w *Worker) issueIdentity(org, key, caname, kind, dns string) (map[string]s
 	if e != nil {
 		return nil, e
 	}
-	endpoint := "https://" + org + "-ca." + w.Namespace + ":7054"
+	endpoint := "https://" + w.caName(org) + "." + w.Namespace + ":7054"
 	config := Object{"url": endpoint, "caname": caname, "id": Object{"name": key, "secret": credential, "type": kind}}
 	// A repeated registration is inspected through fixed semantic output only.
 	raw, _ := json.Marshal(config)
@@ -255,7 +264,7 @@ func (w *Worker) issueIdentity(org, key, caname, kind, dns string) (map[string]s
 	if e != nil && !strings.Contains(strings.ToLower(diagnostic.String()), "already registered") {
 		return nil, fmt.Errorf("protected identity registration failed (%s); private diagnostics withheld", caFailureCategory(diagnostic.Bytes()))
 	}
-	config = Object{"url": "https://" + key + ":" + credential + "@" + org + "-ca." + w.Namespace + ":7054", "caname": caname}
+	config = Object{"url": "https://" + key + ":" + credential + "@" + w.caName(org) + "." + w.Namespace + ":7054", "caname": caname}
 	if caname == "tlsca" {
 		hosts := []string{"localhost"}
 		if dns != "" {
@@ -326,12 +335,12 @@ func (w *Worker) secureCA(org string) error {
 			return secureDenied
 		}
 	}
-	current, e := w.secureGet("fabriccas", org+"-ca")
+	current, e := w.secureGet("fabriccas", w.caName(org))
 	if e != nil {
 		return e
 	}
 	if current == nil {
-		v, e := w.publicRender("ca", "create", "--name", org+"-ca", "--namespace", w.Namespace, "--image", "hyperledger/fabric-ca", "--version", "1.5.15", "--storage-class", w.storageClass(), "--capacity", w.capacity(), "--enroll-id", "unused", "--enroll-pw", "unused")
+		v, e := w.publicRender("ca", "create", "--name", w.caName(org), "--namespace", w.Namespace, "--image", "hyperledger/fabric-ca", "--version", "1.5.15", "--storage-class", w.storageClass(), "--capacity", w.capacity(), "--enroll-id", "unused", "--enroll-pw", "unused")
 		if e != nil {
 			return e
 		}
@@ -348,10 +357,10 @@ func (w *Worker) secureCA(org string) error {
 	} else if text(object(object(current["metadata"])["labels"])["sathonate.io/namespace"]) != w.Namespace || text(object(object(current["metadata"])["annotations"])["sathonate.io/ca-registry-secret"]) != org+"-registry" {
 		return secureDenied
 	}
-	if w.wait("fabriccas", org+"-ca") != nil {
+	if w.wait("fabriccas", w.caName(org)) != nil {
 		return secureDenied
 	}
-	ca, e := w.get("fabriccas", org+"-ca")
+	ca, e := w.get("fabriccas", w.caName(org))
 	if e != nil {
 		return e
 	}
@@ -378,7 +387,7 @@ func (w *Worker) secureCA(org string) error {
 			}
 			password := bundle[registryKind].Identities[0].Pass
 			w.secrets = append(w.secrets, password)
-			if w.caCall(key, org, "enroll", "", Object{"url": "https://registrar:" + password + "@" + org + "-ca." + w.Namespace + ":7054", "caname": kind}) != nil {
+			if w.caCall(key, org, "enroll", "", Object{"url": "https://registrar:" + password + "@" + w.caName(org) + "." + w.Namespace + ":7054", "caname": kind}) != nil {
 				return secureDenied
 			}
 			data, e = readMSP(key)
@@ -397,7 +406,7 @@ func (w *Worker) secureCA(org string) error {
 		}
 	}
 	for attempt := 0; attempt < 3; attempt++ {
-		if e := w.caCall("audit-"+org, org, "getcainfo", org+"-registrar-ca", Object{"url": "https://" + org + "-ca." + w.Namespace + ":7054", "caname": "ca"}); e != nil {
+		if e := w.caCall("audit-"+org, org, "getcainfo", org+"-registrar-ca", Object{"url": "https://" + w.caName(org) + "." + w.Namespace + ":7054", "caname": "ca"}); e != nil {
 			return e
 		}
 		if w.argumentSamples["fabric-ca-client"] > 0 {
@@ -440,7 +449,7 @@ func (w *Worker) secureNode(n domain.Node, org domain.Organization) error {
 		return e
 	}
 	if existing == nil {
-		args := []string{command, "create", "--name", n.ID, "--namespace", w.Namespace, "--image", image, "--version", "2.5.15", "--storage-class", w.storageClass(), "--capacity", w.capacity(), "--enroll-id", "unused", "--enroll-pw", "unused", "--mspid", org.MSPID, "--ca-name", org.ID + "-ca." + w.Namespace, "--ca-host", org.ID + "-ca." + w.Namespace, "--ca-port", "7054"}
+		args := []string{command, "create", "--name", n.ID, "--namespace", w.Namespace, "--image", image, "--version", "2.5.15", "--storage-class", w.storageClass(), "--capacity", w.capacity(), "--enroll-id", "unused", "--enroll-pw", "unused", "--mspid", org.MSPID, "--ca-name", w.caName(w.authority(org.ID, "ca")) + "." + w.Namespace, "--ca-host", w.caName(w.authority(org.ID, "ca")) + "." + w.Namespace, "--ca-port", "7054"}
 		if n.Role == "peer" {
 			args = append(args, "--statedb", "leveldb")
 		}
@@ -483,10 +492,10 @@ func (w *Worker) secureNode(n domain.Node, org domain.Organization) error {
 	return e
 }
 func (w *Worker) directPeer(org, identity string, args ...string) ([]byte, error) {
-	return w.directPeerAt(org, identity, org+"-peer-1", args...)
+	return w.directPeerAt(org, identity, w.firstPeer(org), args...)
 }
 func (w *Worker) directPeerAt(org, identity, peer string, args ...string) ([]byte, error) {
-	ca, e := w.get("fabriccas", org+"-ca")
+	ca, e := w.get("fabriccas", w.caName(w.authority(org, "tlsca")))
 	if e != nil {
 		return nil, e
 	}
@@ -495,9 +504,9 @@ func (w *Worker) directPeerAt(org, identity, peer string, args ...string) ([]byt
 		return nil, secureDenied
 	}
 	cmd := exec.CommandContext(w.ctx, "peer", args...)
-	msp := "Org1MSP"
-	if org == "org2" {
-		msp = "Org2MSP"
+	msp := w.peerMSP(org)
+	if msp == "" || peer == "" {
+		return nil, secureDenied
 	}
 	cmd.Env = append(os.Environ(), "CORE_PEER_LOCALMSPID="+msp, "CORE_PEER_ADDRESS="+peer+"."+w.Namespace+":7051", "CORE_PEER_TLS_ENABLED=true", "CORE_PEER_TLS_ROOTCERT_FILE="+root, "CORE_PEER_MSPCONFIGPATH=/workspace/"+org+"-"+identity+"/msp")
 	var out, diagnostic bytes.Buffer
@@ -657,7 +666,7 @@ func (w *Worker) secureChannels() error {
 			}
 		}
 	}
-	return nil
+	return w.awaitSecureChannelPeers()
 }
 func (w *Worker) runSecure(ctx context.Context) error {
 	w.ctx = ctx

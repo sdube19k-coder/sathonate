@@ -1,0 +1,6 @@
+FROM sathonate/fabric-worker:sprint2
+USER root
+COPY bin/fabric-worker-sprint4-dynamic /usr/local/bin/fabric-worker
+COPY bin/fabric-config-tool /usr/local/bin/fabric-config-tool
+USER 10001:10001
+ENTRYPOINT ["/usr/local/bin/fabric-worker"]

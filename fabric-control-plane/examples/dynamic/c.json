@@ -1,0 +1,300 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": {
+    "id": "customer-c",
+    "name": "Customer topology C"
+  },
+  "spec": {
+    "environment": "development",
+    "fabricVersion": "2.5.15",
+    "deployment": {
+      "engine": "bevel",
+      "runtime": "kubernetes",
+      "provider": "local",
+      "targetRef": "smp-dynamic-local-v1"
+    },
+    "ordering": {
+      "consensus": "raft",
+      "channelCapability": "V2_0"
+    },
+    "organizations": [
+      {
+        "id": "clearing",
+        "mspId": "ClearingMSP",
+        "identityProviderRef": "clearing-issuer"
+      },
+      {
+        "id": "settlement",
+        "mspId": "SettlementMSP",
+        "identityProviderRef": "settlement-issuer"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "clearing-p1",
+        "organizationRef": "clearing",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "clearing-p2",
+        "organizationRef": "clearing",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "settlement-p1",
+        "organizationRef": "settlement",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-1",
+        "organizationRef": "clearing",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-2",
+        "organizationRef": "clearing",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-3",
+        "organizationRef": "clearing",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-4",
+        "organizationRef": "clearing",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-5",
+        "organizationRef": "clearing",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      }
+    ],
+    "channels": [
+      {
+        "id": "settlements",
+        "organizationRefs": [
+          "clearing",
+          "settlement"
+        ],
+        "peerRefs": [
+          "clearing-p1",
+          "clearing-p2",
+          "settlement-p1"
+        ],
+        "ordererRefs": [
+          "raft-1",
+          "raft-2",
+          "raft-3",
+          "raft-4",
+          "raft-5"
+        ]
+      }
+    ],
+    "configuration": {
+      "placements": {
+        "approved-local": {
+          "nodeSelector": {
+            "kubernetes.io/hostname": "disposable-node"
+          }
+        }
+      },
+      "nodes": {
+        "clearing-p1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "clearing-p2": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "settlement-p1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-2": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-3": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-4": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-5": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        }
+      },
+      "authorities": [
+        {
+          "id": "clearing-issuer",
+          "organizationRef": "clearing",
+          "roles": [
+            "signing"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        {
+          "id": "settlement-issuer",
+          "organizationRef": "settlement",
+          "roles": [
+            "signing",
+            "tls"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        {
+          "id": "clearing-tls-issuer",
+          "organizationRef": "clearing",
+          "roles": [
+            "tls"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        }
+      ],
+      "anchors": {
+        "settlements": [
+          "clearing-p1",
+          "settlement-p1"
+        ]
+      },
+      "chaincodes": [
+        {
+          "name": "customer-ledger",
+          "channelRef": "settlements",
+          "version": "1.0",
+          "sequence": 1,
+          "packageSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "runtimeImage": "example/approved@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "endorsement": {
+            "mspIds": [
+              "ClearingMSP",
+              "SettlementMSP"
+            ],
+            "minimum": 2
+          }
+        }
+      ]
+    }
+  }
+}

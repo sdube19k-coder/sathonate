@@ -3,16 +3,20 @@ package httpapi
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"os/exec"
 	"sathonate.local/fabric-control-plane/internal/deployment"
+	"sathonate.local/fabric-control-plane/internal/domain"
 	"sathonate.local/fabric-control-plane/internal/drafts"
 	"sathonate.local/fabric-control-plane/internal/identity"
 	"sathonate.local/fabric-control-plane/internal/operations"
 	"sathonate.local/fabric-control-plane/internal/persistence"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -109,7 +113,12 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 		for k, v := range headers {
 			req.Header.Set(k, v)
 		}
-		res, e := http.DefaultClient.Do(req)
+		// Bound every request and avoid sharing a transport across application
+		// restarts. A stalled client must fail promptly instead of hiding progress.
+		transport := &http.Transport{DisableKeepAlives: true}
+		client := &http.Client{Timeout: 20 * time.Second, Transport: transport}
+		res, e := client.Do(req)
+		defer transport.CloseIdleConnections()
 		if e != nil {
 			t.Fatal("API request failed")
 		}
@@ -130,9 +139,48 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 	if status, _ := call("GET", "/api/v1/projects", token, nil, nil); status != 200 {
 		t.Fatal("authenticated project unavailable")
 	}
-	design, e := os.ReadFile("../../examples/secure-local-network.json")
+	designPath := "../../examples/secure-local-network.json"
+	dynamicLabel := os.Getenv("SMP_DYNAMIC_LABEL")
+	if dynamicLabel != "" {
+		if dynamicLabel != "a" && dynamicLabel != "b" && dynamicLabel != "c" {
+			t.Fatal("invalid dynamic fixture")
+		}
+		designPath = "../../examples/dynamic/" + dynamicLabel + ".json"
+	}
+	design, e := os.ReadFile(designPath)
 	if e != nil {
 		t.Fatal(e)
+	}
+	var desired domain.NetworkSpec
+	if json.Unmarshal(design, &desired) != nil {
+		t.Fatal("invalid fixture")
+	}
+	expectedPeers := 0
+	firstPeer := ""
+	for _, n := range desired.Spec.Nodes {
+		if n.Role == "peer" {
+			expectedPeers++
+			if firstPeer == "" {
+				firstPeer = n.ID
+			}
+		}
+	}
+	if dynamicLabel != "" {
+		if len(config.Runtime.CodeArtifacts) != 2 {
+			t.Fatal("two approved code versions required")
+		}
+		for ref := range desired.Spec.Configuration.Placements {
+			desired.Spec.Configuration.Placements[ref] = domain.Placement{NodeSelector: map[string]string{"kubernetes.io/hostname": config.ClusterName + "-control-plane"}}
+		}
+		for i := range desired.Spec.Configuration.Chaincodes {
+			for image, a := range config.Runtime.CodeArtifacts {
+				if a.CodeVersion == "1.0" {
+					desired.Spec.Configuration.Chaincodes[i].RuntimeImage = image
+					desired.Spec.Configuration.Chaincodes[i].PackageSHA256 = a.SHA256
+				}
+			}
+		}
+		design, _ = json.Marshal(desired)
 	}
 	status, body := call("POST", "/api/v1/networks", token, design, nil)
 	var draft drafts.Draft
@@ -231,10 +279,16 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 	}
 	status, body = call("GET", "/api/v1/deployments/"+retry.ID, token, nil, nil)
 	var result deployment.Result
-	if status != 200 || json.Unmarshal(body, &result) != nil || !result.Ready || !result.Verified || result.Simulated || result.Security == nil || !result.Security.CredentialsAbsent || result.Health == nil || len(result.Health.Peers) != 2 {
+	if status != 200 || json.Unmarshal(body, &result) != nil || !result.Ready || !result.Verified || result.Simulated || result.Security == nil || !result.Security.CredentialsAbsent || result.Health == nil || len(result.Health.Peers) != expectedPeers {
 		t.Fatal("complete API transaction evidence missing", string(body))
 	}
 	firstTransaction := result.TransactionID
+	if dynamicLabel != "" {
+		partial, _ := json.MarshalIndent(map[string]any{"schema": "sathonate.dynamic-partial/v1", "status": "PARTIAL", "completedGate": "initial-api-provisioning-and-committed-transactions", "namespace": namespace, "verifications": result.Verifications, "transactionId": result.TransactionID}, "", "  ")
+		if os.WriteFile(os.Getenv("SMP_SECURE_API_EVIDENCE")+".initial.json", partial, 0600) != nil {
+			t.Fatal("initial evidence persistence failed")
+		}
+	}
 	firstHeights := map[string]uint64{}
 	for _, peer := range result.Health.Peers {
 		firstHeights[peer.Peer] = peer.Height
@@ -245,10 +299,10 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 	}
 	// Only this disposable namespace is changed. Preserve the peer PVC, then
 	// reconcile through the API and commit a second new transaction.
-	beforePod := string(kub("get", "pod", "-l", "release=org1-peer-1", "-o", "jsonpath={.items[0].metadata.uid}"))
-	kub("delete", "pod", "-l", "release=org1-peer-1", "--wait=true", "--timeout=60s")
-	kub("rollout", "status", "deployment/org1-peer-1", "--timeout=120s")
-	if string(kub("get", "pod", "-l", "release=org1-peer-1", "-o", "jsonpath={.items[0].metadata.uid}")) == beforePod {
+	beforePod := string(kub("get", "pod", "-l", "release="+firstPeer, "-o", "jsonpath={.items[0].metadata.uid}"))
+	kub("delete", "pod", "-l", "release="+firstPeer, "--wait=true", "--timeout=60s")
+	kub("rollout", "status", "deployment/"+firstPeer, "--timeout=120s")
+	if string(kub("get", "pod", "-l", "release="+firstPeer, "-o", "jsonpath={.items[0].metadata.uid}")) == beforePod {
 		t.Fatal("peer pod was not replaced")
 	}
 	status, body = call("POST", "/api/v1/networks/"+draft.ID+"/deploy", token, []byte(`{}`), map[string]string{"If-Match": `"1"`, "Idempotency-Key": "storage-recovery-" + unique})
@@ -258,7 +312,7 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 	}
 	completed = wait(recovery.ID, func(op operations.Operation) bool { return op.Status == "succeeded" })
 	status, body = call("GET", "/api/v1/deployments/"+recovery.ID, token, nil, nil)
-	if status != 200 || json.Unmarshal(body, &result) != nil || !result.Verified || result.TransactionID == firstTransaction || result.Health == nil || len(result.Health.Peers) != 2 {
+	if status != 200 || json.Unmarshal(body, &result) != nil || !result.Verified || result.TransactionID == firstTransaction || result.Health == nil || len(result.Health.Peers) != expectedPeers {
 		t.Fatal("new post-restart committed transaction missing")
 	}
 	if string(kub("get", "pvc", "-o", "jsonpath={range .items[*]}{.metadata.name}:{.metadata.uid}{'\\n'}{end}")) != pvcUIDs {
@@ -272,7 +326,7 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 	// Both persistence repositories reject a different project even with the same tenant.
 	postRestartHealth, _ := json.Marshal(result.Health)
 	lifecycleEvidence := []any{}
-	if os.Getenv("SMP_LIFECYCLE_E2E") == "1" {
+	if dynamicLabel == "" && os.Getenv("SMP_LIFECYCLE_E2E") == "1" {
 		for _, action := range []string{"add-peer", "upgrade-chaincode", "restart-peer", "verify-network"} {
 			parent := completed.ID
 			route := "/api/v1/deployments/" + parent + "/lifecycle/" + action
@@ -324,10 +378,155 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 			lifecycleEvidence = append(lifecycleEvidence, map[string]any{"action": action, "operationId": completed.ID, "transactionId": result.TransactionID, "health": json.RawMessage(checkpointHealth), "approvedPreview": preview, "apiRestartAdopted": true})
 		}
 	}
+
+	expansionEvidence := map[string]any{}
+	if dynamicLabel == "a" && os.Getenv("SMP_DYNAMIC_EXPAND") == "1" {
+		stages := customerExpansionStages(desired, config.Runtime.CodeArtifacts)
+		stageEvidence := []any{}
+		for stageIndex, nextDesired := range stages {
+			beforeResult, copyErr := deploymentSnapshot(result)
+			if copyErr != nil {
+				t.Fatal(copyErr)
+			}
+			observedPods := func() map[string]string {
+				var list struct {
+					Items []struct {
+						Metadata struct {
+							UID    string
+							Labels map[string]string
+						}
+					}
+				}
+				if json.Unmarshal(kub("get", "pods", "-o", "json"), &list) != nil {
+					t.Fatal("pod inventory unavailable")
+				}
+				values := map[string]string{}
+				for _, p := range list.Items {
+					release := p.Metadata.Labels["release"]
+					if release == "" {
+						release = p.Metadata.Labels["chaincode"]
+					}
+					if release != "" {
+						values[release] = p.Metadata.UID
+					}
+				}
+				return values
+			}
+			beforePods := observedPods()
+			desired = nextDesired
+			update, _ := json.Marshal(desired)
+			nextRevision := draft.Revision + 1
+			status, body = call("PUT", "/api/v1/networks/"+draft.ID, token, update, map[string]string{"If-Match": strconv.Quote(strconv.Itoa(draft.Revision))})
+			if status != 200 || json.Unmarshal(body, &draft) != nil || draft.Revision != nextRevision {
+				t.Fatal("expanded desired configuration not saved", status, string(body))
+			}
+			revisionHeaders := map[string]string{"If-Match": strconv.Quote(strconv.Itoa(draft.Revision))}
+			route := "/api/v1/networks/" + draft.ID + "/dynamic"
+			for _, foreign := range []string{foreignTenant, foreignProject} {
+				if status, _ = call("GET", route+"/preview?parent="+completed.ID, foreign, nil, revisionHeaders); status != 404 {
+					t.Fatal("foreign expansion preview exposed")
+				}
+			}
+			status, body = call("GET", route+"/preview?parent="+completed.ID, token, nil, revisionHeaders)
+			var preview deployment.DynamicPreview
+			if status != 200 || json.Unmarshal(body, &preview) != nil {
+				t.Fatal("dynamic preview failed", status, string(body))
+			}
+			approval, _ := json.Marshal(map[string]string{"parentOperationId": completed.ID, "approval": preview.Digest})
+			changeHeaders := map[string]string{"If-Match": strconv.Quote(strconv.Itoa(draft.Revision)), "Idempotency-Key": "dynamic-expansion-" + unique + "-" + strconv.Itoa(stageIndex)}
+			if status, _ = call("POST", route+"/deploy", viewer, approval, changeHeaders); status != 403 {
+				t.Fatal("viewer expanded network")
+			}
+			status, body = call("POST", route+"/deploy", token, approval, changeHeaders)
+			var change operations.Operation
+			if status != 202 || json.Unmarshal(body, &change) != nil {
+				t.Fatal("dynamic expansion rejected", status, string(body))
+			}
+			status, body = call("POST", route+"/deploy", token, approval, changeHeaders)
+			var duplicate operations.Operation
+			if status != 202 || json.Unmarshal(body, &duplicate) != nil || duplicate.ID != change.ID {
+				t.Fatal("dynamic acknowledgement retry duplicated operation")
+			}
+			wait(change.ID, func(op operations.Operation) bool { return op.CurrentStage == "channels" || op.Status == "succeeded" })
+			server.Close()
+			manager.Close()
+			manager, e = deployment.OpenDatabase(ctx, db.Pool(), runner)
+			if e != nil {
+				t.Fatal("dynamic application recovery failed", e)
+			}
+			openServer()
+			completed = wait(change.ID, func(op operations.Operation) bool { return op.Status == "succeeded" })
+			status, body = call("GET", "/api/v1/deployments/"+completed.ID, token, nil, nil)
+			if status != 200 || json.Unmarshal(body, &result) != nil || !result.Verified || len(result.Verifications) != len(desired.Spec.Configuration.Chaincodes) || result.PreviousNetwork == nil {
+				t.Fatal("expanded runtime evidence missing", status, string(body))
+			}
+			for _, v := range result.Verifications {
+				expectedCode := "1.0"
+				if stageIndex == 2 {
+					expectedCode = "2.0"
+				}
+				if len(v.Health.Peers) != len(desired.Spec.Channels[0].PeerRefs) || len(v.Health.Orderers) != len(desired.Spec.Channels[0].OrdererRefs) || v.CodeVersion != expectedCode {
+					t.Fatal("expanded topology/code not independently verified")
+				}
+				if stageIndex == 2 && v.Health.Channel == beforeResult.Health.Channel && (v.Health.Chaincode.Sequence != 2 || v.PackageID == beforeResult.Verifications[0].PackageID || v.ArtifactSHA256 == beforeResult.Verifications[0].ArtifactSHA256) {
+					t.Fatal("actual code/package upgrade missing")
+				}
+			}
+			afterPods := observedPods()
+			for name, uid := range beforePods {
+				if afterPods[name] != uid {
+					t.Fatal("expansion unnecessarily restarted an existing workload", name)
+				}
+			}
+			if status, _ = call("GET", route+"/preview?parent="+preview.Parent, token, nil, revisionHeaders); status != 409 {
+				t.Fatal("stale dynamic parent accepted")
+			}
+			if stageIndex < 2 && result.Verifications[0].PackageID != beforeResult.Verifications[0].PackageID {
+				t.Fatal("membership-only change replaced the immutable chaincode service/package")
+			}
+			afterResult, copyErr := deploymentSnapshot(result)
+			if copyErr != nil {
+				t.Fatal(copyErr)
+			}
+			stageEvidence = append(stageEvidence, map[string]any{"status": "PASS", "stage": stageIndex + 1, "before": beforeResult.Verifications, "after": afterResult.Verifications, "apiRestartAdopted": true, "existingWorkloadUIDsPreserved": true, "preview": preview})
+			partial, _ := json.MarshalIndent(map[string]any{"schema": "sathonate.dynamic-partial/v1", "status": "PARTIAL", "completedExpansionStages": stageEvidence}, "", "  ")
+			if os.WriteFile(os.Getenv("SMP_SECURE_API_EVIDENCE")+".stages.json", partial, 0600) != nil {
+				t.Fatal("stage evidence write failed")
+			}
+		}
+		expansionEvidence = map[string]any{"status": "PASS", "steps": stageEvidence}
+	}
 	if _, e = db.ForTenant(ctx, identity.Principal{TenantID: grant.Tenant, ProjectID: "project-b"}.StorageTenant()).Get(draft.ID); e == nil {
 		t.Fatal("project isolation missing in persistence")
 	}
 	evidence := map[string]any{"schema": "sathonate.sprint1-api/v1", "apiToFabric": "PASS", "authenticationMode": authentication.Config().Mode, "authenticatedTenantProject": true, "duplicateOperationReused": true, "crossTenantDenied": true, "crossProjectDenied": true, "viewerEscalationDenied": true, "workerJobAdoptedAfterApplicationRestart": true, "failedWorkerRetriedThroughAPI": true, "operationId": completed.ID, "initialOperationId": first.ID, "namespace": namespace, "transactionId": result.TransactionID, "committedAndReadOnBothPeers": true, "processArguments": result.Security, "mode": result.Mode, "checkedAt": time.Now().UTC(), "productionEnabled": false, "awsEnabled": false}
+	if dynamicLabel != "" {
+		expectedReleases := []string{}
+		inspectionPeers := []string{}
+		for _, a := range desired.Spec.Configuration.Authorities {
+			expectedReleases = append(expectedReleases, a.ID)
+		}
+		for _, n := range desired.Spec.Nodes {
+			expectedReleases = append(expectedReleases, n.ID)
+			if n.Role == "peer" {
+				inspectionPeers = append(inspectionPeers, n.ID)
+			}
+		}
+		expectedWorkloads := append([]string(nil), expectedReleases...)
+		for _, cc := range desired.Spec.Configuration.Chaincodes {
+			hash := sha256.Sum256([]byte(cc.ChannelRef + "/" + cc.Name))
+			expectedWorkloads = append(expectedWorkloads, "cc-"+hex.EncodeToString(hash[:8])+"-s"+strconv.Itoa(cc.Sequence))
+		}
+		evidence["expectedReleases"] = expectedReleases
+		evidence["expectedWorkloads"] = expectedWorkloads
+		evidence["inspectionPeers"] = inspectionPeers
+		evidence["dynamicTopology"] = dynamicLabel
+		evidence["verifications"] = result.Verifications
+		if len(result.Verifications) != len(desired.Spec.Configuration.Chaincodes) {
+			t.Fatal("not every channel/contract verified")
+		}
+	}
+	evidence["dynamicExpansion"] = expansionEvidence
 	evidence["initialTransactionId"] = firstTransaction
 	evidence["persistentClaimsUnchangedAfterPeerRestart"] = true
 	evidence["postRestartLedgerHealth"] = json.RawMessage(postRestartHealth)

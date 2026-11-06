@@ -1,0 +1,223 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": {
+    "id": "customer-a",
+    "name": "Customer topology A"
+  },
+  "spec": {
+    "environment": "development",
+    "fabricVersion": "2.5.15",
+    "deployment": {
+      "engine": "bevel",
+      "runtime": "kubernetes",
+      "provider": "local",
+      "targetRef": "smp-dynamic-local-v1"
+    },
+    "ordering": {
+      "consensus": "raft",
+      "channelCapability": "V2_0"
+    },
+    "organizations": [
+      {
+        "id": "warehouse",
+        "mspId": "WarehouseMSP",
+        "identityProviderRef": "warehouse-issuer"
+      },
+      {
+        "id": "retailer",
+        "mspId": "RetailerMSP",
+        "identityProviderRef": "retailer-issuer"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "warehouse-p1",
+        "organizationRef": "warehouse",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "retailer-p1",
+        "organizationRef": "retailer",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-1",
+        "organizationRef": "warehouse",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-2",
+        "organizationRef": "warehouse",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-3",
+        "organizationRef": "warehouse",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      }
+    ],
+    "channels": [
+      {
+        "id": "shipments",
+        "organizationRefs": [
+          "warehouse",
+          "retailer"
+        ],
+        "peerRefs": [
+          "warehouse-p1",
+          "retailer-p1"
+        ],
+        "ordererRefs": [
+          "raft-1",
+          "raft-2",
+          "raft-3"
+        ]
+      }
+    ],
+    "configuration": {
+      "placements": {
+        "approved-local": {
+          "nodeSelector": {
+            "kubernetes.io/hostname": "disposable-node"
+          }
+        }
+      },
+      "nodes": {
+        "warehouse-p1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "retailer-p1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-2": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-3": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        }
+      },
+      "authorities": [
+        {
+          "id": "warehouse-issuer",
+          "organizationRef": "warehouse",
+          "roles": [
+            "signing",
+            "tls"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        {
+          "id": "retailer-issuer",
+          "organizationRef": "retailer",
+          "roles": [
+            "signing",
+            "tls"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        }
+      ],
+      "anchors": {
+        "shipments": [
+          "warehouse-p1",
+          "retailer-p1"
+        ]
+      },
+      "chaincodes": [
+        {
+          "name": "customer-ledger",
+          "channelRef": "shipments",
+          "version": "1.0",
+          "sequence": 1,
+          "packageSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "runtimeImage": "example/approved@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "endorsement": {
+            "mspIds": [
+              "WarehouseMSP",
+              "RetailerMSP"
+            ],
+            "minimum": 2
+          }
+        }
+      ]
+    }
+  }
+}

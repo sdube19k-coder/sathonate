@@ -12,7 +12,7 @@ import subprocess
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[2]
-CACHE = ROOT.parent / '.cache'
+CACHE = Path(os.environ.get('SMP_CACHE_ROOT', str(ROOT.parent / '.cache'))).resolve()
 
 
 def capture(args):

@@ -1,0 +1,6 @@
+**
+!bin/
+!bin/local-chaincode-dynamic
+!tools/
+!tools/kubernetes/
+!tools/kubernetes/Dockerfile.dynamic-code

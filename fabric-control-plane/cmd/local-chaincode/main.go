@@ -11,10 +11,19 @@ import (
 
 type contract struct{}
 
+// Set at build time for approved executable artifacts; independent of the
+// mutable Fabric definition's version string.
+var codeVersion = "1.0"
+
 func (*contract) Init(shim.ChaincodeStubInterface) *pb.Response { return shim.Success(nil) }
 func (*contract) Invoke(stub shim.ChaincodeStubInterface) *pb.Response {
 	function, args := stub.GetFunctionAndParameters()
 	switch function {
+	case "CodeVersion":
+		if len(args) != 0 {
+			return shim.Error("CodeVersion takes no arguments")
+		}
+		return shim.Success([]byte(codeVersion))
 	case "Put":
 		if len(args) != 2 || len(args[0]) == 0 || len(args[0]) > 128 || len(args[1]) > 4096 {
 			return shim.Error("Put requires a key and a value (max 4KiB)")

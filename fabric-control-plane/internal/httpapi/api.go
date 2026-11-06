@@ -74,6 +74,8 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 	mux.HandleFunc("POST /api/v1/deployments/{operationId}/cancel", a.deploymentCancel)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/lifecycle/{action}/preview", a.lifecycle)
 	mux.HandleFunc("POST /api/v1/deployments/{operationId}/lifecycle/{action}/deploy", a.lifecycle)
+	mux.HandleFunc("GET /api/v1/networks/{id}/dynamic/preview", a.dynamicNetwork)
+	mux.HandleFunc("POST /api/v1/networks/{id}/dynamic/deploy", a.dynamicNetwork)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}", a.deploymentStatus)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/health", a.deploymentHealth)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/logs/{node}", a.deploymentLogs)
@@ -89,7 +91,12 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 		if a.options.Deployments != nil {
 			deploymentMode = a.options.Deployments.Mode()
 		}
-		respond(w, 200, map[string]any{"name": "Fabric SMP", "company": "Sathonate", "mode": a.options.Auth.Mode, "deploymentMode": deploymentMode, "mockExecutionEnabled": deploymentMode == "mock", "executionEnabled": false, "localRuntimeEnabled": a.options.Local != nil && a.options.Auth.Mode == "local-development", "schemaVersion": domain.APIVersion, "storage": a.options.Storage, "engines": []string{"bevel", "native"}})
+		respond(w, 200, map[string]any{"name": "Fabric SMP", "company": "Sathonate", "mode": a.options.Auth.Mode, "deploymentMode": deploymentMode, "mockExecutionEnabled": deploymentMode == "mock", "executionEnabled": false, "localRuntimeEnabled": a.options.Local != nil && a.options.Auth.Mode == "local-development", "schemaVersion": domain.APIVersion, "storage": a.options.Storage, "engines": []string{"bevel", "native"}, "dynamicLocal": func() map[string]any {
+			if a.options.Deployments == nil {
+				return map[string]any{"enabled": false}
+			}
+			return a.options.Deployments.DynamicCapabilities()
+		}()})
 	})
 	mux.HandleFunc("GET /api/v1/networks", func(w http.ResponseWriter, r *http.Request) {
 		items, e := a.repository(r).List()

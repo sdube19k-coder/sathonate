@@ -31,7 +31,7 @@ func (a *API) deployNetwork(w http.ResponseWriter, r *http.Request) {
 		problem(w, 409, "revision_conflict", "Save and reload the latest network design", nil)
 		return
 	}
-	if (d.Desired.Spec.Deployment.TargetRef == domain.SecureLocalProfile || d.Desired.Spec.Deployment.TargetRef == domain.SecureEKSProfile) && (!identity.IsProjectAuthenticated(r.Context()) || identity.FromContext(r.Context()).ProjectID == "" || (a.options.Auth.Mode != "local-token" && a.options.Auth.Mode != "okta")) {
+	if (d.Desired.Spec.Deployment.TargetRef == domain.SecureLocalProfile || d.Desired.Spec.Deployment.TargetRef == domain.SecureEKSProfile || d.Desired.Spec.Deployment.TargetRef == domain.DynamicLocalProfile) && (!identity.IsProjectAuthenticated(r.Context()) || identity.FromContext(r.Context()).ProjectID == "" || (a.options.Auth.Mode != "local-token" && a.options.Auth.Mode != "okta")) {
 		problem(w, 403, "secure_auth_required", "Secure local deployments require authenticated server-bound tenant/project grants", nil)
 		return
 	}

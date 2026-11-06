@@ -12,6 +12,12 @@ func verifyEvidence(spec domain.NetworkSpec, outcome Outcome) error {
 	return verifyLifecycleEvidence(spec, nil, outcome)
 }
 func verifyLifecycleEvidence(spec domain.NetworkSpec, state *kubernetesfabric.LifecycleState, outcome Outcome) error {
+	if spec.Spec.Deployment.TargetRef == domain.DynamicLocalProfile {
+		if state != nil {
+			return errors.New("bounded lifecycle cannot qualify a dynamic network")
+		}
+		return verifyDynamicEvidence(spec, outcome)
+	}
 	sequence, version := 1, "1.0"
 	if state != nil {
 		if state.Validate() != nil {

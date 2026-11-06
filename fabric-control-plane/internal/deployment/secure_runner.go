@@ -71,10 +71,17 @@ func (r SecureRunner) base() KubernetesRunner {
 	return KubernetesRunner{Kubeconfig: r.binding.config.Kubeconfig, Image: r.binding.config.WorkerImage, secure: r.binding}
 }
 func (r SecureRunner) Validate(q Request) error {
+	dynamic := q.Network.Spec.Deployment.TargetRef == domain.DynamicLocalProfile
+	if q.PreviousNetwork != nil && (!dynamic || kubernetesfabric.ValidateDynamicTransition(*q.PreviousNetwork, q.Network) != nil) {
+		return errors.New("invalid approved dynamic transition")
+	}
+	if dynamic && (r.binding == nil || r.binding.remote != nil || q.Lifecycle != nil) {
+		return errors.New("dynamic execution is restricted to an explicitly enabled disposable local target")
+	}
 	if q.Lifecycle != nil && (r.binding == nil || r.binding.remote != nil || q.Lifecycle.Validate() != nil) {
 		return errors.New("lifecycle changes are local-only")
 	}
-	if r.binding == nil || !regexp.MustCompile(`^lp-[a-f0-9]{48}$`).MatchString(q.TenantID) || q.NetworkID == "" || domain.HasErrors(domain.Validate(q.Network)) || q.Network.Spec.Deployment.TargetRef != domain.SecureLocalProfile || r.binding.config.Runtime.Validate(q.Network) != nil || q.FailureStage != "" {
+	if r.binding == nil || !regexp.MustCompile(`^lp-[a-f0-9]{48}$`).MatchString(q.TenantID) || q.NetworkID == "" || domain.HasErrors(domain.Validate(q.Network)) || (!dynamic && q.Network.Spec.Deployment.TargetRef != domain.SecureLocalProfile) || r.binding.config.Runtime.Validate(q.Network) != nil || q.FailureStage != "" {
 		return errors.New("secure local deployment requires an authenticated project scope and exact approved profile")
 	}
 	if q.TargetSHA256 != "" && q.TargetSHA256 != r.BindingDigest(q) {
@@ -254,6 +261,7 @@ func (r SecureRunner) manifest(q Request, name, ns string) (map[string]any, erro
 	}
 	runtime, _ := json.Marshal(r.binding.config.Runtime)
 	lifecycle, _ := json.Marshal(q.Lifecycle)
+	previous, _ := json.Marshal(q.PreviousNetwork)
 	labels := M{"fabric.sathonate.io/tenant": q.TenantID, "fabric.sathonate.io/network": q.NetworkID, "fabric.sathonate.io/operation": name, "fabric.sathonate.io/profile": domain.SecureLocalProfile}
 	meta := func(n string) M { return M{"name": n, "namespace": ns, "labels": labels} }
 	role := func(name string, rules []any) []any {
@@ -277,10 +285,13 @@ func (r SecureRunner) manifest(q Request, name, ns string) (map[string]any, erro
 	image := SecureLocalProfile().ControllerImage
 	controller := M{"name": "controller", "image": image, "imagePullPolicy": "Never", "env": []any{M{"name": "SMP_NAMESPACE", "value": ns}, M{"name": "SMP_CONFIG_INIT_IMAGE", "value": image}}, "securityContext": security, "resources": M{"requests": M{"memory": "128Mi", "cpu": "100m"}, "limits": M{"memory": "512Mi", "cpu": "2"}}}
 	items = append(items, M{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": meta("secure-controller"), "spec": M{"replicas": 1, "selector": M{"matchLabels": M{"app": "secure-controller"}}, "template": M{"metadata": M{"labels": M{"app": "secure-controller", "sathonate.io/api-client": "true"}}, "spec": M{"automountServiceAccountToken": true, "serviceAccountName": "secure-controller", "containers": []any{controller}}}}})
-	items = append(items, M{"apiVersion": "v1", "kind": "ConfigMap", "metadata": meta(name), "immutable": true, "data": M{"network.json": string(network), "runtime.json": string(runtime), "lifecycle.json": string(lifecycle)}})
+	items = append(items, M{"apiVersion": "v1", "kind": "ConfigMap", "metadata": meta(name), "immutable": true, "data": M{"network.json": string(network), "runtime.json": string(runtime), "lifecycle.json": string(lifecycle), "previous.json": string(previous)}})
 	container := M{"name": "worker", "image": r.binding.config.WorkerImage, "imagePullPolicy": "Never", "workingDir": "/workspace", "args": []string{"--secure-local", "--namespace", ns, "--runtime", "/inputs/runtime.json"}, "securityContext": M{"allowPrivilegeEscalation": false, "readOnlyRootFilesystem": true, "capabilities": M{"drop": []string{"ALL"}}}, "resources": M{"requests": M{"cpu": "100m", "memory": "256Mi"}, "limits": M{"cpu": "2", "memory": "1Gi"}}, "env": []any{M{"name": "HOME", "value": "/workspace"}, M{"name": "TMPDIR", "value": "/workspace"}}, "volumeMounts": []any{M{"name": "input", "mountPath": "/inputs", "readOnly": true}, M{"name": "workspace", "mountPath": "/workspace"}, M{"name": "tmp", "mountPath": "/tmp"}}}
 	if q.Lifecycle != nil {
 		container["args"] = append(container["args"].([]string), "--lifecycle", "/inputs/lifecycle.json")
+	}
+	if q.PreviousNetwork != nil {
+		container["args"] = append(container["args"].([]string), "--previous", "/inputs/previous.json")
 	}
 	labels["sathonate.io/api-client"] = "true"
 	pod := M{"automountServiceAccountToken": true, "serviceAccountName": "secure-issuer", "restartPolicy": "Never", "securityContext": M{"runAsNonRoot": true, "runAsUser": 10001, "runAsGroup": 10001, "fsGroup": 10001, "seccompProfile": M{"type": "RuntimeDefault"}}, "containers": []any{container}, "volumes": []any{M{"name": "input", "configMap": M{"name": name}}, M{"name": "workspace", "emptyDir": M{"medium": "Memory", "sizeLimit": "128Mi"}}, M{"name": "tmp", "emptyDir": M{"medium": "Memory", "sizeLimit": "64Mi"}}}}

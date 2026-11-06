@@ -1,0 +1,330 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": {
+    "id": "customer-b",
+    "name": "Customer topology B"
+  },
+  "spec": {
+    "environment": "development",
+    "fabricVersion": "2.5.15",
+    "deployment": {
+      "engine": "bevel",
+      "runtime": "kubernetes",
+      "provider": "local",
+      "targetRef": "smp-dynamic-local-v1"
+    },
+    "ordering": {
+      "consensus": "raft",
+      "channelCapability": "V2_0"
+    },
+    "organizations": [
+      {
+        "id": "producer",
+        "mspId": "ProducerMSP",
+        "identityProviderRef": "producer-issuer"
+      },
+      {
+        "id": "carrier",
+        "mspId": "CarrierMSP",
+        "identityProviderRef": "carrier-issuer"
+      },
+      {
+        "id": "auditor",
+        "mspId": "AuditorMSP",
+        "identityProviderRef": "auditor-issuer"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "producer-p1",
+        "organizationRef": "producer",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "carrier-p1",
+        "organizationRef": "carrier",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "carrier-p2",
+        "organizationRef": "carrier",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "auditor-p1",
+        "organizationRef": "auditor",
+        "role": "peer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-1",
+        "organizationRef": "producer",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-2",
+        "organizationRef": "carrier",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      },
+      {
+        "id": "raft-3",
+        "organizationRef": "auditor",
+        "role": "orderer",
+        "placementRef": "approved-local",
+        "failureDomain": "local-host"
+      }
+    ],
+    "channels": [
+      {
+        "id": "supply",
+        "organizationRefs": [
+          "producer",
+          "carrier",
+          "auditor"
+        ],
+        "peerRefs": [
+          "producer-p1",
+          "carrier-p1",
+          "carrier-p2",
+          "auditor-p1"
+        ],
+        "ordererRefs": [
+          "raft-1",
+          "raft-2",
+          "raft-3"
+        ]
+      },
+      {
+        "id": "audit",
+        "organizationRefs": [
+          "producer",
+          "carrier",
+          "auditor"
+        ],
+        "peerRefs": [
+          "producer-p1",
+          "carrier-p1",
+          "carrier-p2",
+          "auditor-p1"
+        ],
+        "ordererRefs": [
+          "raft-1",
+          "raft-2",
+          "raft-3"
+        ]
+      }
+    ],
+    "configuration": {
+      "placements": {
+        "approved-local": {
+          "nodeSelector": {
+            "kubernetes.io/hostname": "disposable-node"
+          }
+        }
+      },
+      "nodes": {
+        "producer-p1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "carrier-p1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "carrier-p2": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "auditor-p1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-1": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-2": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        "raft-3": {
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        }
+      },
+      "authorities": [
+        {
+          "id": "producer-issuer",
+          "organizationRef": "producer",
+          "roles": [
+            "signing",
+            "tls"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        {
+          "id": "carrier-issuer",
+          "organizationRef": "carrier",
+          "roles": [
+            "signing",
+            "tls"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        },
+        {
+          "id": "auditor-issuer",
+          "organizationRef": "auditor",
+          "roles": [
+            "signing",
+            "tls"
+          ],
+          "placementRef": "approved-local",
+          "resources": {
+            "cpuRequestMilli": 100,
+            "cpuLimitMilli": 1000,
+            "memoryRequestMiB": 128,
+            "memoryLimitMiB": 1024
+          },
+          "storage": {
+            "class": "standard",
+            "capacityGiB": 1
+          }
+        }
+      ],
+      "anchors": {
+        "supply": [
+          "producer-p1",
+          "carrier-p1",
+          "auditor-p1"
+        ],
+        "audit": [
+          "producer-p1",
+          "carrier-p1",
+          "auditor-p1"
+        ]
+      },
+      "chaincodes": [
+        {
+          "name": "customer-ledger",
+          "channelRef": "supply",
+          "version": "1.0",
+          "sequence": 1,
+          "packageSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "runtimeImage": "example/approved@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "endorsement": {
+            "mspIds": [
+              "ProducerMSP",
+              "CarrierMSP",
+              "AuditorMSP"
+            ],
+            "minimum": 3
+          }
+        },
+        {
+          "name": "customer-ledger",
+          "channelRef": "audit",
+          "version": "1.0",
+          "sequence": 1,
+          "packageSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "runtimeImage": "example/approved@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "endorsement": {
+            "mspIds": [
+              "ProducerMSP",
+              "CarrierMSP",
+              "AuditorMSP"
+            ],
+            "minimum": 3
+          }
+        }
+      ]
+    }
+  }
+}

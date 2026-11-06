@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"sort"
@@ -31,6 +32,12 @@ func Validate(s NetworkSpec) []Issue {
 	s = WithDefaults(s)
 	issues := []Issue{}
 	add := func(severity, path, message string) { issues = append(issues, Issue{severity, path, message}) }
+	// Specifications are public intent and later enter immutable ConfigMaps.
+	// Reject recognizable private material even when disguised as a display name.
+	publicIntent, _ := json.Marshal(s)
+	if regexp.MustCompile(`-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----|eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{16,}`).Match(publicIntent) {
+		add("error", "spec", "private keys and bearer tokens are not accepted in public network intent")
+	}
 	checkID := func(path, value string) {
 		if !resourceID.MatchString(value) {
 			add("error", path, "must be a lowercase resource identifier, 1-63 characters")
@@ -92,7 +99,7 @@ func Validate(s NetworkSpec) []Issue {
 		if d.Provider != "aws" && d.Provider != "azure" && d.Provider != "local" {
 			add("error", "spec.deployment.provider", "Bevel target must be aws, azure or local")
 		}
-		if d.Provider == "local" && (t.Environment != "development" || (d.TargetRef != "smp-qualification" && d.TargetRef != SecureLocalProfile)) {
+		if d.Provider == "local" && (t.Environment != "development" || (d.TargetRef != "smp-qualification" && d.TargetRef != SecureLocalProfile && d.TargetRef != DynamicLocalProfile)) {
 			add("error", "spec.deployment", "local Kubernetes execution requires the development environment and smp-qualification target")
 		}
 	case "native":

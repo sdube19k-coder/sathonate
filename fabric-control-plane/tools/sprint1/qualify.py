@@ -4,17 +4,23 @@ No CA issuance, Fabric deployment or transaction is implemented by this script.
 import base64,gzip,hashlib,json,os,re,ssl,subprocess,sys,tarfile,time,uuid
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
-CACHE=ROOT.parent/'.cache'
-KIND=ROOT.parent/'tools/kind.exe'
+CACHE=Path(os.environ.get('SMP_CACHE_ROOT',str(ROOT.parent/'.cache'))).resolve()
+KIND=Path(os.environ.get('SMP_KIND_PATH',str(ROOT.parent/'tools/kind.exe'))).resolve()
 NAME='smp-sprint1-'+uuid.uuid4().hex[:8]
 CONFIG=CACHE/(NAME+'.kubeconfig')
 RUNTIME=CACHE/(NAME+'-runtime.json')
 PREFIX=os.environ.get('SMP_QUALIFICATION_PREFIX','sprint1')
 if PREFIX not in ('sprint1','sprint2','sprint3','sprint4'):raise RuntimeError('Invalid qualification prefix')
 WORKER=os.environ.get('SMP_QUALIFICATION_WORKER','sathonate/fabric-worker:secure-local')
-if WORKER not in ('sathonate/fabric-worker:secure-local','sathonate/fabric-worker:sprint2','sathonate/fabric-worker:sprint3','sathonate/fabric-worker:sprint4-lifecycle'):raise RuntimeError('Invalid qualification worker')
-RESULT=ROOT/('.logs/'+PREFIX+'-api-kind.json')
-REPORT=ROOT/('.logs/'+PREFIX+'-qualification.json')
+if WORKER not in ('sathonate/fabric-worker:secure-local','sathonate/fabric-worker:sprint2','sathonate/fabric-worker:sprint3','sathonate/fabric-worker:sprint4-lifecycle','sathonate/fabric-worker:sprint4-dynamic'):raise RuntimeError('Invalid qualification worker')
+DYNAMIC=os.environ.get('SMP_DYNAMIC_LABEL','')
+if DYNAMIC not in ('','a','b','c'):raise RuntimeError('Invalid dynamic qualification label')
+RUN_LABEL=os.environ.get('SMP_QUALIFICATION_RUN_LABEL','')
+if RUN_LABEL and not re.fullmatch('dynamic-[a-z0-9-]{1,48}',RUN_LABEL):raise RuntimeError('Invalid evidence label')
+OUTPUT=ROOT/'.logs'/RUN_LABEL if RUN_LABEL else ROOT/'.logs'
+OUTPUT.mkdir(parents=True,exist_ok=True)
+RESULT=OUTPUT/(PREFIX+'-api-kind.json')
+REPORT=OUTPUT/(PREFIX+'-qualification.json')
 BASE=['kubectl','--kubeconfig',str(CONFIG),'--context','kind-'+NAME,'--request-timeout=20s']
 report={'schema':'sathonate.'+PREFIX+'-qualification/v1','status':'BLOCKED','apiToFabric':'NOT VERIFIED','uiToFabric':'NOT_RERUN_'+PREFIX.upper() if PREFIX!='sprint1' else 'BLOCKED','cluster':NAME,'awsEnabled':False,'productionEnabled':False,'checks':{},'startedAt':time.time()}
 created=False
@@ -66,7 +72,8 @@ def load(image):
  run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force',canonical,(image if image.startswith('quay.io/') else 'docker.io/'+image)+'@'+row[2]])
  return pinned,image+'@'+row[2]
 
-def inspect(namespace,worker):
+def inspect(namespace,worker,api=None):
+ api=api or {}
  guard();secret_list=json.loads(kub('-n',namespace,'get','secrets','-o','json'))['items'];private=[]
  def credentials(v):
   if isinstance(v,dict):
@@ -95,7 +102,7 @@ def inspect(namespace,worker):
   release=gzip.decompress(base64.b64decode(base64.b64decode(item['data']['release']))).decode()
   if not clean(release):raise RuntimeError('Credential in decoded Helm history')
   release_count+=1;release_names.add(item['metadata']['labels'].get('name',''))
- if not {'org1-ca','org2-ca','org1-peer-1','org2-peer-1','orderer-1','orderer-2','orderer-3'}.issubset(release_names):raise RuntimeError('Incomplete Helm release/history inspection')
+ if not set(api.get('expectedReleases',['org1-ca','org2-ca','org1-peer-1','org2-peer-1','orderer-1','orderer-2','orderer-3'])).issubset(release_names):raise RuntimeError('Incomplete Helm release/history inspection')
  report['checks']['helmHistoryNoCredentials']='PASS'
  pods=json.loads(kub('-n',namespace,'get','pods','-o','json'))['items']
  log_count=0
@@ -107,8 +114,8 @@ def inspect(namespace,worker):
  if log_count<9:raise RuntimeError('Incomplete log inspection')
  report['checks']['runtimeLogsNoCredentials']='PASS'
  inspected_files=0
- source_names=run(['git','ls-files','--cached','--others','--exclude-standard','-z']).split('\0')
- for path in [ROOT/name for name in source_names if name]+list((ROOT/'.logs').glob(PREFIX+'-*.json'))+list((ROOT/'.logs').glob(PREFIX+'-*.log')):
+ source_names=run(['git','ls-files','--cached','--others','--exclude-standard','--full-name','-z']).split('\0')
+ for path in [Path(run(['git','rev-parse','--show-toplevel']).strip())/name for name in source_names if name]+list(OUTPUT.glob(PREFIX+'-*.json'))+list(OUTPUT.glob(PREFIX+'-*.log')):
   if not path.is_file():continue
   raw=path.read_text(encoding='utf-8',errors='replace')
   if any(x and x in raw for x in known):raise RuntimeError('Credential in source or evidence; private diagnostics withheld')
@@ -131,12 +138,20 @@ def inspect(namespace,worker):
  apply({'apiVersion':'v1','kind':'Pod','metadata':{'name':'secure-tls-observer','namespace':namespace},'spec':{'automountServiceAccountToken':False,'restartPolicy':'Never','securityContext':{'runAsUser':10001,'runAsGroup':10001},'containers':[{'name':'observer','image':worker,'imagePullPolicy':'Never','command':['sleep','300'],'securityContext':{'allowPrivilegeEscalation':False,'capabilities':{'drop':['ALL']}}}]}})
  kub('-n',namespace,'wait','--for=condition=Ready','pod/secure-tls-observer','--timeout=90s')
  script="import json,ssl,socket,hashlib,sys;v=json.load(sys.stdin);c=ssl.create_default_context(cadata=v['root']);s=c.wrap_socket(socket.create_connection((v['host'],7051),timeout=5),server_hostname=v['host']);print(hashlib.sha256(s.getpeercert(binary_form=True)).hexdigest());s.close()"
- for peer in ('org1-peer-1','org2-peer-1'):
+ for peer in api.get('inspectionPeers',['org1-peer-1','org2-peer-1']):
   identity=json.loads(kub('-n',namespace,'get','secret',peer+'-tls-identity','-o','json'))['data']
   cert=base64.b64decode(identity['cert.pem']).decode();root=base64.b64decode(identity['root.pem']).decode();expected=hashlib.sha256(ssl.PEM_cert_to_DER_cert(cert)).hexdigest()
   actual=kub('-n',namespace,'exec','-i','secure-tls-observer','--','python','-c',script,data=json.dumps({'root':root,'host':peer+'.'+namespace})).strip()
   if actual!=expected:raise RuntimeError('Live certificate differs from issuer material')
  report['checks']['bothLivePeerCertificatesVerified']='PASS'
+ negative_script="import json,ssl,socket,sys;v=json.load(sys.stdin);c=ssl.create_default_context(cadata=v.get('root'));\ntry:\n s=c.wrap_socket(socket.create_connection((v['host'],7051),timeout=5),server_hostname=v.get('verifyHost',v['host']));s.close();print('ACCEPTED')\nexcept ssl.SSLCertVerificationError:print('REJECTED')"
+ for peer in api.get('inspectionPeers',['org1-peer-1','org2-peer-1']):
+  public=json.loads(kub('-n',namespace,'get','secret',peer+'-tls-identity','-o','json'))['data']
+  root=base64.b64decode(public['root.pem']).decode();host=peer+'.'+namespace
+  for case in ({'host':host},{'host':host,'root':root,'verifyHost':'unowned.invalid'}):
+   if kub('-n',namespace,'exec','-i','secure-tls-observer','--','python','-c',negative_script,data=json.dumps(case)).strip()!='REJECTED':raise RuntimeError('Peer TLS accepted an untrusted issuer or foreign hostname')
+ report['checks']['peerTLSUntrustedIssuerAndHostnameRejected']='PASS'
+
  report['inspection']={'helmReleases':release_count,'logStreams':log_count,'knownPrivateValues':len(private)}
 
 try:
@@ -161,15 +176,23 @@ try:
   path=source/('hlf.kungfusoftware.es_'+plural+'.yaml')
   kub('apply','--server-side','-f',str(path))
  images={}
- for image in ('sathonate/controller-candidate:atomic','hyperledger/fabric-ca:1.5.15','hyperledger/fabric-peer:2.5.15','hyperledger/fabric-orderer:2.5.15','sathonate/smp-smoke:local',WORKER):
+ for image in ('sathonate/controller-candidate:atomic','hyperledger/fabric-ca:1.5.15','hyperledger/fabric-peer:2.5.15','hyperledger/fabric-orderer:2.5.15','sathonate/smp-smoke:local',WORKER,*(['sathonate/smp-smoke:dynamic-v1','sathonate/smp-smoke:dynamic-v2'] if DYNAMIC else [])):
   print('Sprint 1: loading public image '+image,flush=True);images[image]=load(image)
  controller=images['sathonate/controller-candidate:atomic'][0]
  if controller!='sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c':raise RuntimeError('Controller differs from verified profile')
  runtime={'storageClass':'standard','capacity':'1Gi','smokeImage':images['sathonate/smp-smoke:local'][0],'images':{kind:images[image][1] for kind,image in [('FabricCA','hyperledger/fabric-ca:1.5.15'),('FabricPeer','hyperledger/fabric-peer:2.5.15'),('FabricOrdererNode','hyperledger/fabric-orderer:2.5.15')]},'brokerChannels':True,'nodeSelectors':{name:{'kubernetes.io/hostname':NAME+'-control-plane'} for name in ('orderer-1','orderer-2','orderer-3','org1-peer-1','org2-peer-1')}}
+ if DYNAMIC:
+  approved={}
+  for version in ('1','2'):
+   image='sathonate/smp-smoke:dynamic-v'+version
+   code_sha=run(['docker','image','inspect','--format','{{index .Config.Labels "org.sathonate.code.sha256"}}',image]).strip()
+   if not re.fullmatch('[a-f0-9]{64}',code_sha):raise RuntimeError('Approved executable digest missing')
+   approved[images[image][0]]={'sha256':code_sha,'codeVersion':version+'.0'}
+  runtime.update(dynamicEnabled=True,codeArtifacts=approved)
  config={'kubeconfig':str(CONFIG),'clusterName':NAME,'workerImage':images[WORKER][0],'runtime':runtime};RUNTIME.write_text(json.dumps(config))
  env=dict(os.environ,GOCACHE=str(CACHE/'go-build'),GOPATH=str(CACHE/'go'),GOPROXY='off',SATHONATE_TEST_DATABASE_URL=database,SMP_SECURE_API_E2E='1',SMP_SECURE_CONFIG=str(RUNTIME),SMP_SECURE_API_EVIDENCE=str(RESULT),TMP=str(CACHE/'resume-tmp'),TEMP=str(CACHE/'resume-tmp'))
  print('Sprint 1: executing real authenticated Go API deployment/restart/retry test',flush=True)
- with (ROOT/('.logs/'+PREFIX+'-api-kind.log')).open('w') as output:
+ with (OUTPUT/(PREFIX+'-api-kind.log')).open('w') as output:
   test=subprocess.run(['go','test','./internal/httpapi','-run','^TestSecureApplicationAPIOnDisposableKind$','-count=1','-v','-timeout','25m'],cwd=ROOT,env=env,stdout=output,stderr=subprocess.STDOUT)
  report['apiTestExitCode']=test.returncode
  if test.returncode:
@@ -182,8 +205,8 @@ try:
    (CACHE/(NAME+'-cleanup-now')).unlink(missing_ok=True)
   raise RuntimeError('Real API acceptance failed; see redacted Go test result')
  api=json.loads(RESULT.read_text());report['apiToFabric']=api['apiToFabric'];report['apiEvidenceSHA256']=hashlib.sha256(RESULT.read_bytes()).hexdigest();report['images']={key:value[0] for key,value in images.items()}
- print('Sprint 1: inspecting actual runtime resources and credentials',flush=True);inspect(api['namespace'],config['workerImage'])
- if CALICO:isolation.inspect(kub,apply,admission_denied,api['namespace'],config['workerImage'],report)
+ print('Sprint 1: inspecting actual runtime resources and credentials',flush=True);inspect(api['namespace'],config['workerImage'],api)
+ if CALICO:isolation.inspect(kub,apply,admission_denied,api['namespace'],config['workerImage'],report,api.get('inspectionPeers',['org1-peer-1'])[0],api.get('expectedWorkloads',api.get('expectedReleases')))
  retained=json.loads(run(['kubectl','--kubeconfig',str(CACHE/'smp-qualification.kubeconfig'),'--context','kind-smp-qualification','-n','smp-n-968a212068be7d07','get','deployments','-o','json']))['items']
  ready=len(retained)==8 and all(x['status'].get('readyReplicas')==x['spec'].get('replicas',1)==1 for x in retained)
  report['retainedNetwork']={'readOnly':True,'readyDeployments':sum(x['status'].get('readyReplicas',0)==1 for x in retained),'total':len(retained),'ready':ready}

@@ -111,8 +111,8 @@ func (r KubernetesRunner) Health(ctx context.Context, tenant, record string, pre
 		}
 		if podReady {
 			workloads[pod.Metadata.Labels["release"]] = true
-			if pod.Metadata.Labels["chaincode"] == "smp-smoke" {
-				workloads["smp-smoke"] = true
+			if chaincode := pod.Metadata.Labels["chaincode"]; chaincode != "" {
+				workloads[chaincode] = true
 			}
 		}
 	}
@@ -134,7 +134,11 @@ func (r KubernetesRunner) Health(ctx context.Context, tenant, record string, pre
 			health.Ready = false
 		}
 	}
-	health.Chaincode.Available = workloads["smp-smoke"]
+	service := "smp-smoke"
+	if !workloads[service] {
+		service = kubernetesfabric.DynamicService(health.Channel, health.Chaincode.Name, health.Chaincode.Sequence)
+	}
+	health.Chaincode.Available = workloads[service]
 	if !health.Chaincode.Available {
 		health.Ready = false
 	}
@@ -426,6 +430,9 @@ func (r KubernetesRunner) watch(ctx context.Context, request Request, name, name
 				}
 				if event.Security != nil {
 					outcome.Security = event.Security
+				}
+				if event.Verification != nil {
+					outcome.Verifications = append(outcome.Verifications, *event.Verification)
 				}
 			}
 			if err = scanner.Err(); err != nil {

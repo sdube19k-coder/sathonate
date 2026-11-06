@@ -1,0 +1,7 @@
+**
+!bin/
+!bin/fabric-worker-sprint4-dynamic
+!bin/fabric-config-tool
+!tools/
+!tools/kubernetes/
+!tools/kubernetes/Dockerfile.dynamic

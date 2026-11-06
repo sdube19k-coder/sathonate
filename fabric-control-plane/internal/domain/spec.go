@@ -22,6 +22,7 @@ type Metadata struct {
 }
 
 type Topology struct {
+	Configuration *Configuration `json:"configuration,omitempty"`
 	Environment   string         `json:"environment"`
 	FabricVersion string         `json:"fabricVersion"`
 	Deployment    Deployment     `json:"deployment"`

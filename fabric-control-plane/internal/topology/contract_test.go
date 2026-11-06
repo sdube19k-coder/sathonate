@@ -10,8 +10,8 @@ import (
 
 func fixture(distribution []int, orderers int) Contract {
 	c := Contract{Network: domain.NetworkSpec{APIVersion: domain.APIVersion, Kind: "FabricNetwork", Metadata: domain.Metadata{ID: "custom-design", Name: "Custom configurable topology"}, Spec: domain.Topology{Environment: "development", FabricVersion: "2.5.15", Ordering: domain.Ordering{Consensus: "raft", ChannelCapability: "V2_0"}, Deployment: domain.Deployment{Engine: "native", Runtime: "linux-containers", TargetRef: "design-inventory"}}}, Settings: Settings{Placements: map[string]Placement{"local-node": {NodeSelector: map[string]string{"kubernetes.io/hostname": "disposable-node"}}}, Nodes: map[string]NodeSettings{}, Anchors: map[string][]string{}}}
-	resources := Resources{100, 1000, 128, 1024}
-	storage := Storage{"standard", 1}
+	resources := Resources{CPURequestMilli: 100, CPULimitMilli: 1000, MemoryRequestMiB: 128, MemoryLimitMiB: 1024}
+	storage := Storage{Class: "standard", CapacityGiB: 1}
 	channel := domain.Channel{ID: "customer-channel"}
 	for i, count := range distribution {
 		org := fmt.Sprintf("org%d", i+1)
@@ -22,7 +22,7 @@ func fixture(distribution []int, orderers int) Contract {
 		for n := 1; n <= count; n++ {
 			name := fmt.Sprintf("%s-peer-%d", org, n)
 			c.Network.Spec.Nodes = append(c.Network.Spec.Nodes, domain.Node{ID: name, OrganizationRef: org, Role: "peer", PlacementRef: "local-node", FailureDomain: "local-host"})
-			c.Settings.Nodes[name] = NodeSettings{resources, storage}
+			c.Settings.Nodes[name] = NodeSettings{Resources: resources, Storage: storage}
 			channel.PeerRefs = append(channel.PeerRefs, name)
 			if n == 1 {
 				c.Settings.Anchors[channel.ID] = append(c.Settings.Anchors[channel.ID], name)
@@ -32,7 +32,7 @@ func fixture(distribution []int, orderers int) Contract {
 	for n := 1; n <= orderers; n++ {
 		name := fmt.Sprintf("orderer-%d", n)
 		c.Network.Spec.Nodes = append(c.Network.Spec.Nodes, domain.Node{ID: name, OrganizationRef: "org1", Role: "orderer", PlacementRef: "local-node", FailureDomain: "local-host"})
-		c.Settings.Nodes[name] = NodeSettings{resources, storage}
+		c.Settings.Nodes[name] = NodeSettings{Resources: resources, Storage: storage}
 		channel.OrdererRefs = append(channel.OrdererRefs, name)
 	}
 	c.Network.Spec.Channels = []domain.Channel{channel}

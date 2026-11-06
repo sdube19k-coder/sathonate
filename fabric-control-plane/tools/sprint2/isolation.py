@@ -23,7 +23,7 @@ def install(run,kub,apply,load,kind,name,cache,report):
  kub('wait','node',name+'-control-plane','--for=condition=Ready','--timeout=120s')
  report['networkPolicyFixture']={'provider':'Calico','version':VERSION,'manifestURL':URL,'manifestSHA256':SHA256,'images':images,'enforcement':'NOT VERIFIED'}
 
-def inspect(kub,apply,admission_denied,namespace,worker,report):
+def inspect(kub,apply,admission_denied,namespace,worker,report,probe_peer="org1-peer-1",managed_releases=None):
  foreign=report['cluster']+'-foreign'
  # A foreign pod and an own-namespace observer must run identical probes. Own
  # success excludes a broken peer/listener as the reason a foreign probe fails.
@@ -35,25 +35,29 @@ def inspect(kub,apply,admission_denied,namespace,worker,report):
  report['checks'].update(privilegedAdmissionDenied='PASS',containerLimitAdmissionDenied='PASS')
  for ns in (namespace,foreign):
   apply(pod(ns,'isolation-probe'));kub('-n',ns,'wait','pod/isolation-probe','--for=condition=Ready','--timeout=90s')
- script='import socket;socket.create_connection(("org1-peer-1.'+namespace+'",7051),timeout=3).close();print("CONNECTED")'
+ script='import socket;socket.create_connection(("'+probe_peer+'.'+namespace+'",7051),timeout=3).close();print("CONNECTED")'
  own=kub('-n',namespace,'exec','isolation-probe','--','python','-c',script).strip()
  if own!='CONNECTED':raise RuntimeError('Own Fabric network connectivity unverified')
  # Exception is handled inside the probe: kubectl success alone is insufficient.
- blocked='import socket;\ntry:\n socket.create_connection(("org1-peer-1.'+namespace+'",7051),timeout=3).close();print("CONNECTED")\nexcept OSError:print("DENIED")'
+ blocked='import socket;\ntry:\n socket.create_connection(("'+probe_peer+'.'+namespace+'",7051),timeout=3).close();print("CONNECTED")\nexcept OSError:print("DENIED")'
  actual=kub('-n',foreign,'exec','isolation-probe','--','python','-c',blocked).strip()
  if actual!='DENIED':raise RuntimeError('Cross-namespace Fabric ingress is not isolated')
  # Egress denial to a live foreign listener, with a foreign positive control.
  server=pod(foreign,'egress-listener');server['spec']['containers'][0]['command']=['python','-m','http.server','7051'];apply(server)
  kub('-n',foreign,'wait','pod/egress-listener','--for=condition=Ready','--timeout=90s')
  ip=kub('-n',foreign,'get','pod','egress-listener','-o','jsonpath={.status.podIP}').strip()
- foreign_script=script.replace('org1-peer-1.'+namespace,ip)
+ foreign_script=script.replace(''+probe_peer+'.'+namespace,ip)
  if kub('-n',foreign,'exec','isolation-probe','--','python','-c',foreign_script).strip()!='CONNECTED':raise RuntimeError('Foreign listener positive control failed')
- if kub('-n',namespace,'exec','isolation-probe','--','python','-c',blocked.replace('org1-peer-1.'+namespace,ip)).strip()!='DENIED':raise RuntimeError('Cross-namespace egress is not isolated')
+ if kub('-n',namespace,'exec','isolation-probe','--','python','-c',blocked.replace(''+probe_peer+'.'+namespace,ip)).strip()!='DENIED':raise RuntimeError('Cross-namespace egress is not isolated')
  default=json.loads(kub('-n',namespace,'get','serviceaccount','default','-o','json'))
  if default.get('automountServiceAccountToken') is not False:raise RuntimeError('Default service-account token mount is not disabled')
  peers=json.loads(kub('-n',namespace,'get','pods','-o','json'))['items']
+ observed=set()
  for pod in peers:
-  if pod['metadata']['name'].startswith(('org1-peer-1','org2-peer-1','orderer-','org1-ca','org2-ca')):
+  release=pod['metadata'].get('labels',{}).get('release') or pod['metadata'].get('labels',{}).get('chaincode')
+  if (bool(release) if managed_releases else pod['metadata']['name'].startswith(('org1-peer-1','org2-peer-1','orderer-','org1-ca','org2-ca'))):
+   observed.add(release)
    if any(v.get('projected',{}).get('sources') and any('serviceAccountToken' in x for x in v['projected']['sources']) for v in pod['spec'].get('volumes',[])):raise RuntimeError('Fabric pod unexpectedly mounts an API token')
+ if managed_releases and not set(managed_releases).issubset(observed):raise RuntimeError('Managed Fabric pod token inspection is incomplete')
  report['checks'].update(effectiveCrossNamespaceIngressDenied='PASS',effectiveCrossNamespaceEgressDenied='PASS',ownFabricConnectivity='PASS',fabricServiceAccountTokenMountsAbsent='PASS',defaultServiceAccountTokenDisabled='PASS')
  report['networkPolicyFixture']['enforcement']='PASS'
