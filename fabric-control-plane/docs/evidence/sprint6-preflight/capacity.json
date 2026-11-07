@@ -1,0 +1,51 @@
+{
+  "schema": "sathonate.sprint6-preflight/v1",
+  "checkedAt": "2026-11-07T19:13:25.492212+00:00",
+  "createdResources": false,
+  "retainedNetworkModified": false,
+  "liveAcceptance": "NOT_TESTED",
+  "status": "BLOCKED_CAPACITY",
+  "failures": [
+    {
+      "metric": "dockerMemoryTotal",
+      "observed": 6210359296,
+      "required": 8589934592
+    },
+    {
+      "metric": "dockerMemoryAvailable",
+      "observed": 4131688448,
+      "required": 6442450944
+    }
+  ],
+  "policy": {
+    "estimatedNewFixtureMemoryBytes": 6442450944,
+    "minimumDockerMemoryBytes": 8589934592,
+    "minimumBackingDiskFreeBytes": 42949672960,
+    "estimatesAreNotRuntimeEvidence": true
+  },
+  "metrics": {
+    "dockerCPUs": 20,
+    "dockerMemoryTotal": 6210359296,
+    "dockerMemoryAvailable": 4131688448,
+    "hostMemoryAvailable": 4792688640,
+    "backingDiskFree": 48861458432
+  },
+  "plannedInventory": {
+    "workerNodes": [
+      "smp-sprint1-aae5556f-worker",
+      "smp-sprint1-aae5556f-worker2",
+      "smp-sprint1-aae5556f-worker3"
+    ],
+    "nodeSelectors": {
+      "smp-sprint1-aae5556f-worker": {
+        "kubernetes.io/hostname": "smp-sprint1-aae5556f-worker"
+      },
+      "smp-sprint1-aae5556f-worker2": {
+        "kubernetes.io/hostname": "smp-sprint1-aae5556f-worker2"
+      },
+      "smp-sprint1-aae5556f-worker3": {
+        "kubernetes.io/hostname": "smp-sprint1-aae5556f-worker3"
+      }
+    }
+  }
+}

@@ -46,3 +46,5 @@ This is a clean source snapshot, not a mirror of earlier project Git history.
 The source commit IDs and archive hashes are in `SOURCE_PROVENANCE.json`.
 Original local repositories, existing SSH keys and the prior GitHub account are
 preserved. Uncommitted/unverified AWS preparation drafts are excluded.
+
+Sprint 6 is [PARTIAL: multi-node preparation, live capacity gate blocked](fabric-control-plane/docs/sprint6-acceptance.md). No four-node cluster or worker-failure acceptance has run; single-PC kind does not establish physical-host resilience.

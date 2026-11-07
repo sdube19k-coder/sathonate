@@ -1,0 +1,12 @@
+{
+  "capacity": "BLOCKED before credential access and before kind create; no resources created",
+  "fixtureRegression": {
+    "test": "TestMultiWorkerFixturePreservesExistingPlacementAcrossExpansion",
+    "observed": "existing node moved during expansion",
+    "cause": "Later generated stages reused placements from the original input for newly admitted nodes",
+    "fix": "Carry accepted placements forward and deep-copy caller input in test fixture only; production placement replacement remains rejected",
+    "status": "PASS_AFTER_FIX",
+    "failedLogSHA256": "128118d40cdc134d68bc3d86561c996c014c57d58639ea0bc27e5405b134effa"
+  },
+  "mockTestDevelopment": "The image-loader test initially failed to match ctr images list; corrected test double, no live image import attempted."
+}

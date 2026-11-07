@@ -1,0 +1,32 @@
+{
+  "kind": "Cluster",
+  "apiVersion": "kind.x-k8s.io/v1alpha4",
+  "name": "smp-sprint1-aae5556f",
+  "networking": {
+    "disableDefaultCNI": true,
+    "podSubnet": "192.168.0.0/16"
+  },
+  "nodes": [
+    {
+      "role": "control-plane"
+    },
+    {
+      "role": "worker",
+      "labels": {
+        "fabric.sathonate.io/qualification-worker": "1"
+      }
+    },
+    {
+      "role": "worker",
+      "labels": {
+        "fabric.sathonate.io/qualification-worker": "2"
+      }
+    },
+    {
+      "role": "worker",
+      "labels": {
+        "fabric.sathonate.io/qualification-worker": "3"
+      }
+    }
+  ]
+}

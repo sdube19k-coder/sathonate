@@ -1,0 +1,25 @@
+{
+  "go": {
+    "counts": {
+      "pass": 379,
+      "skip": 23
+    },
+    "sourceLog": "sprint6-final-go.jsonl",
+    "logSHA256": "aef4eb95eccd72fa4e19f4c80ef7f335858a5b27d5aa1df4726f7176f3d50792"
+  },
+  "postgres": {
+    "counts": {
+      "pass": 47,
+      "skip": 1
+    },
+    "sourceLog": "sprint6-final-postgres.jsonl",
+    "logSHA256": "768aedc1fd82266896185740a867148a1d32277e2ae4fff95e716a65768d9286"
+  },
+  "goVet": "PASS",
+  "pythonTests": 7,
+  "pythonStatic": "PASS",
+  "powerShellSyntax": "PASS",
+  "frontend": "UNCHANGED_NOT_RERUN",
+  "liveMultiNode": "NOT_TESTED_CAPACITY_BLOCKED",
+  "priorAcceptance": "Sprint 4/5 receipts preserved; not relabelled as Sprint 6 runtime proof"
+}

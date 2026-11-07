@@ -1,0 +1,44 @@
+{
+  "schema": "sathonate.sprint6-acceptance/v1",
+  "status": "PARTIAL_CAPACITY_BLOCKED",
+  "date": "2026-11-08",
+  "baselineCommit": "0b30021425630738f35902ed72e885ea0d2d93fe",
+  "createdResources": false,
+  "retainedNetworkModified": false,
+  "cloudAccessed": false,
+  "implemented": [
+    "Fail-closed read-only local Docker capacity gate",
+    "One control-plane / three-worker Calico kind plan",
+    "Optional immutable owned-worker inventory with per-worker provider-ID checks",
+    "Generic customer placement resolution and placement-preserving expansion fixtures",
+    "Pinned image imports across every owned kind node",
+    "Prepared initial/expansion API fixture with separate timing fields and observed worker placement checks"
+  ],
+  "runtimeGates": {
+    "initialProvisioning": "NOT_TESTED_CAPACITY_BLOCKED",
+    "peerOrganizationCARaftExpansion": "NOT_TESTED_CAPACITY_BLOCKED",
+    "crossNodeDNSNetworkingTLSMSP": "NOT_TESTED_CAPACITY_BLOCKED",
+    "CalicoEnforcement": "NOT_TESTED_CAPACITY_BLOCKED",
+    "localPVSchedulingAndPreservation": "NOT_TESTED_CAPACITY_BLOCKED",
+    "workerFailure": "NOT_TESTED_CAPACITY_BLOCKED",
+    "statelessPodRescheduling": "NOT_TESTED_CAPACITY_BLOCKED",
+    "statefulRecovery": "NOT_TESTED_CAPACITY_BLOCKED",
+    "transactionContinuityAndLedgerConsistency": "NOT_TESTED_CAPACITY_BLOCKED",
+    "monitoringAndTenantAuthorization": "NOT_TESTED_CAPACITY_BLOCKED"
+  },
+  "durationsSeconds": {
+    "deployment": null,
+    "expansion": null,
+    "recovery": null
+  },
+  "remaining": [
+    "Additional Docker memory headroom without disrupting retained infrastructure",
+    "Run prepared initial/expansion acceptance on four owned kind nodes",
+    "Implement and qualify bounded worker outage/rescheduling/recovery tests, explicitly respecting local-PV node affinity",
+    "Collect directed cross-worker DNS/TLS/Calico probes and storage-affinity receipts",
+    "Do not claim independent physical-host, production or full disaster recovery resilience"
+  ],
+  "implementationCommit": "20181783539fa0e631b0da60adf5a3a6b75e00f9",
+  "credentialScan": "PASS_CURRENT_SOURCE_AND_EVIDENCE_ONLY",
+  "physicalFailureDomain": "All kind nodes remain on one local-host; no independent physical-host resilience qualified"
+}

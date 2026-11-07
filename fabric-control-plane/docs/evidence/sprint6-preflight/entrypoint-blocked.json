@@ -1,0 +1,41 @@
+{
+  "schema": "sathonate.sprint6-qualification/v1",
+  "status": "BLOCKED",
+  "apiToFabric": "NOT VERIFIED",
+  "uiToFabric": "NOT_RERUN_SPRINT6",
+  "cluster": "smp-sprint1-e7f3cf09",
+  "awsEnabled": false,
+  "productionEnabled": false,
+  "checks": {},
+  "startedAt": 1794079021.4355748,
+  "capacity": {
+    "metrics": {
+      "dockerCPUs": 20,
+      "dockerMemoryTotal": 6210359296,
+      "dockerMemoryAvailable": 4132999168,
+      "hostMemoryAvailable": 5295546368,
+      "backingDiskFree": 48619581440
+    },
+    "status": "BLOCKED_CAPACITY",
+    "failures": [
+      {
+        "metric": "dockerMemoryTotal",
+        "observed": 6210359296,
+        "required": 8589934592
+      },
+      {
+        "metric": "dockerMemoryAvailable",
+        "observed": 4132999168,
+        "required": 6442450944
+      }
+    ],
+    "policy": {
+      "estimatedNewFixtureMemoryBytes": 6442450944,
+      "minimumDockerMemoryBytes": 8589934592,
+      "minimumBackingDiskFreeBytes": 42949672960,
+      "estimatesAreNotRuntimeEvidence": true
+    }
+  },
+  "failureCategory": "Sprint 6 capacity reservation not met; no resources created",
+  "finishedAt": 1794079022.2533443
+}
