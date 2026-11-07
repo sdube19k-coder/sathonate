@@ -21,6 +21,7 @@ import (
 type SecureLocalConfig struct {
 	Kubeconfig  string                   `json:"kubeconfig"`
 	ClusterName string                   `json:"clusterName"`
+	WorkerNodes []string                 `json:"workerNodes,omitempty"`
 	WorkerImage string                   `json:"workerImage"`
 	Runtime     kubernetesfabric.Runtime `json:"runtime"`
 }
@@ -52,6 +53,9 @@ func NewSecureRunner(c SecureLocalConfig) (SecureRunner, error) {
 	if !regexp.MustCompile(`^smp-sprint1-[a-f0-9]{8}$`).MatchString(c.ClusterName) || !regexp.MustCompile(`^[a-zA-Z0-9./:_-]+@sha256:[a-f0-9]{64}$`).MatchString(c.WorkerImage) || c.Kubeconfig == "" {
 		return SecureRunner{}, errors.New("secure runner requires an explicit disposable Sprint 1 cluster and digest-pinned worker")
 	}
+	if e := validateLocalWorkerInventory(c); e != nil {
+		return SecureRunner{}, e
+	}
 	raw, e := os.ReadFile(c.Kubeconfig)
 	if e != nil {
 		return SecureRunner{}, errors.New("secure kubeconfig unavailable")
@@ -72,6 +76,9 @@ func (r SecureRunner) base() KubernetesRunner {
 }
 func (r SecureRunner) Validate(q Request) error {
 	dynamic := q.Network.Spec.Deployment.TargetRef == domain.DynamicLocalProfile
+	if r.binding != nil && len(r.binding.config.WorkerNodes) != 0 && !dynamic {
+		return errors.New("multi-node inventory requires the explicit customer-defined local profile")
+	}
 	if q.Recovery != nil && (!dynamic || q.LifecycleAction != "node-recovery" || q.PreviousNetwork == nil || q.Recovery.Digest != q.LifecycleApproval || !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(q.Recovery.Digest)) {
 		return errors.New("invalid protected recovery intent")
 	}
@@ -147,6 +154,12 @@ func (r KubernetesRunner) validateSecure(ctx context.Context) error {
 	raw, e = r.run(ctx, "get", "node", name+"-control-plane", "-o", "jsonpath={.spec.providerID}")
 	if e != nil || strings.TrimSpace(string(raw)) != "kind://docker/"+name+"/"+name+"-control-plane" {
 		return errors.New("disposable secure cluster identity mismatch")
+	}
+	for _, worker := range r.secure.config.WorkerNodes {
+		raw, e = r.run(ctx, "get", "node", worker, "-o", "jsonpath={.spec.providerID}")
+		if e != nil || !localWorkerProviderMatches(name, worker, strings.TrimSpace(string(raw))) {
+			return errors.New("disposable worker identity mismatch")
+		}
 	}
 	return nil
 }

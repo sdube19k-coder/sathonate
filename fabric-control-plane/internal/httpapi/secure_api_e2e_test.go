@@ -27,7 +27,11 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 	if os.Getenv("SMP_SECURE_API_E2E") != "1" {
 		t.Skip("requires explicit disposable secure API qualification")
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 24*time.Minute)
+	duration := 24 * time.Minute
+	if os.Getenv("SMP_QUALIFICATION_MULTI_NODE") == "1" {
+		duration = 40 * time.Minute
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), duration)
 	defer cancel()
 	connection := os.Getenv("SATHONATE_TEST_DATABASE_URL")
 	if !strings.Contains(connection, "/fabric_smp_tests?") {
@@ -172,6 +176,9 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 		for ref := range desired.Spec.Configuration.Placements {
 			desired.Spec.Configuration.Placements[ref] = domain.Placement{NodeSelector: map[string]string{"kubernetes.io/hostname": config.ClusterName + "-control-plane"}}
 		}
+		if len(config.WorkerNodes) != 0 {
+			desired = qualificationWorkerPlacements(nil, desired, config.WorkerNodes)
+		}
 		for i := range desired.Spec.Configuration.Chaincodes {
 			for image, a := range config.Runtime.CodeArtifacts {
 				if a.CodeVersion == "1.0" {
@@ -191,6 +198,7 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 	if status, _ = call("POST", "/api/v1/networks/"+draft.ID+"/deploy", viewer, []byte(`{}`), headers); status != 403 {
 		t.Fatal("viewer escalated to deployment")
 	}
+	initialProvisionStarted := time.Now()
 	status, body = call("POST", "/api/v1/networks/"+draft.ID+"/deploy", token, []byte(`{}`), headers)
 	var first operations.Operation
 	if status != 202 || json.Unmarshal(body, &first) != nil {
@@ -269,6 +277,7 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 		t.Fatal("API authorized retry failed", status, string(body))
 	}
 	completed := wait(retry.ID, func(op operations.Operation) bool { return op.Status == "succeeded" })
+	initialProvisionDuration := time.Since(initialProvisionStarted).Seconds()
 	if status, data := call("GET", "/api/v1/operations/"+retry.ID+"/diagnostics", viewer, nil, nil); status != 200 || !bytes.Contains(data, []byte(`"liveHealthChecked":false`)) {
 		t.Fatal("read-only operational diagnostics unavailable")
 	}
@@ -384,6 +393,7 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 		stages := customerExpansionStages(desired, config.Runtime.CodeArtifacts)
 		stageEvidence := []any{}
 		for stageIndex, nextDesired := range stages {
+			stageStarted := time.Now()
 			beforeResult, copyErr := deploymentSnapshot(result)
 			if copyErr != nil {
 				t.Fatal(copyErr)
@@ -413,6 +423,9 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 				return values
 			}
 			beforePods := observedPods()
+			if len(config.WorkerNodes) != 0 {
+				nextDesired = qualificationWorkerPlacements(&desired, nextDesired, config.WorkerNodes)
+			}
 			desired = nextDesired
 			update, _ := json.Marshal(desired)
 			nextRevision := draft.Revision + 1
@@ -488,7 +501,7 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 			if copyErr != nil {
 				t.Fatal(copyErr)
 			}
-			stageEvidence = append(stageEvidence, map[string]any{"status": "PASS", "stage": stageIndex + 1, "before": beforeResult.Verifications, "after": afterResult.Verifications, "apiRestartAdopted": true, "existingWorkloadUIDsPreserved": true, "preview": preview})
+			stageEvidence = append(stageEvidence, map[string]any{"durationSeconds": time.Since(stageStarted).Seconds(), "status": "PASS", "stage": stageIndex + 1, "before": beforeResult.Verifications, "after": afterResult.Verifications, "apiRestartAdopted": true, "existingWorkloadUIDsPreserved": true, "preview": preview})
 			partial, _ := json.MarshalIndent(map[string]any{"schema": "sathonate.dynamic-partial/v1", "status": "PARTIAL", "completedExpansionStages": stageEvidence}, "", "  ")
 			if os.WriteFile(os.Getenv("SMP_SECURE_API_EVIDENCE")+".stages.json", partial, 0600) != nil {
 				t.Fatal("stage evidence write failed")
@@ -526,11 +539,47 @@ func TestSecureApplicationAPIOnDisposableKind(t *testing.T) {
 			t.Fatal("not every channel/contract verified")
 		}
 	}
+	evidence["initialProvisionIncludingDeliberateRetrySeconds"] = initialProvisionDuration
 	evidence["dynamicExpansion"] = expansionEvidence
 	evidence["initialTransactionId"] = firstTransaction
 	evidence["persistentClaimsUnchangedAfterPeerRestart"] = true
 	evidence["postRestartLedgerHealth"] = json.RawMessage(postRestartHealth)
 	evidence["lifecycleChanges"] = lifecycleEvidence
+	if len(config.WorkerNodes) != 0 {
+		var pods struct {
+			Items []struct {
+				Metadata struct {
+					Name   string
+					Labels map[string]string
+				}
+				Spec struct{ NodeName string }
+			}
+		}
+		if json.Unmarshal(kub("get", "pods", "-o", "json"), &pods) != nil {
+			t.Fatal("multi-worker placement observation unavailable")
+		}
+		placements := map[string]string{}
+		observed := map[string]bool{}
+		allowed := map[string]bool{}
+		for _, node := range config.WorkerNodes {
+			allowed[node] = true
+		}
+		for _, pod := range pods.Items {
+			if pod.Metadata.Labels["release"] == "" && pod.Metadata.Labels["chaincode"] == "" {
+				continue
+			}
+			if !allowed[pod.Spec.NodeName] {
+				t.Fatal("Fabric workload escaped approved worker inventory")
+			}
+			placements[pod.Metadata.Name] = pod.Spec.NodeName
+			observed[pod.Spec.NodeName] = true
+		}
+		if len(observed) != 3 {
+			t.Fatal("Fabric placement did not exercise all three workers")
+		}
+		evidence["multiNodePlacements"] = placements
+		evidence["workerFailureRecovery"] = "NOT_TESTED"
+	}
 	raw, _ = json.MarshalIndent(evidence, "", "  ")
 	if os.WriteFile(os.Getenv("SMP_SECURE_API_EVIDENCE"), raw, 0600) != nil {
 		t.Fatal("redacted API evidence write failed")

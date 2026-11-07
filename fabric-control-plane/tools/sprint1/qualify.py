@@ -10,9 +10,9 @@ NAME='smp-sprint1-'+uuid.uuid4().hex[:8]
 CONFIG=CACHE/(NAME+'.kubeconfig')
 RUNTIME=CACHE/(NAME+'-runtime.json')
 PREFIX=os.environ.get('SMP_QUALIFICATION_PREFIX','sprint1')
-if PREFIX not in ('sprint1','sprint2','sprint3','sprint4'):raise RuntimeError('Invalid qualification prefix')
+if PREFIX not in ('sprint1','sprint2','sprint3','sprint4','sprint6'):raise RuntimeError('Invalid qualification prefix')
 WORKER=os.environ.get('SMP_QUALIFICATION_WORKER','sathonate/fabric-worker:secure-local')
-if WORKER not in ('sathonate/fabric-worker:secure-local','sathonate/fabric-worker:sprint2','sathonate/fabric-worker:sprint3','sathonate/fabric-worker:sprint4-lifecycle','sathonate/fabric-worker:sprint4-dynamic'):raise RuntimeError('Invalid qualification worker')
+if WORKER not in ('sathonate/fabric-worker:secure-local','sathonate/fabric-worker:sprint2','sathonate/fabric-worker:sprint3','sathonate/fabric-worker:sprint4-lifecycle','sathonate/fabric-worker:sprint4-dynamic','sathonate/fabric-worker:sprint5-recovery'):raise RuntimeError('Invalid qualification worker')
 DYNAMIC=os.environ.get('SMP_DYNAMIC_LABEL','')
 if DYNAMIC not in ('','a','b','c'):raise RuntimeError('Invalid dynamic qualification label')
 RUN_LABEL=os.environ.get('SMP_QUALIFICATION_RUN_LABEL','')
@@ -25,6 +25,9 @@ BASE=['kubectl','--kubeconfig',str(CONFIG),'--context','kind-'+NAME,'--request-t
 report={'schema':'sathonate.'+PREFIX+'-qualification/v1','status':'BLOCKED','apiToFabric':'NOT VERIFIED','uiToFabric':'NOT_RERUN_'+PREFIX.upper() if PREFIX!='sprint1' else 'BLOCKED','cluster':NAME,'awsEnabled':False,'productionEnabled':False,'checks':{},'startedAt':time.time()}
 created=False
 CALICO=os.environ.get('SMP_QUALIFICATION_CALICO')=='1'
+MULTI=os.environ.get('SMP_QUALIFICATION_MULTI_NODE')=='1'
+if MULTI and (PREFIX!='sprint6' or not DYNAMIC or not CALICO):raise RuntimeError('Multi-node fixture requires explicit Sprint 6, dynamic configuration and Calico')
+if PREFIX=='sprint6' and not MULTI:raise RuntimeError('Sprint 6 requires the multi-node fixture')
 
 def run(args,data=None,timeout=240):
  p=subprocess.run([str(x) for x in args],input=data,capture_output=True,text=True,encoding="utf-8",errors="replace",timeout=timeout)
@@ -37,15 +40,21 @@ def admission_denied(manifest,marker):
  p=subprocess.run(BASE+['create','--dry-run=server','-f','-'],input=json.dumps(manifest),capture_output=True,text=True,timeout=30)
  if p.returncode==0 or 'Forbidden' not in p.stderr or marker not in p.stderr:raise RuntimeError('Expected security admission denial not independently observed')
 
+def image_nodes():
+ return [NAME+'-control-plane']+([NAME+'-worker',NAME+'-worker2',NAME+'-worker3'] if MULTI else [])
+
 def guard():
- if kub('get','node',NAME+'-control-plane','-o','jsonpath={.spec.providerID}')!='kind://docker/'+NAME+'/'+NAME+'-control-plane':raise RuntimeError('Disposable identity mismatch')
+ for node in image_nodes():
+  if kub('get','node',node,'-o','jsonpath={.spec.providerID}')!='kind://docker/'+NAME+'/'+node:raise RuntimeError('Disposable node identity mismatch')
+
 def load(image):
  if image=='sathonate/controller-candidate:atomic':
   run([KIND,'load','docker-image',image,'--name',NAME])
-  rows=run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','list']).splitlines()
-  row=next(line.split() for line in rows if line.split() and line.split()[0]=='docker.io/'+image)
-  pinned=image.split(':')[0]+'@'+row[2]
-  run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force','docker.io/'+image,'docker.io/'+pinned])
+  for node in image_nodes():
+   rows=run(['docker','exec',node,'ctr','-n','k8s.io','images','list']).splitlines()
+   row=next(line.split() for line in rows if line.split() and line.split()[0]=='docker.io/'+image)
+   pinned=image.split(':')[0]+'@'+row[2]
+   run(['docker','exec',node,'ctr','-n','k8s.io','images','tag','--force','docker.io/'+image,'docker.io/'+pinned])
   return pinned,image+'@'+row[2]
  identity=run(['docker','image','inspect','--format','{{.Id}}',image]).strip()
  if not re.fullmatch('sha256:[a-f0-9]{64}',identity):raise RuntimeError('Public image identity invalid')
@@ -59,17 +68,18 @@ def load(image):
      if member.name not in ('index.json','oci-layout'):target.addfile(member,source.extractfile(member) if member.isfile() else None)
    receipt.write_text(digest(archive))
   finally:original.unlink(missing_ok=True)
- with archive.open('rb') as stream:
-  p=subprocess.run(['docker','exec','-i',NAME+'-control-plane','ctr','-n','k8s.io','images','import','--platform','linux/amd64','-'],stdin=stream,capture_output=True,timeout=180)
-  if p.returncode:raise RuntimeError('Public image import failed')
- lines=run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','list']).splitlines()
- canonical=image if image.startswith('quay.io/') else 'docker.io/'+image
- row=next(line.split() for line in lines if line.split() and line.split()[0]==canonical)
- if not re.fullmatch('sha256:[a-f0-9]{64}',row[2]):raise RuntimeError('Runtime digest missing')
- pinned=image.split(':')[0]+'@'+row[2]
- run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force',canonical,pinned if image.startswith('quay.io/') else 'docker.io/'+pinned])
- # Bevel uses separate repository and version fields.
- run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force',canonical,(image if image.startswith('quay.io/') else 'docker.io/'+image)+'@'+row[2]])
+ for node in image_nodes():
+  with archive.open('rb') as stream:
+   p=subprocess.run(['docker','exec','-i',node,'ctr','-n','k8s.io','images','import','--platform','linux/amd64','-'],stdin=stream,capture_output=True,timeout=180)
+   if p.returncode:raise RuntimeError('Public image import failed')
+  lines=run(['docker','exec',node,'ctr','-n','k8s.io','images','list']).splitlines()
+  canonical=image if image.startswith('quay.io/') else 'docker.io/'+image
+  row=next(line.split() for line in lines if line.split() and line.split()[0]==canonical)
+  if not re.fullmatch('sha256:[a-f0-9]{64}',row[2]):raise RuntimeError('Runtime digest missing')
+  pinned=image.split(':')[0]+'@'+row[2]
+  run(['docker','exec',node,'ctr','-n','k8s.io','images','tag','--force',canonical,pinned if image.startswith('quay.io/') else 'docker.io/'+pinned])
+  # Bevel uses separate repository and version fields.
+  run(['docker','exec',node,'ctr','-n','k8s.io','images','tag','--force',canonical,(image if image.startswith('quay.io/') else 'docker.io/'+image)+'@'+row[2]])
  return pinned,image+'@'+row[2]
 
 def inspect(namespace,worker,api=None):
@@ -156,6 +166,10 @@ def inspect(namespace,worker,api=None):
 
 try:
  run(['docker','info','--format','{{.ServerVersion}}'])
+ if MULTI:
+  sys.path.insert(0,str(ROOT/'tools/sprint6'));import preflight
+  capacity=preflight.metrics();report['capacity']={'metrics':capacity,**preflight.assess(capacity)}
+  if report['capacity']['status']!='PASS_PREFLIGHT_ONLY':raise RuntimeError('Sprint 6 capacity reservation not met; no resources created')
  metadata=json.loads(run(['docker','inspect','smp-postgres']))[0];values=dict(x.split('=',1) for x in metadata['Config']['Env'] if '=' in x)
  password=run(['docker','exec','smp-postgres','cat','/run/secrets/postgres-password']).strip()
  from urllib.parse import quote
@@ -164,11 +178,15 @@ try:
  cluster_args=[KIND,'create','cluster','--name',NAME,'--image','kindest/node:v1.34.0','--kubeconfig',CONFIG,'--wait','0s' if CALICO else '180s']
  kind_config=CACHE/(NAME+'-kind.json')
  if CALICO:
-  kind_config.write_text(json.dumps({'kind':'Cluster','apiVersion':'kind.x-k8s.io/v1alpha4','networking':{'disableDefaultCNI':True,'podSubnet':'192.168.0.0/16'},'nodes':[{'role':'control-plane'}]}));cluster_args+=['--config',kind_config]
+  kind_config.write_text(json.dumps({'kind':'Cluster','apiVersion':'kind.x-k8s.io/v1alpha4','networking':{'disableDefaultCNI':True,'podSubnet':'192.168.0.0/16'},'nodes':[{'role':'control-plane'}]+([{'role':'worker'} for _ in range(3)] if MULTI else [])}));cluster_args+=['--config',kind_config]
+ if NAME in run([KIND,'get','clusters']).splitlines():raise RuntimeError('Disposable name already exists; no adoption permitted')
+ # Multi-node partial creation is tracked for independently guarded teardown.
+ created=MULTI
  run(cluster_args);created=True;guard()
  if CALICO:
   sys.path.insert(0,str(ROOT/'tools/sprint2'));import isolation
   isolation.install(run,kub,apply,load,KIND,NAME,CACHE,report)
+  if MULTI:kub('wait','nodes','--all','--for=condition=Ready','--timeout=180s')
  kind_config.unlink(missing_ok=True)
  if os.name=='nt':run(['icacls',CONFIG,'/inheritance:r','/grant:r',run(['whoami']).strip()+':F'])
  source=ROOT.parent/'dependencies/bevel-operator-fabric/config/crd/bases'
@@ -189,11 +207,14 @@ try:
    if not re.fullmatch('[a-f0-9]{64}',code_sha):raise RuntimeError('Approved executable digest missing')
    approved[images[image][0]]={'sha256':code_sha,'codeVersion':version+'.0'}
   runtime.update(dynamicEnabled=True,codeArtifacts=approved)
- config={'kubeconfig':str(CONFIG),'clusterName':NAME,'workerImage':images[WORKER][0],'runtime':runtime};RUNTIME.write_text(json.dumps(config))
+ if MULTI:runtime['nodeSelectors']={node:{'kubernetes.io/hostname':node} for node in image_nodes()[1:]}
+ config={'kubeconfig':str(CONFIG),'clusterName':NAME,'workerImage':images[WORKER][0],'runtime':runtime}
+ if MULTI:config['workerNodes']=image_nodes()[1:]
+ RUNTIME.write_text(json.dumps(config))
  env=dict(os.environ,GOCACHE=str(CACHE/'go-build'),GOPATH=str(CACHE/'go'),GOPROXY='off',SATHONATE_TEST_DATABASE_URL=database,SMP_SECURE_API_E2E='1',SMP_SECURE_CONFIG=str(RUNTIME),SMP_SECURE_API_EVIDENCE=str(RESULT),TMP=str(CACHE/'resume-tmp'),TEMP=str(CACHE/'resume-tmp'))
  print('Sprint 1: executing real authenticated Go API deployment/restart/retry test',flush=True)
  with (OUTPUT/(PREFIX+'-api-kind.log')).open('w') as output:
-  test=subprocess.run(['go','test','./internal/httpapi','-run','^TestSecureApplicationAPIOnDisposableKind$','-count=1','-v','-timeout','25m'],cwd=ROOT,env=env,stdout=output,stderr=subprocess.STDOUT)
+  test=subprocess.run(['go','test','./internal/httpapi','-run','^TestSecureApplicationAPIOnDisposableKind$','-count=1','-v','-timeout','45m' if MULTI else '25m'],cwd=ROOT,env=env,stdout=output,stderr=subprocess.STDOUT)
  report['apiTestExitCode']=test.returncode
  if test.returncode:
   # Explicit bounded diagnostic hold only on this guarded disposable cluster.
@@ -212,10 +233,18 @@ try:
  report['retainedNetwork']={'readOnly':True,'readyDeployments':sum(x['status'].get('readyReplicas',0)==1 for x in retained),'total':len(retained),'ready':ready}
  if not ready:raise RuntimeError('Retained read-only readiness did not meet 8/8')
  report['status']=PREFIX.upper()+'_LOCAL_SECURITY_PASS_EXTERNAL_GATES_BLOCKED' if PREFIX!='sprint1' else 'BACKEND_LOCAL_QUALIFICATION_PASS_UI_BLOCKED'
+ if MULTI:
+  report['status']='SPRINT6_PARTIAL_WORKER_FAILURE_NOT_QUALIFIED'
+  report['checks']['workerFailureRecovery']='NOT_TESTED'
 except Exception as error:
  report['failureCategory']=str(error) if isinstance(error,RuntimeError) else type(error).__name__
  raise
 finally:
  if created:
-  guard();run([KIND,'delete','cluster','--name',NAME]);CONFIG.unlink(missing_ok=True);RUNTIME.unlink(missing_ok=True);(CACHE/(NAME+'-kind.json')).unlink(missing_ok=True);report['disposableClusterRemoved']=True
+  if MULTI:
+   for node in run([KIND,'get','nodes','--name',NAME]).splitlines():
+    labels=json.loads(run(['docker','inspect','--format','{{json .Config.Labels}}',node]))
+    if node not in image_nodes() or labels.get('io.x-k8s.kind.cluster')!=NAME:raise RuntimeError('Partial fixture cleanup ownership mismatch')
+  else:guard()
+  run([KIND,'delete','cluster','--name',NAME]);CONFIG.unlink(missing_ok=True);RUNTIME.unlink(missing_ok=True);(CACHE/(NAME+'-kind.json')).unlink(missing_ok=True);report['disposableClusterRemoved']=True
  report['finishedAt']=time.time();REPORT.write_text(json.dumps(report,indent=2)+'\n')
