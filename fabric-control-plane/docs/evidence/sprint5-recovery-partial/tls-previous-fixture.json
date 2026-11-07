@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-11-06T17:15:17.441158+00:00",
+  "cluster": "smp-sprint1-fe72a3dc",
+  "namespace": "smp-s-43c4739b05620583873be8d9f66610f0",
+  "peers": [
+    {
+      "peer": "warehouse-p1",
+      "wrongIssuer": "PASS",
+      "wrongHostname": "PASS",
+      "fingerprint": "c15db470057fdc85147bf96509aa65980c6a9a161e86ce7b99e9e0f694e170e4"
+    },
+    {
+      "peer": "retailer-p1",
+      "wrongIssuer": "PASS",
+      "wrongHostname": "PASS",
+      "fingerprint": "fbca3d8ddc1698021062fecc82711e3c8d3bd4cf2143da25fbc08f09e9dd5cf6"
+    }
+  ],
+  "probeRemoved": true
+}

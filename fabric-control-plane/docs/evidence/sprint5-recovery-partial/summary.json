@@ -1,0 +1,78 @@
+{
+  "schema": "sathonate.sprint5-recovery-partial/v1",
+  "checkedAt": "2026-11-07T02:21:47.568282+00:00",
+  "status": "PARTIAL",
+  "runtimeBlocked": true,
+  "dockerError": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.",
+  "awsAccessed": false,
+  "productionEnabled": false,
+  "retainedNetworkModified": false,
+  "currentRetainedHealth": "NOT VERIFIED: Docker unavailable; previous read-only observation 8/8 deployments and 7 bound PVCs",
+  "sourceCommit": "4d8c691da8b95aedf615bd860435ec5e1e63990b",
+  "recoverySourceUncommitted": true,
+  "lastAttempt": {
+    "directory": "fabric-console/.logs/dynamic-browser-s5-20261106-225232",
+    "status": "INTERRUPTED_NO_FINAL_RECEIPT",
+    "cluster": "smp-sprint1-4fd47f55",
+    "cleanup": "NOT VERIFIED; check exact provider identity before deletion",
+    "perNodeProgressFilePresent": false
+  },
+  "tests": {
+    "go": {
+      "status": "PASS",
+      "tests": {
+        "pass": 364,
+        "skip": 21
+      },
+      "incompletePackages": [],
+      "localLog": "E:\\Sathonate\\sathonate\\fabric-control-plane\\.logs\\sprint5-resume-final-go.jsonl",
+      "sha256": "63bf21178af2a4257156211c3bb43d7e424169180cc2bf2544103df0651b43a5"
+    },
+    "vet": "PASS",
+    "console": {
+      "status": "PASS",
+      "passed": 26,
+      "failed": 0,
+      "build": "PASS",
+      "format": "PASS"
+    },
+    "python": {
+      "isolationEvidence": 6,
+      "atomicHarness": 13,
+      "status": "PASS"
+    },
+    "postgresPreviousFinalSource": {
+      "status": "PASS",
+      "tests": {
+        "pass": 46,
+        "skip": 1
+      },
+      "incompletePackages": [],
+      "localLog": "E:\\Sathonate\\sathonate\\fabric-control-plane\\.logs\\sprint5-material-final-postgres.jsonl",
+      "sha256": "3efcd323aadcfb305e03548de4454fb7798da31b7f3e8e5ae6a0c07f8eb01f86"
+    },
+    "postgresFresh": "BLOCKED_DOCKER_UNAVAILABLE",
+    "resumeScript": "POWERSHELL_PARSE_PASS_NOT_RUNTIME_EXECUTED"
+  },
+  "gates": {
+    "liveMonitoringAndAuthorization": "PASS_PREVIOUS_DISPOSABLE_RUN",
+    "pendingStorageDetectionAndRefusal": "PASS_PREVIOUS_DISPOSABLE_RUN",
+    "peerRecoveryTransactionsLedgerAndPVCPreservation": "PASS_PREVIOUS_DISPOSABLE_RUN",
+    "raftMissingQuorumRefusal": "PASS_PREVIOUS_DISPOSABLE_RUN",
+    "raftRecoveryTransactions": "NOT_VERIFIED",
+    "caRecoveryTransactions": "NOT_VERIFIED",
+    "allCasesFinalSourceAcceptance": "BLOCKED",
+    "finalRuntimeCredentialInspectionAndCalicoIsolation": "NOT_VERIFIED",
+    "lastFixtureCleanup": "NOT_VERIFIED",
+    "dynamicSafeDeletion": "NOT_IMPLEMENTED",
+    "consistentLiveBackupRestore": "NOT_IMPLEMENTED"
+  },
+  "peerEvidence": "peer-only.json",
+  "trustEvidence": "tls-previous-fixture.json",
+  "productionBlockers": [
+    "Real Okta interactive acceptance",
+    "Historical exposed-key remediation with owner approval",
+    "EKS/IRSA/CNI/EBS and physical multi-server qualification",
+    "Consistent live backup/restore and dynamic safe deletion"
+  ]
+}

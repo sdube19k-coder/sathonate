@@ -1,5 +1,7 @@
 # Sprint 5: local operations and recovery
 
+7 November update: **PARTIAL / runtime BLOCKED**. See [current checkpoint and exact resume command](sprint5-recovery-checkpoint.md) and [redacted evidence](evidence/sprint5-recovery-partial/summary.json). Monitoring and one peer recovery passed in prior disposable runs; final Raft/CA recovery, security inspection and cleanup remain unqualified. Docker Linux-engine pipe is currently unavailable. The section below records the earlier first increment.
+
 6 November 2026. **IN PROGRESS. First read-only workload increment implemented; full Sprint 5 is not complete.** The user selected the existing local operations/recovery backlog. Sprint 4's qualified local MVP is preserved at `52fcae1`, with backend `e61e216` and console `c4926fb`. Its completed acceptance is not rerun unnecessarily or relabelled as Sprint 5 acceptance.
 
 ## Implemented increment

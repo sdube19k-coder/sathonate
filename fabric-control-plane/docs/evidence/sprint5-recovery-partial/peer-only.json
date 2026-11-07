@@ -1,0 +1,76 @@
+{
+  "status": "PASS_PEER_ONLY_NOT_FULL_ACCEPTANCE",
+  "capturedAt": "2026-11-06T17:21:45.677684+00:00",
+  "operationId": "op_2f890a34983ef9737a86ff3613ba8283",
+  "node": "warehouse-p1",
+  "verifications": [
+    {
+      "health": {
+        "peers": [
+          {
+            "peer": "retailer-p1",
+            "mspId": "RetailerMSP",
+            "height": 6,
+            "available": true,
+            "currentBlockHash": "6yYPnijfHJpEtPy4ivhUBChuzPXr9UCQ3qEPQ35v6q4="
+          },
+          {
+            "peer": "warehouse-p1",
+            "mspId": "WarehouseMSP",
+            "height": 6,
+            "available": true,
+            "currentBlockHash": "6yYPnijfHJpEtPy4ivhUBChuzPXr9UCQ3qEPQ35v6q4="
+          }
+        ],
+        "ready": true,
+        "alerts": [],
+        "channel": "shipments",
+        "orderers": [
+          {
+            "name": "raft-1",
+            "height": 6,
+            "status": "active",
+            "consensusRelation": "consenter"
+          },
+          {
+            "name": "raft-2",
+            "height": 6,
+            "status": "active",
+            "consensusRelation": "consenter"
+          },
+          {
+            "name": "raft-3",
+            "height": 6,
+            "status": "active",
+            "consensusRelation": "consenter"
+          }
+        ],
+        "chaincode": {
+          "name": "customer-ledger",
+          "version": "1.0",
+          "sequence": 1,
+          "available": true
+        },
+        "checkedAt": "2026-11-06T17:17:33.20128156Z",
+        "certificateAuthorities": [
+          {
+            "tls": true,
+            "name": "warehouse-issuer",
+            "available": true
+          },
+          {
+            "tls": true,
+            "name": "retailer-issuer",
+            "available": true
+          }
+        ]
+      },
+      "packageId": "customer-ledger_1:9a461af382bfaa30bc1d8877922d88099bb12b89383ef32bfeb23d7ea07241eb",
+      "codeVersion": "1.0",
+      "transactionId": "70f8043163803ec4ffa961fb312789b5fadc37d3e1c4f1c563374a66aee29ea2",
+      "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e"
+    }
+  ],
+  "sourceRun": "dynamic-browser-s5-20261106-223843",
+  "limits": "Subsequent orderer preflight failed; cluster removed. Full three-case acceptance remains incomplete."
+}
