@@ -3,6 +3,7 @@ package httpapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"sort"
@@ -101,10 +102,18 @@ func (a *API) deploymentCleanup(w http.ResponseWriter, r *http.Request) {
 		problem(w, 404, "unavailable", "Local Kubernetes runner is disabled", nil)
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Minute)
+	timeout := 2 * time.Minute
+	if a.options.Deployments.Mode() == "secure-local" {
+		timeout = 5 * time.Minute
+		if err := cleanupResponseDeadline(w, time.Now().Add(timeout+10*time.Second)); err != nil {
+			problem(w, 503, "cleanup_transport", "Bounded cleanup response deadline unavailable; no deletion started", nil)
+			return
+		}
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), timeout)
 	defer cancel()
 	var err error
-	if a.options.Deployments.Mode() == "aws-eks" || a.options.Deployments.Mode() == "secure-eks" {
+	if a.options.Deployments.Mode() == "aws-eks" || a.options.Deployments.Mode() == "secure-eks" || a.options.Deployments.Mode() == "secure-local" {
 		err = a.options.Deployments.CleanupApproved(ctx, tenant(r), r.PathValue("operationId"), actor(r), r.Header.Get("X-Sathonate-Cleanup-Approval"))
 	} else {
 		err = a.options.Deployments.Cleanup(ctx, tenant(r), r.PathValue("operationId"))
@@ -203,4 +212,15 @@ func (a *API) deploymentCleanupPreview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respond(w, 200, plan)
+}
+
+// Keep the response alive for the already bounded, authenticated cleanup only.
+// Ordinary requests retain the server's shorter write deadline. Recorders do
+// not implement deadlines; the native server and unwrapped writers do.
+func cleanupResponseDeadline(w http.ResponseWriter, deadline time.Time) error {
+	err := http.NewResponseController(w).SetWriteDeadline(deadline)
+	if errors.Is(err, http.ErrNotSupported) {
+		return nil
+	}
+	return err
 }

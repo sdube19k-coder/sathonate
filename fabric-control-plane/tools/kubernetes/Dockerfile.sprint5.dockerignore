@@ -1,0 +1,7 @@
+**
+!bin/
+!bin/fabric-worker-sprint5
+!bin/fabric-config-tool
+!tools/
+!tools/kubernetes/
+!tools/kubernetes/Dockerfile.sprint5

@@ -72,6 +72,9 @@ func (r SecureRunner) base() KubernetesRunner {
 }
 func (r SecureRunner) Validate(q Request) error {
 	dynamic := q.Network.Spec.Deployment.TargetRef == domain.DynamicLocalProfile
+	if q.Recovery != nil && (!dynamic || q.LifecycleAction != "node-recovery" || q.PreviousNetwork == nil || q.Recovery.Digest != q.LifecycleApproval || !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(q.Recovery.Digest)) {
+		return errors.New("invalid protected recovery intent")
+	}
 	if q.PreviousNetwork != nil && (!dynamic || kubernetesfabric.ValidateDynamicTransition(*q.PreviousNetwork, q.Network) != nil) {
 		return errors.New("invalid approved dynamic transition")
 	}
@@ -168,6 +171,12 @@ func (r SecureRunner) owned(ctx context.Context, tenant, record string) error {
 	if json.Unmarshal(raw, &obj) != nil {
 		return errors.New("invalid secure namespace")
 	}
+	if obj.Metadata.Labels[coldLabel] != "" {
+		return errors.New("network is in offline cold maintenance; resume through its checkpoint")
+	}
+	if obj.Metadata.Labels[retiredLabel] != "" {
+		return errors.New("network retired; automatic execution is disabled")
+	}
 	return ValidateSecureNamespace(obj.Metadata.Labels, tenant, "token-bound-project", record)
 }
 func (r SecureRunner) Run(ctx context.Context, q Request, emit func(string, string) error) (Outcome, error) {
@@ -216,6 +225,14 @@ func (r SecureRunner) Run(ctx context.Context, q Request, emit func(string, stri
 		return Outcome{}, e
 	}
 	if len(bytes.TrimSpace(current)) == 0 {
+		if q.Recovery != nil {
+			if e := r.recoverNode(ctx, q, ns); e != nil {
+				return Outcome{}, e
+			}
+			if e := emitRecoveryCheckpoint(emit, q.Recovery.Node); e != nil {
+				return Outcome{}, e
+			}
+		}
 		if q.LifecycleAction == "restart-peer" {
 			if e := r.restartPeer(ctx, q, ns); e != nil {
 				return Outcome{}, e
@@ -285,7 +302,12 @@ func (r SecureRunner) manifest(q Request, name, ns string) (map[string]any, erro
 	image := SecureLocalProfile().ControllerImage
 	controller := M{"name": "controller", "image": image, "imagePullPolicy": "Never", "env": []any{M{"name": "SMP_NAMESPACE", "value": ns}, M{"name": "SMP_CONFIG_INIT_IMAGE", "value": image}}, "securityContext": security, "resources": M{"requests": M{"memory": "128Mi", "cpu": "100m"}, "limits": M{"memory": "512Mi", "cpu": "2"}}}
 	items = append(items, M{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": meta("secure-controller"), "spec": M{"replicas": 1, "selector": M{"matchLabels": M{"app": "secure-controller"}}, "template": M{"metadata": M{"labels": M{"app": "secure-controller", "sathonate.io/api-client": "true"}}, "spec": M{"automountServiceAccountToken": true, "serviceAccountName": "secure-controller", "containers": []any{controller}}}}})
-	items = append(items, M{"apiVersion": "v1", "kind": "ConfigMap", "metadata": meta(name), "immutable": true, "data": M{"network.json": string(network), "runtime.json": string(runtime), "lifecycle.json": string(lifecycle), "previous.json": string(previous)}})
+	data := M{"network.json": string(network), "runtime.json": string(runtime), "lifecycle.json": string(lifecycle), "previous.json": string(previous)}
+	if q.Recovery != nil {
+		encoded, _ := json.Marshal(q.Recovery)
+		data["recovery.json"] = string(encoded)
+	}
+	items = append(items, M{"apiVersion": "v1", "kind": "ConfigMap", "metadata": meta(name), "immutable": true, "data": data})
 	container := M{"name": "worker", "image": r.binding.config.WorkerImage, "imagePullPolicy": "Never", "workingDir": "/workspace", "args": []string{"--secure-local", "--namespace", ns, "--runtime", "/inputs/runtime.json"}, "securityContext": M{"allowPrivilegeEscalation": false, "readOnlyRootFilesystem": true, "capabilities": M{"drop": []string{"ALL"}}}, "resources": M{"requests": M{"cpu": "100m", "memory": "256Mi"}, "limits": M{"cpu": "2", "memory": "1Gi"}}, "env": []any{M{"name": "HOME", "value": "/workspace"}, M{"name": "TMPDIR", "value": "/workspace"}}, "volumeMounts": []any{M{"name": "input", "mountPath": "/inputs", "readOnly": true}, M{"name": "workspace", "mountPath": "/workspace"}, M{"name": "tmp", "mountPath": "/tmp"}}}
 	if q.Lifecycle != nil {
 		container["args"] = append(container["args"].([]string), "--lifecycle", "/inputs/lifecycle.json")

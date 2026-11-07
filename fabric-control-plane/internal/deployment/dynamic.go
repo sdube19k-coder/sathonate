@@ -86,5 +86,5 @@ func (m *Manager) ApplyDynamic(ctx context.Context, tenant, actor, parent, recor
 	if digest == "" || digest != preview.Digest {
 		return operations.Operation{}, errors.New("review and explicitly approve the current dynamic change preview")
 	}
-	return m.start(tenant, actor, record, desired, revision, key, "", "", nil, parent, "dynamic-reconcile", parent, digest, &preview.Before)
+	return m.start(tenant, actor, record, desired, revision, key, "", "", nil, parent, "dynamic-reconcile", parent, digest, transitionInput{Previous: &preview.Before})
 }

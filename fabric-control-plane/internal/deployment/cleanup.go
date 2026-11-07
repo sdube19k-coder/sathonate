@@ -46,6 +46,7 @@ type resourceMetadata struct {
 	Metadata struct {
 		Name, Namespace, UID string
 		Labels               map[string]string
+		OwnerReferences      []struct{ UID string } `json:"ownerReferences"`
 	}
 }
 
@@ -208,7 +209,7 @@ func (r EKSRunner) PreviewCleanup(ctx context.Context, request Request) (Cleanup
 	return w.previewCleanup(ctx, request)
 }
 func cleanupPath(ref CleanupRef) (string, error) {
-	groups := map[string]string{"fabricmainchannels": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricfollowerchannels": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricchaincodes": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricpeers": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricorderernodes": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabriccas": "/apis/hlf.kungfusoftware.es/v1alpha1", "jobs": "/apis/batch/v1", "configmaps": "/api/v1", "serviceaccounts": "/api/v1", "roles": "/apis/rbac.authorization.k8s.io/v1", "rolebindings": "/apis/rbac.authorization.k8s.io/v1", "clusterroles": "/apis/rbac.authorization.k8s.io/v1", "clusterrolebindings": "/apis/rbac.authorization.k8s.io/v1"}
+	groups := map[string]string{"fabricmainchannels": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricfollowerchannels": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricchaincodes": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricpeers": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabricorderernodes": "/apis/hlf.kungfusoftware.es/v1alpha1", "fabriccas": "/apis/hlf.kungfusoftware.es/v1alpha1", "jobs": "/apis/batch/v1", "configmaps": "/api/v1", "pods": "/api/v1", "serviceaccounts": "/api/v1", "roles": "/apis/rbac.authorization.k8s.io/v1", "rolebindings": "/apis/rbac.authorization.k8s.io/v1", "clusterroles": "/apis/rbac.authorization.k8s.io/v1", "clusterrolebindings": "/apis/rbac.authorization.k8s.io/v1"}
 	base, ok := groups[ref.Resource]
 	if ref.Resource == "deployments" {
 		base = "/apis/apps/v1"

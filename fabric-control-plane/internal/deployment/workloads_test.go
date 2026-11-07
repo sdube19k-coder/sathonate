@@ -80,3 +80,27 @@ func TestWorkloadProjectionHonorsPodReadinessGate(t *testing.T) {
 		t.Fatal("container readiness bypassed the pod readiness gate", e)
 	}
 }
+
+func TestWorkloadProjectionReportsStorageWithNoPod(t *testing.T) {
+	for _, phase := range []string{"Pending", "Lost", "Missing"} {
+		t.Run(phase, func(t *testing.T) {
+			p := []byte(`{"apiVersion":"v1","kind":"PodList","items":[]}`)
+			var claims []any
+			if phase != "Missing" {
+				claims = append(claims, map[string]any{"metadata": map[string]string{"name": "data", "namespace": "owned"}, "status": map[string]string{"phase": phase}})
+			}
+			v, _ := json.Marshal(map[string]any{"apiVersion": "v1", "kind": "PersistentVolumeClaimList", "items": claims})
+			out, e := projectWorkloads("owned", map[string]string{"peer-a": "peer"}, p, v, "data")
+			if e != nil || out.WorkloadsReady || len(out.Volumes) != 1 || out.Volumes[0].Phase != phase || len(out.Components) != 1 || out.Components[0].Ready {
+				t.Fatal("absent pod hid unavailable storage", e)
+			}
+			found := false
+			for _, a := range out.Alerts {
+				found = found || a.Code == "StorageUnavailable"
+			}
+			if !found {
+				t.Fatal("storage diagnostic missing")
+			}
+		})
+	}
+}

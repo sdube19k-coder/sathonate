@@ -12,6 +12,7 @@ import {
 } from "./custom-configuration";
 import OperationDiagnosticsButton from "./OperationDiagnostics";
 import WorkloadStatus from "./WorkloadStatus";
+import RetainedDeletion from "./RetainedDeletion";
 
 export default function CustomNetworks({
   initialId,
@@ -354,8 +355,41 @@ export default function CustomNetworks({
               Retry recorded operation
             </button>
           )}
+          {observed?.phase === "removed" ? (
+            <p role="status">
+              Network workloads removed. Persistent data retained; automatic
+              redeployment is blocked.
+            </p>
+          ) : (
+            operation.status === "succeeded" && (
+              <RetainedDeletion
+                key={operation.operationId}
+                operationId={operation.operationId}
+                onRemoved={() =>
+                  void api
+                    .deployment(operation.operationId)
+                    .then(setObserved)
+                    .catch(() =>
+                      setError(
+                        "Refresh the recorded deployment to verify removal.",
+                      ),
+                    )
+                }
+              />
+            )
+          )}
           <OperationDiagnosticsButton operationId={operation.operationId} />
-          <WorkloadStatus operationId={operation.operationId} />
+          <WorkloadStatus
+            operationId={operation.operationId}
+            onStarted={
+              operation.status === "succeeded"
+                ? (next) => {
+                    setOperation(next);
+                    setObserved(null);
+                  }
+                : undefined
+            }
+          />
         </section>
       )}
       {observed && (

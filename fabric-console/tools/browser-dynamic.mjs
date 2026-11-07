@@ -1,6 +1,7 @@
 import { chromium, expect } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 let input = "";
 for await (const chunk of process.stdin) input += chunk;
 const config = JSON.parse(input);
@@ -193,133 +194,545 @@ try {
     initial.transactionId,
   );
   checks.refreshRestoresServerOwnedOperation = "PASS";
-  const expanded = structuredClone(design),
-    s = expanded.spec,
-    cfg = s.configuration,
-    owner = s.organizations[0],
-    placement = s.nodes[0].placementRef,
-    settings = structuredClone(cfg.nodes[s.nodes[0].id]);
-  s.organizations.push({
-    id: "inspection",
-    mspId: "InspectionMSP",
-    identityProviderRef: "inspection-root",
-  });
-  cfg.authorities.push({
-    ...structuredClone(cfg.authorities[0]),
-    id: "inspection-root",
-    organizationRef: "inspection",
-  });
-  const peers = [
-      {
-        id: owner.id + "-expanded",
-        organizationRef: owner.id,
-        role: "peer",
-        placementRef: placement,
-        failureDomain: "local-host",
-      },
-      {
-        id: "inspection-east",
-        organizationRef: "inspection",
-        role: "peer",
-        placementRef: placement,
-        failureDomain: "local-host",
-      },
-    ],
-    orders = [
-      {
-        id: "raft-expanded-east",
-        organizationRef: owner.id,
-        role: "orderer",
-        placementRef: placement,
-        failureDomain: "local-host",
-      },
-      {
-        id: "raft-expanded-west",
-        organizationRef: owner.id,
-        role: "orderer",
-        placementRef: placement,
-        failureDomain: "local-host",
-      },
-    ];
-  for (const n of [...peers, ...orders]) {
-    s.nodes.push(n);
-    cfg.nodes[n.id] = structuredClone(settings);
-  }
-  for (const c of s.channels) {
-    c.organizationRefs.push("inspection");
-    c.peerRefs.push(...peers.map((n) => n.id));
-    c.ordererRefs.push(...orders.map((n) => n.id));
-    cfg.anchors[c.id] = cfg.anchors[c.id]
-      .filter((id) => id !== design.spec.nodes[0].id)
-      .concat(peers.map((n) => n.id));
-  }
-  for (const cc of cfg.chaincodes) {
-    cc.sequence++;
-    cc.version = "2.0";
-    cc.runtimeImage = second[0];
-    cc.packageSHA256 = second[1].sha256;
-    cc.endorsement.mspIds.push("InspectionMSP");
-    cc.endorsement.minimum = cc.endorsement.mspIds.length;
-  }
-  const extra = structuredClone(s.channels[0]);
-  extra.id = "customer-added-ledger";
-  s.channels.push(extra);
-  cfg.anchors[extra.id] = [...cfg.anchors[s.channels[0].id]];
-  cfg.chaincodes.push({
-    ...structuredClone(cfg.chaincodes[0]),
-    channelRef: extra.id,
-    sequence: 1,
-  });
-  const updated = await saveSpec(expanded, 200);
-  assert(updated.revision === 2, "Revision guard lost");
-  await page
-    .getByRole("button", { name: "Review running-network change", exact: true })
-    .click();
-  await expect(
-    page.getByRole("heading", {
-      name: "Review configuration change",
+  let final = initial;
+  let effective = design.spec;
+  if (!config.sprint5Minimal) {
+    const expanded = structuredClone(design),
+      s = expanded.spec,
+      cfg = s.configuration,
+      owner = s.organizations[0],
+      placement = s.nodes[0].placementRef,
+      settings = structuredClone(cfg.nodes[s.nodes[0].id]);
+    s.organizations.push({
+      id: "inspection",
+      mspId: "InspectionMSP",
+      identityProviderRef: "inspection-root",
+    });
+    cfg.authorities.push({
+      ...structuredClone(cfg.authorities[0]),
+      id: "inspection-root",
+      organizationRef: "inspection",
+    });
+    const peers = [
+        {
+          id: owner.id + "-expanded",
+          organizationRef: owner.id,
+          role: "peer",
+          placementRef: placement,
+          failureDomain: "local-host",
+        },
+        {
+          id: "inspection-east",
+          organizationRef: "inspection",
+          role: "peer",
+          placementRef: placement,
+          failureDomain: "local-host",
+        },
+      ],
+      orders = [
+        {
+          id: "raft-expanded-east",
+          organizationRef: owner.id,
+          role: "orderer",
+          placementRef: placement,
+          failureDomain: "local-host",
+        },
+        {
+          id: "raft-expanded-west",
+          organizationRef: owner.id,
+          role: "orderer",
+          placementRef: placement,
+          failureDomain: "local-host",
+        },
+      ];
+    for (const n of [...peers, ...orders]) {
+      s.nodes.push(n);
+      cfg.nodes[n.id] = structuredClone(settings);
+    }
+    for (const c of s.channels) {
+      c.organizationRefs.push("inspection");
+      c.peerRefs.push(...peers.map((n) => n.id));
+      c.ordererRefs.push(...orders.map((n) => n.id));
+      cfg.anchors[c.id] = cfg.anchors[c.id]
+        .filter((id) => id !== design.spec.nodes[0].id)
+        .concat(peers.map((n) => n.id));
+    }
+    for (const cc of cfg.chaincodes) {
+      cc.sequence++;
+      cc.version = "2.0";
+      cc.runtimeImage = second[0];
+      cc.packageSHA256 = second[1].sha256;
+      cc.endorsement.mspIds.push("InspectionMSP");
+      cc.endorsement.minimum = cc.endorsement.mspIds.length;
+    }
+    const extra = structuredClone(s.channels[0]);
+    extra.id = "customer-added-ledger";
+    s.channels.push(extra);
+    cfg.anchors[extra.id] = [...cfg.anchors[s.channels[0].id]];
+    cfg.chaincodes.push({
+      ...structuredClone(cfg.chaincodes[0]),
+      channelRef: extra.id,
+      sequence: 1,
+    });
+    const updated = await saveSpec(expanded, 200);
+    assert(updated.revision === 2, "Revision guard lost");
+    await page
+      .getByRole("button", {
+        name: "Review running-network change",
+        exact: true,
+      })
+      .click();
+    await expect(
+      page.getByRole("heading", {
+        name: "Review configuration change",
+        exact: true,
+      }),
+    ).toBeVisible();
+    const apply = page.getByRole("button", {
+      name: "Apply approved change",
       exact: true,
-    }),
-  ).toBeVisible();
-  const apply = page.getByRole("button", {
-    name: "Apply approved change",
-    exact: true,
-  });
-  await expect(apply).toBeDisabled();
-  await page.getByRole("checkbox", { name: /I approve this exact/ }).check();
-  await expect(apply).toBeEnabled();
-  const applied = page.waitForResponse(
-    (r) =>
-      new URL(r.url()).pathname.endsWith("/dynamic/deploy") &&
-      r.status() === 202,
-  );
-  await apply.click();
-  const final = await waitDeployment(
-    (await (await applied).json()).operationId,
-  );
-  assert(final.verifications.length === 2, "Added channel not verified");
-  for (const v of final.verifications) {
+    });
+    await expect(apply).toBeDisabled();
+    await page.getByRole("checkbox", { name: /I approve this exact/ }).check();
+    await expect(apply).toBeEnabled();
+    const applied = page.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname.endsWith("/dynamic/deploy") &&
+        r.status() === 202,
+    );
+    await apply.click();
+    final = await waitDeployment((await (await applied).json()).operationId);
+    assert(final.verifications.length === 2, "Added channel not verified");
+    for (const v of final.verifications) {
+      assert(
+        v.health.peers.length === 4 &&
+          v.health.orderers.length === 5 &&
+          v.codeVersion === "2.0",
+        "Expanded members/code not verified",
+      );
+      assert(
+        v.health.peers.every(
+          (p) =>
+            p.height === v.health.peers[0].height &&
+            p.currentBlockHash === v.health.peers[0].currentBlockHash,
+        ),
+        "Expanded ledger inconsistency",
+      );
+    }
     assert(
-      v.health.peers.length === 4 &&
-        v.health.orderers.length === 5 &&
-        v.codeVersion === "2.0",
-      "Expanded members/code not verified",
+      final.verifications.find(
+        (v) => v.health.channel === initial.health.channel,
+      ).packageId !== initial.verifications[0].packageId,
+      "Upgrade retained previous package",
+    );
+    checks.reviewedExpansionMembershipChannelAnchorAndCodeUpgrade = "PASS";
+    effective = s;
+  }
+  const s = effective,
+    cfg = s.configuration,
+    owner = s.organizations[0];
+  const recoveries = [];
+  let latest = final;
+  if (config.sprint5 && !config.sprint5OperationsOnly) {
+    const scope =
+      "lp-" +
+      createHash("sha256")
+        .update(JSON.stringify([config.tenant, config.project]))
+        .digest("hex")
+        .slice(0, 48);
+    const ns =
+      "smp-s-" +
+      createHash("sha256")
+        .update(JSON.stringify([scope, "token-bound-project", draft.id]))
+        .digest("hex")
+        .slice(0, 32);
+    const kub = (...args) => {
+      try {
+        return execFileSync(
+          "kubectl",
+          [
+            "--kubeconfig",
+            config.kubeconfig,
+            "--context",
+            "kind-" + config.cluster,
+            "--request-timeout=20s",
+            "-n",
+            ns,
+            ...args,
+          ],
+          { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+        );
+      } catch {
+        throw new Error(
+          "Guarded disposable fault/observation failed; private diagnostics withheld",
+        );
+      }
+    };
+    assert(
+      kub(
+        "get",
+        "node",
+        config.cluster + "-control-plane",
+        "-o",
+        "jsonpath={.spec.providerID}",
+      ) ===
+        "kind://docker/" +
+          config.cluster +
+          "/" +
+          config.cluster +
+          "-control-plane",
+      "Disposable identity mismatch",
+    );
+    const claimUIDs = () =>
+      Object.fromEntries(
+        JSON.parse(kub("get", "pvc", "-o", "json")).items.map((x) => [
+          x.metadata.name,
+          x.metadata.uid,
+        ]),
+      );
+    const applyPublic = (v) => {
+      try {
+        execFileSync(
+          "kubectl",
+          [
+            "--kubeconfig",
+            config.kubeconfig,
+            "--context",
+            "kind-" + config.cluster,
+            "--request-timeout=20s",
+            "-n",
+            ns,
+            "create",
+            "-f",
+            "-",
+          ],
+          {
+            input: JSON.stringify(v),
+            encoding: "utf8",
+            stdio: ["pipe", "pipe", "pipe"],
+          },
+        );
+      } catch {
+        throw new Error("Disposable pending-volume fixture failed");
+      }
+    };
+    const originalClaims = claimUIDs();
+    let current = final;
+    async function refresh() {
+      const res = page.waitForResponse((r) =>
+        new URL(r.url()).pathname.endsWith("/workloads"),
+      );
+      await page
+        .getByRole("button", {
+          name: "Refresh current workload status",
+          exact: true,
+        })
+        .click();
+      const r = await res;
+      assert(r.status() === 200, "Workload observation rejected");
+      const body = await r.json();
+      assert(
+        body.readOnly && !body.ledgerChecked,
+        "Monitoring fabricated live ledger evidence",
+      );
+      return body;
+    }
+    let observed = await refresh();
+    assert(
+      observed.workloadsReady &&
+        observed.components.filter((c) => c.kind === "peer").length ===
+          s.nodes.filter((n) => n.role === "peer").length &&
+        observed.components.filter((c) => c.kind === "orderer").length ===
+          s.nodes.filter((n) => n.role === "orderer").length &&
+        observed.components.filter((c) => c.kind === "authority").length ===
+          s.configuration.authorities.length,
+      "Dynamic component inventory incomplete",
+    );
+    for (const t of [tokens.foreignTenant, tokens.foreignProject])
+      assert(
+        (await call("/deployments/" + current.operationId + "/workloads", t))
+          .status === 404,
+        "Foreign monitoring visible",
+      );
+    checks.liveMonitoringAndAuthorization = "PASS";
+    const storageNode = config.sprint5Minimal
+      ? s.nodes.find((n) => n.role === "peer").id
+      : owner.id + "-expanded";
+    const recoveryOrderer = config.sprint5Minimal
+      ? s.nodes.find((n) => n.role === "orderer").id
+      : "raft-expanded-west";
+    const recoveryCA = config.sprint5Minimal
+      ? s.configuration.authorities[0].id
+      : "inspection-root";
+    const saved = JSON.parse(
+      kub("get", "deployment", storageNode, "-o", "json"),
+    );
+    const template = structuredClone(saved.spec.template);
+    const claimVolume = template.spec.volumes.find(
+      (v) => v.persistentVolumeClaim,
+    );
+    assert(claimVolume, "Expected persistent peer storage");
+    applyPublic({
+      apiVersion: "v1",
+      kind: "PersistentVolumeClaim",
+      metadata: { name: "sprint5-pending-volume" },
+      spec: {
+        storageClassName: "sprint5-unavailable",
+        accessModes: ["ReadWriteOnce"],
+        resources: { requests: { storage: "1Gi" } },
+      },
+    });
+    claimVolume.persistentVolumeClaim.claimName = "sprint5-pending-volume";
+    kub(
+      "patch",
+      "deployment",
+      storageNode,
+      "--type=json",
+      "-p",
+      JSON.stringify([
+        { op: "test", path: "/metadata/uid", value: saved.metadata.uid },
+        { op: "add", path: "/spec/template", value: template },
+      ]),
+    );
+    observed = await refresh();
+    assert(
+      observed.volumes.some(
+        (v) => v.name === "sprint5-pending-volume" && v.phase !== "Bound",
+      ) && observed.alerts.some((a) => a.code === "StorageUnavailable"),
+      "Pending storage not reported",
     );
     assert(
-      v.health.peers.every(
-        (p) =>
-          p.height === v.health.peers[0].height &&
-          p.currentBlockHash === v.health.peers[0].currentBlockHash,
-      ),
-      "Expanded ledger inconsistency",
+      (
+        await call(
+          "/deployments/" +
+            current.operationId +
+            "/recovery/preview?node=" +
+            storageNode,
+        )
+      ).status === 409,
+      "Unsafe pending-storage recovery allowed",
+    );
+    kub(
+      "patch",
+      "deployment",
+      storageNode,
+      "--type=json",
+      "-p",
+      JSON.stringify([
+        { op: "test", path: "/metadata/uid", value: saved.metadata.uid },
+        { op: "add", path: "/spec/template", value: saved.spec.template },
+      ]),
+    );
+    kub("rollout", "status", "deployment/" + storageNode, "--timeout=120s");
+    kub(
+      "delete",
+      "pvc",
+      "sprint5-pending-volume",
+      "--wait=true",
+      "--timeout=60s",
+    );
+    checks.pendingStorageDetectedAndRecoveryRefused = "PASS";
+
+    for (const node of [storageNode, recoveryOrderer, recoveryCA]) {
+      const parent = current.operationId;
+      const beforePods = Object.fromEntries(
+        JSON.parse(kub("get", "pods", "-o", "json"))
+          .items.filter((p) => p.metadata.labels?.release)
+          .map((p) => [p.metadata.labels.release, p.metadata.uid]),
+      );
+      kub("scale", "deployment/" + node, "--replicas=0");
+      kub(
+        "wait",
+        "--for=delete",
+        "pod",
+        "-l",
+        "release=" + node,
+        "--timeout=90s",
+      );
+      observed = await refresh();
+      assert(
+        !observed.workloadsReady &&
+          observed.components.some((c) => c.name === node && !c.ready) &&
+          observed.alerts.some((a) => a.component === node),
+        "Node outage not detected",
+      );
+      assert(
+        observed.volumes.length > 0 &&
+          observed.volumes.every((v) => v.phase === "Bound"),
+        "PVC observations lost while pod absent",
+      );
+      if (node === recoveryOrderer) {
+        const quorumFaults = s.nodes
+          .filter((n) => n.role === "orderer" && n.id !== node)
+          .slice(0, config.sprint5Minimal ? 1 : 2)
+          .map((n) => n.id);
+        for (const extra of quorumFaults) {
+          kub("scale", "deployment/" + extra, "--replicas=0");
+          kub(
+            "wait",
+            "--for=delete",
+            "pod",
+            "-l",
+            "release=" + extra,
+            "--timeout=90s",
+          );
+        }
+        assert(
+          (
+            await call(
+              "/deployments/" + parent + "/recovery/preview?node=" + node,
+            )
+          ).status === 409,
+          "Raft quorum guard allowed an unsafe restart",
+        );
+        for (const extra of quorumFaults) {
+          kub("scale", "deployment/" + extra, "--replicas=1");
+          kub("rollout", "status", "deployment/" + extra, "--timeout=120s");
+        }
+        // These two fixture-restored pods intentionally have new UIDs.
+        const restored = JSON.parse(kub("get", "pods", "-o", "json")).items;
+        for (const p of restored)
+          if (quorumFaults.includes(p.metadata.labels?.release))
+            beforePods[p.metadata.labels.release] = p.metadata.uid;
+        checks.raftQuorumGuard = "PASS";
+      }
+      const read = await call(
+        "/deployments/" + parent + "/recovery/preview?node=" + node,
+      );
+      assert(
+        read.status === 200,
+        "Recovery preflight: " + read.body?.error?.message,
+      );
+      const body = { node, approval: read.body.plan.digest };
+      assert(
+        (
+          await call(
+            "/deployments/" + parent + "/recovery/deploy",
+            tokens.noDeploy,
+            "POST",
+            body,
+            { "Idempotency-Key": "denied-" + node },
+          )
+        ).status === 403,
+        "Viewer escalated to recovery",
+      );
+      assert(
+        (
+          await call(
+            "/deployments/" + parent + "/recovery/deploy",
+            tokens.primary,
+            "POST",
+            { node, approval: "stale" },
+            { "Idempotency-Key": "stale-" + node },
+          )
+        ).status === 409,
+        "Stale recovery accepted",
+      );
+      await page
+        .getByLabel("Recovery target", { exact: true })
+        .selectOption(node);
+      const reviewing = page.waitForResponse((r) =>
+        new URL(r.url()).pathname.endsWith("/recovery/preview"),
+      );
+      await page
+        .getByRole("button", { name: "Review recovery", exact: true })
+        .click();
+      assert((await reviewing).status() === 200, "UI recovery review rejected");
+      const apply = page.getByRole("button", {
+        name: "Apply approved recovery",
+        exact: true,
+      });
+      await expect(apply).toBeDisabled();
+      await page
+        .getByRole("checkbox", { name: /I approve this exact node recovery/ })
+        .check();
+      const pending = page.waitForResponse(
+        (r) =>
+          new URL(r.url()).pathname.endsWith("/recovery/deploy") &&
+          r.status() === 202,
+      );
+      await apply.click();
+      const applied = await pending;
+      const op = await applied.json();
+      const key = applied.request().headers()["idempotency-key"];
+      const ack = await call(
+        "/deployments/" + parent + "/recovery/deploy",
+        tokens.primary,
+        "POST",
+        body,
+        { "Idempotency-Key": key },
+      );
+      assert(
+        ack.status === 202 && ack.body.operationId === op.operationId,
+        "Recovery acknowledgement not idempotent",
+      );
+      current = await waitDeployment(op.operationId);
+      for (const v of current.verifications)
+        assert(
+          v.health.ready &&
+            v.health.peers.every(
+              (p) =>
+                p.height === v.health.peers[0].height &&
+                p.currentBlockHash === v.health.peers[0].currentBlockHash,
+            ) &&
+            v.transactionId !== final.transactionId,
+          "Recovery ledger/transaction evidence incomplete",
+        );
+      await expect(
+        page.getByLabel("Recorded Fabric verification"),
+      ).toContainText(current.transactionId);
+      observed = await refresh();
+      assert(observed.workloadsReady, "Recovered workload not ready");
+      assert(
+        JSON.stringify(claimUIDs()) === JSON.stringify(originalClaims),
+        "Recovery replaced persistent claims",
+      );
+      const afterPods = Object.fromEntries(
+        JSON.parse(kub("get", "pods", "-o", "json"))
+          .items.filter((p) => p.metadata.labels?.release)
+          .map((p) => [p.metadata.labels.release, p.metadata.uid]),
+      );
+      assert(
+        afterPods[node] && afterPods[node] !== beforePods[node],
+        "Recovery pod UID not changed",
+      );
+      for (const name of Object.keys(beforePods))
+        if (name !== node)
+          assert(
+            afterPods[name] === beforePods[name],
+            "Recovery unnecessarily restarted another node",
+          );
+      const history = await call("/operations/" + parent);
+      assert(
+        history.body.events.some((e) =>
+          e.message.startsWith("Monitoring checkpoint:"),
+        ),
+        "Monitoring transition history missing",
+      );
+      recoveries.push({
+        node,
+        status: "PASS",
+        operationId: op.operationId,
+        parentOperationId: parent,
+        approval: read.body,
+        verifications: current.verifications,
+        pvcUIDsPreserved: true,
+        otherNodeUIDsPreserved: true,
+        idempotentAcknowledgement: true,
+        observed,
+      });
+      writeFileSync(
+        config.logDirectory + "/sprint5-recovery-progress.json",
+        JSON.stringify({ status: "IN_PROGRESS", recoveries, current }, null, 2),
+      );
+    }
+    checks.peerOrdererCARecoveryAndTransactions = "PASS";
+    latest = current;
+    writeFileSync(
+      config.logDirectory + "/sprint5-recovery.json",
+      JSON.stringify({ status: "PASS", recoveries, current }, null, 2),
     );
   }
-  assert(
-    final.verifications.find((v) => v.health.channel === initial.health.channel)
-      .packageId !== initial.verifications[0].packageId,
-    "Upgrade retained previous package",
-  );
-  checks.reviewedExpansionMembershipChannelAnchorAndCodeUpgrade = "PASS";
   for (const t of [tokens.foreignTenant, tokens.foreignProject])
     assert(
       (await call("/deployments/" + final.operationId, t)).status === 404,
@@ -327,7 +740,7 @@ try {
     );
   checks.crossTenantProjectDenied = "PASS";
   await expect(page.getByLabel("Recorded Fabric verification")).toContainText(
-    final.transactionId,
+    latest.transactionId,
   );
   assert(errors.length === 0, "Browser runtime error");
   const storage = await page.evaluate(() => [
@@ -394,7 +807,8 @@ try {
         checks,
         namespace,
         initial,
-        final,
+        final: latest,
+        recoveries,
         expectedReleases,
         expectedWorkloads,
         inspectionPeers: s.nodes

@@ -67,3 +67,44 @@ it("reports expired authentication and forbidden requests without echoing creden
   );
   await expect(api.projects()).rejects.toThrow("does not permit");
 });
+it("binds recovery retries to the approved operation, node and digest", async () => {
+  const data = new Map<string, string>();
+  vi.stubGlobal("sessionStorage", {
+    getItem: (key: string) => data.get(key) ?? null,
+    setItem: (key: string, value: string) => data.set(key, value),
+  });
+  setWorkspace({ id: "a", tenantId: "tenant", developer: "developer" });
+  const token = crypto.randomUUID();
+  setTokenProvider(() => token);
+  const calls: { path: string; headers: Headers; body?: BodyInit | null }[] =
+    [];
+  vi.stubGlobal("fetch", async (path: string, options: RequestInit) => {
+    calls.push({
+      path,
+      headers: new Headers(options.headers),
+      body: options.body,
+    });
+    return new Response("{}", { status: 202 });
+  });
+  await api.applyNodeRecovery("parent", "peer", "digest-a");
+  await api.applyNodeRecovery("parent", "peer", "digest-a");
+  await api.applyNodeRecovery("parent", "peer", "digest-b");
+  expect(calls[0].headers.get("Idempotency-Key")).toBe(
+    calls[1].headers.get("Idempotency-Key"),
+  );
+  expect(calls[0].headers.get("Idempotency-Key")).not.toBe(
+    calls[2].headers.get("Idempotency-Key"),
+  );
+  expect(JSON.parse(String(calls[0].body))).toEqual({
+    node: "peer",
+    approval: "digest-a",
+  });
+  expect(
+    calls.every(
+      (c) =>
+        !c.path.includes(token) &&
+        c.headers.get("Authorization") === "Bearer " + token,
+    ),
+  ).toBe(true);
+  expect([...data.values()].every((v) => !v.includes(token))).toBe(true);
+});

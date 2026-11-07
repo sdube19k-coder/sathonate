@@ -69,6 +69,30 @@ function intentKey(action: string) {
 }
 
 export const api = {
+  deletionPreview: (id: string) =>
+    request<DeletionPreview>(
+      `/deployments/${encodeURIComponent(id)}/cleanup-preview`,
+    ),
+  deleteRetainingData: (id: string, digest: string) =>
+    request<{ removed: boolean }>(`/deployments/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: { "X-Sathonate-Cleanup-Approval": digest },
+    }),
+  nodeRecoveryPreview: (id: string, node: string) =>
+    request<RecoveryPreview>(
+      `/deployments/${encodeURIComponent(id)}/recovery/preview?node=${encodeURIComponent(node)}`,
+    ),
+  applyNodeRecovery: (id: string, node: string, approval: string) =>
+    request<Operation>(
+      `/deployments/${encodeURIComponent(id)}/recovery/deploy`,
+      {
+        method: "POST",
+        headers: {
+          "Idempotency-Key": intentKey(`recovery:${id}:${node}:${approval}`),
+        },
+        body: JSON.stringify({ node, approval }),
+      },
+    ),
   previewDynamic: (network: Network, parent: string) =>
     request<DynamicPreview>(
       `/networks/${encodeURIComponent(network.id)}/dynamic/preview?parent=${encodeURIComponent(parent)}`,
@@ -417,6 +441,8 @@ export type LaunchReadiness = {
 };
 
 export interface WorkloadSnapshot {
+  components: { name: string; kind: string; ready: boolean }[];
+  alerts: { code: string; component: string; action: string }[];
   operationId: string;
   revision: number;
   checkedAt: string;
@@ -436,4 +462,18 @@ export interface WorkloadSnapshot {
   volumes: { name: string; phase: string }[];
   missing: string[];
   guidance: string[];
+}
+export interface RecoveryPreview {
+  parentOperationId: string;
+  plan: { node: string; kind: string; digest: string };
+  impact: string;
+  recovery: string;
+}
+
+export interface DeletionPreview {
+  schema: string;
+  digest: string;
+  notice: string;
+  delete: { resource: string; name: string; uid: string }[];
+  retainedObjects: { resource: string; name: string; uid: string }[];
 }

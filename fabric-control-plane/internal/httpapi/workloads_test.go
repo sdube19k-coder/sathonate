@@ -85,6 +85,9 @@ func TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction(t *testing.T)
 			if _, e = db.Pool().Exec(ctx, "INSERT INTO sathonate_deployments(tenant_id,operation_id,payload) VALUES($1,$2,$3)", scope, op.ID, payload); e != nil {
 				t.Fatal("fixture persistence failed")
 			}
+			if m.Operations().Advance(op.ID, "inspect") != nil || m.Operations().Finish(op.ID, nil) != nil {
+				t.Fatal("terminal fixture setup failed")
+			}
 			h := auth.Middleware(NewConfigured(nil, []string{"localhost:8080"}, nil, Options{Auth: auth.Config(), Deployments: m}))
 			path := "/api/v1/deployments/" + op.ID + "/workloads"
 			for i, token := range append(tokens, "", tokens[0]+"invalid") {
@@ -101,6 +104,20 @@ func TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction(t *testing.T)
 				}
 				if w.Code != want {
 					t.Fatalf("scope %d got %d want %d", i, w.Code, want)
+				}
+				if i > 0 {
+					recovery := request(h, http.MethodGet, "/api/v1/deployments/"+op.ID+"/recovery/preview?node=peer-a", nil, map[string]string{"Authorization": "Bearer " + token})
+					if recovery.Code != want {
+						t.Fatalf("recovery preview scope %d got %d want %d", i, recovery.Code, want)
+					}
+				}
+				denied := request(h, http.MethodPost, "/api/v1/deployments/"+op.ID+"/recovery/deploy", []byte(`{"node":"peer-a","approval":"unapproved"}`), map[string]string{"Authorization": "Bearer " + token, "Idempotency-Key": "viewer-recovery-denied"})
+				deniedWant := 403
+				if i >= 3 {
+					deniedWant = 401
+				}
+				if denied.Code != deniedWant {
+					t.Fatalf("recovery write scope %d got %d want %d", i, denied.Code, deniedWant)
 				}
 				if strings.Contains(w.Body.String(), "private-provider") {
 					t.Fatal("provider diagnostics exposed")

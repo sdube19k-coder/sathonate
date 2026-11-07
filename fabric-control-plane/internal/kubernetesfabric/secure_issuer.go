@@ -37,6 +37,12 @@ func securePeerFailure(raw []byte) error {
 	}
 	category := "unclassified"
 	for _, candidate := range []struct{ marker, category string }{
+		{"service_unavailable", "ordering-service-unavailable"},
+		{"service unavailable", "ordering-service-unavailable"},
+		{"no such file or directory", "local-material-file-unavailable"},
+		{"permission denied", "permission-denied"},
+		{"bad_request", "ordering-bad-request"},
+		{"forbidden", "authorization"},
 		{"external builder", "chaincode-builder"},
 		{"already successfully installed", "package-already-installed"},
 		{"chaincode is already installed", "package-already-installed"},

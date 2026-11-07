@@ -21,7 +21,9 @@ report={'schema':'sathonate.sprint1-qualification/v1','status':'BLOCKED','apiToF
 created=False
 LIFECYCLE=os.environ.get('SMP_UI_LIFECYCLE')=='1'
 DYNAMIC=os.environ.get('SMP_UI_DYNAMIC')=='1'
-WORKER='sathonate/fabric-worker:sprint4-dynamic' if DYNAMIC else ('sathonate/fabric-worker:sprint4-lifecycle' if LIFECYCLE else 'sathonate/fabric-worker:sprint3')
+SPRINT5=os.environ.get('SMP_UI_SPRINT5')=='1'
+CALICO=os.environ.get('SMP_UI_CALICO')=='1'
+WORKER='sathonate/fabric-worker:sprint5-recovery' if SPRINT5 and os.environ.get('SMP_UI_SPRINT5_WORKER')=='1' else 'sathonate/fabric-worker:sprint4-dynamic' if DYNAMIC else ('sathonate/fabric-worker:sprint4-lifecycle' if LIFECYCLE else 'sathonate/fabric-worker:sprint3')
 
 def run(args,data=None,timeout=240):
  p=subprocess.run([str(x) for x in args],input=data,capture_output=True,text=True,encoding="utf-8",errors="replace",timeout=timeout)
@@ -30,15 +32,20 @@ def run(args,data=None,timeout=240):
 
 def kub(*args,data=None):return run(BASE+list(args),data=data)
 def apply(v):kub('apply','--server-side','--field-manager=sathonate-sprint1-fixture','-f','-',data=json.dumps(v))
+def admission_denied(manifest,marker):
+ p=subprocess.run(BASE+['create','--dry-run=server','-f','-'],input=json.dumps(manifest),capture_output=True,text=True,timeout=30)
+ if p.returncode==0 or 'Forbidden' not in p.stderr or marker not in p.stderr:raise RuntimeError('Expected security admission denial not independently observed')
+
 def guard():
  if kub('get','node',NAME+'-control-plane','-o','jsonpath={.spec.providerID}')!='kind://docker/'+NAME+'/'+NAME+'-control-plane':raise RuntimeError('Disposable identity mismatch')
 def load(image):
+ canonical=image if '.' in image.split('/')[0] else 'docker.io/'+image
  if image=='sathonate/controller-candidate:atomic':
   run([KIND,'load','docker-image',image,'--name',NAME])
   rows=run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','list']).splitlines()
-  row=next(line.split() for line in rows if line.split() and line.split()[0]=='docker.io/'+image)
+  row=next(line.split() for line in rows if line.split() and line.split()[0]==canonical)
   pinned=image.split(':')[0]+'@'+row[2]
-  run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force','docker.io/'+image,'docker.io/'+pinned])
+  run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force',canonical, pinned if '.' in pinned.split('/')[0] else 'docker.io/'+pinned])
   return pinned,image+'@'+row[2]
  identity=run(['docker','image','inspect','--format','{{.Id}}',image]).strip()
  if not re.fullmatch('sha256:[a-f0-9]{64}',identity):raise RuntimeError('Public image identity invalid')
@@ -56,12 +63,12 @@ def load(image):
   p=subprocess.run(['docker','exec','-i',NAME+'-control-plane','ctr','-n','k8s.io','images','import','--platform','linux/amd64','-'],stdin=stream,capture_output=True,timeout=180)
   if p.returncode:raise RuntimeError('Public image import failed')
  lines=run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','list']).splitlines()
- row=next(line.split() for line in lines if line.split() and line.split()[0]=='docker.io/'+image)
+ row=next(line.split() for line in lines if line.split() and line.split()[0]==canonical)
  if not re.fullmatch('sha256:[a-f0-9]{64}',row[2]):raise RuntimeError('Runtime digest missing')
  pinned=image.split(':')[0]+'@'+row[2]
- run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force','docker.io/'+image,'docker.io/'+pinned])
+ run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force',canonical, pinned if '.' in pinned.split('/')[0] else 'docker.io/'+pinned])
  # Bevel uses separate repository and version fields.
- run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force','docker.io/'+image,'docker.io/'+image+'@'+row[2]])
+ run(['docker','exec',NAME+'-control-plane','ctr','-n','k8s.io','images','tag','--force',canonical,canonical+'@'+row[2]])
  return pinned,image+'@'+row[2]
 
 def inspect(namespace,worker,additional_private=(),runtime_result=None):
@@ -135,7 +142,13 @@ def inspect(namespace,worker,additional_private=(),runtime_result=None):
   cert=base64.b64decode(identity['cert.pem']).decode();root=base64.b64decode(identity['root.pem']).decode();expected=hashlib.sha256(ssl.PEM_cert_to_DER_cert(cert)).hexdigest()
   actual=kub('-n',namespace,'exec','-i','secure-tls-observer','--','python','-c',script,data=json.dumps({'root':root,'host':peer+'.'+namespace})).strip()
   if actual!=expected:raise RuntimeError('Live certificate differs from issuer material')
+  for mode in ('wrongIssuer','wrongHostname'):
+   negative="import json,ssl,socket,sys;v=json.load(sys.stdin);c=ssl.create_default_context() if v['mode']=='wrongIssuer' else ssl.create_default_context(cadata=v['root']);\ntry:\n s=c.wrap_socket(socket.create_connection((v['host'],7051),timeout=5),server_hostname='invalid.sathonate.invalid' if v['mode']=='wrongHostname' else v['host']);s.close();print('ACCEPTED')\nexcept ssl.SSLCertVerificationError:print('REJECTED')"
+   outcome=kub('-n',namespace,'exec','-i','secure-tls-observer','--','python','-c',negative,data=json.dumps({'root':root,'host':peer+'.'+namespace,'mode':mode})).strip()
+   if outcome!='REJECTED':raise RuntimeError('Live TLS negative trust verification failed')
+
  report['checks']['bothLivePeerCertificatesVerified']='PASS'
+ report['checks']['liveWrongIssuerAndHostnameRejected']='PASS'
  report['inspection']={'helmReleases':release_count,'logStreams':log_count,'knownPrivateValues':len(private)}
 
 import secrets,socket,urllib.request
@@ -161,7 +174,15 @@ try:
  from urllib.parse import quote
  database='postgres://'+quote(values['POSTGRES_USER'],safe='')+':'+quote(password,safe='')+'@127.0.0.1:'+metadata['NetworkSettings']['Ports']['5432/tcp'][0]['HostPort']+'/fabric_smp_tests?sslmode=disable'
  print('UI qualification: creating fresh disposable kind cluster',flush=True)
- run([KIND,'create','cluster','--name',NAME,'--image','kindest/node:v1.34.0','--kubeconfig',CONFIG,'--wait','180s']);created=True;guard()
+ cluster_args=[KIND,'create','cluster','--name',NAME,'--image','kindest/node:v1.34.0','--kubeconfig',CONFIG,'--wait','0s' if CALICO else '180s']
+ kind_config=CACHE/(NAME+'-kind.json')
+ if CALICO:
+  kind_config.write_text(json.dumps({'kind':'Cluster','apiVersion':'kind.x-k8s.io/v1alpha4','networking':{'disableDefaultCNI':True,'podSubnet':'192.168.0.0/16'},'nodes':[{'role':'control-plane'}]}));cluster_args+=['--config',kind_config]
+ run(cluster_args);created=True;guard()
+ if CALICO:
+  sys.path.insert(0,str(ROOT/'tools/sprint2'));import isolation
+  isolation.install(run,kub,apply,load,KIND,NAME,CACHE,report)
+ kind_config.unlink(missing_ok=True)
  if os.name=='nt':run(['icacls',CONFIG,'/inheritance:r','/grant:r',run(['whoami']).strip()+':F'])
  source=ROOT.parent/'dependencies/bevel-operator-fabric/config/crd/bases'
  for plural in ('fabriccas','fabricpeers','fabricorderernodes','fabricchaincodes'):
@@ -185,21 +206,21 @@ try:
 
  # The unchanged qualified worker is retained; the API must be a freshly built
  # binary with its SHA supplied by the local verification command.
- baseline=json.loads((ROOT/('.logs/sprint4-dynamic-build.json' if DYNAMIC else ('.logs/sprint4-lifecycle-worker-build.json' if LIFECYCLE else '.logs/sprint3-worker-build.json'))).read_text())
+ baseline=json.loads((ROOT/('.logs/sprint5-worker-build.json' if WORKER.endswith(':sprint5-recovery') else '.logs/sprint4-dynamic-build.json' if DYNAMIC else ('.logs/sprint4-lifecycle-worker-build.json' if LIFECYCLE else '.logs/sprint3-worker-build.json'))).read_text())
  if run(['docker','image','inspect','--format','{{.Id}}',WORKER]).strip()!=baseline['workerImageID']:raise RuntimeError('Qualified worker image differs')
- api_binary=ROOT/('bin/fabric-api-sprint4-dynamic.exe' if DYNAMIC else ('bin/fabric-api-sprint4-lifecycle.exe' if LIFECYCLE else 'bin/fabric-api-sprint4.exe'))
+ api_binary=ROOT/('bin/fabric-api-sprint5.exe' if SPRINT5 else ('bin/fabric-api-sprint4-dynamic.exe' if DYNAMIC else ('bin/fabric-api-sprint4-lifecycle.exe' if LIFECYCLE else 'bin/fabric-api-sprint4.exe')))
  expected_api=os.environ.get('SMP_UI_API_SHA256','')
  if not re.fullmatch('[a-f0-9]{64}',expected_api):raise RuntimeError('Fresh API binary SHA256 required')
  if hashlib.sha256(api_binary.read_bytes()).hexdigest()!=expected_api:raise RuntimeError('Verified API binary differs')
  report['provenance']={'backendCommit':run(['git','-C',ROOT,'rev-parse','HEAD']).strip(),'apiBinarySHA256':expected_api,'workerImageID':baseline['workerImageID'],'backendDiffSHA256':hashlib.sha256(run(['git','-C',ROOT,'diff','HEAD']).encode()).hexdigest()}
- now=datetime.now(timezone.utc);tokens={key:secrets.token_hex(32) for key in ('primary','foreignTenant','foreignProject','noDeploy','expired','invalid')}
+ now=datetime.now(timezone.utc);tokens={key:secrets.token_hex(32) for key in ('primary','foreignTenant','foreignProject','noDeploy','expired','invalid','administrator')}
  grants=[]
- for key,tenant,project,permissions,expiry in [('primary',NAME,'project-a',['read','write','deploy','retry','cancel'],3600),('foreignTenant',NAME+'-other','project-a',['read','write','deploy','retry'],3600),('foreignProject',NAME,'project-b',['read','write','deploy','retry'],3600),('noDeploy',NAME,'project-a',['read','write'],3600),('expired',NAME,'project-a',['read'],12)]:
+ for key,tenant,project,permissions,expiry in [('primary',NAME,'project-a',['read','write','deploy','retry','cancel'],3600),('foreignTenant',NAME+'-other','project-a',['read','write','deploy','retry'],3600),('foreignProject',NAME,'project-b',['read','write','deploy','retry'],3600),('noDeploy',NAME,'project-a',['read','write'],3600),('expired',NAME,'project-a',['read'],12),('administrator',NAME,'project-a',['read','write','cleanup'],3600)]:
   grants.append({'tokenSHA256':hashlib.sha256(tokens[key].encode()).hexdigest(),'developer':'browser-qualification','tenant':tenant,'project':project,'permissions':permissions,'expiresAt':(now+timedelta(seconds=expiry)).isoformat()})
  grants_path.write_text(json.dumps(grants))
  if os.name=='nt':run(['icacls',grants_path,'/inheritance:r','/grant:r',run(['whoami']).strip()+':F'])
  env=dict(os.environ,DATABASE_URL=database,VITE_LOCAL_AUTH_ENABLED='true',VITE_APP_ENV='local-development',DEBUG='',PWDEBUG='0')
- start([api_binary,'-mode','local-development','-deployment-mode','secure-local','-local-token-grants',grants_path,'-secure-local-config',RUNTIME,'-addr','127.0.0.1:8080'],env,'api-server.log')
+ api_process=start([api_binary,'-mode','local-development','-deployment-mode','secure-local','-local-token-grants',grants_path,'-secure-local-config',RUNTIME,'-addr','127.0.0.1:8080'],env,'api-server.log')
  vite=CONSOLE/'node_modules/vite/bin/vite.js'
  frontend_env={key:value for key,value in env.items() if key!='DATABASE_URL'}
  start(['node',vite,'--host','127.0.0.1','--port','5173','--strictPort'],frontend_env,'console-server.log')
@@ -207,11 +228,24 @@ try:
  wait_url('http://127.0.0.1:8080/api/v1/auth/config');wait_url('http://127.0.0.1:5173/');wait_url('http://127.0.0.1:5174/')
  print('UI qualification: actual browser authentication, deployment, refresh, fault/retry and transactions',flush=True)
  with (LOG/'browser.log').open('w') as log:
-  test=subprocess.run(['node','tools/browser-dynamic.mjs' if DYNAMIC else 'tools/browser-acceptance.mjs'],cwd=CONSOLE,input=json.dumps({'tokens':tokens,'tenant':NAME,'project':'project-a','cluster':NAME,'kubeconfig':str(CONFIG),'result':str(RESULT),'logDirectory':str(LOG),'lifecycle':LIFECYCLE,'runtime':runtime,'design':json.loads((ROOT/'examples/dynamic/a.json').read_text()) if DYNAMIC else None}),text=True,encoding='utf-8',stdout=log,stderr=subprocess.STDOUT,timeout=1800)
+  test=subprocess.run(['node','tools/browser-dynamic.mjs' if DYNAMIC else 'tools/browser-acceptance.mjs'],cwd=CONSOLE,input=json.dumps({'tokens':tokens,'tenant':NAME,'project':'project-a','cluster':NAME,'kubeconfig':str(CONFIG),'result':str(RESULT),'logDirectory':str(LOG),'lifecycle':LIFECYCLE,'sprint5':SPRINT5,'sprint5Minimal':os.environ.get('SMP_UI_SPRINT5_MINIMAL')=='1','sprint5OperationsOnly':os.environ.get('SMP_UI_SPRINT5_OPERATIONS_ONLY')=='1','runtime':runtime,'design':json.loads((ROOT/'examples/dynamic/a.json').read_text()) if DYNAMIC else None}),text=True,encoding='utf-8',stdout=log,stderr=subprocess.STDOUT,timeout=1800)
  report['browserExitCode']=test.returncode
  if test.returncode:raise RuntimeError('Browser acceptance failed; see redacted browser log')
  result=json.loads(RESULT.read_text());report['uiToFabric']='PASS';report['apiToFabric']='PASS';report['browser']=result;report['images']={k:v[0] for k,v in images.items()}
  inspect(result['namespace'],config['workerImage'],list(tokens.values())+[password],result)
+ if CALICO:
+  isolation.inspect(kub,apply,admission_denied,result['namespace'],config['workerImage'],report,result.get('inspectionPeers',['org1-peer-1'])[0],result.get('expectedWorkloads'))
+ if SPRINT5 and os.environ.get('SMP_UI_SPRINT5_OPERATIONS')=='1':
+  import importlib.util
+  module_spec=importlib.util.spec_from_file_location('sprint5_acceptance',ROOT/'tools/sprint5/acceptance.py');operations_acceptance=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(operations_acceptance)
+  def restart_api():
+   # A deliberately expired negative-test grant must not poison a later safe
+   # startup. Remove expired entries; never extend expiry or change permissions.
+   auth_spec=importlib.util.spec_from_file_location('fixture_auth',ROOT/'tools/sprint5/fixture_auth.py');fixture_auth=importlib.util.module_from_spec(auth_spec);auth_spec.loader.exec_module(fixture_auth)
+   active=fixture_auth.active_grants(json.loads(grants_path.read_text()),datetime.now(timezone.utc))
+   grants_path.write_text(json.dumps(active))
+   return start([api_binary,'-mode','local-development','-deployment-mode','secure-local','-local-token-grants',grants_path,'-secure-local-config',RUNTIME,'-addr','127.0.0.1:8080'],env,'api-server-after-cold.log')
+  operations_acceptance.qualify(run,kub,apply,guard,report,result,ROOT,CACHE,RUNTIME,env,tokens,NAME,api_process,restart_api,LOG)
  retained=json.loads(run(['kubectl','--kubeconfig',str(CACHE/'smp-qualification.kubeconfig'),'--context','kind-smp-qualification','-n','smp-n-968a212068be7d07','get','deployments','-o','json']))['items']
  ready=len(retained)==8 and all(x['status'].get('readyReplicas')==x['spec'].get('replicas',1)==1 for x in retained)
  report['retainedNetwork']={'readOnly':True,'ready':ready,'readyDeployments':sum(x['status'].get('readyReplicas',0)==1 for x in retained),'total':len(retained)}

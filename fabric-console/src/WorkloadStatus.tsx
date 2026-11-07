@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { api, type WorkloadSnapshot } from "./api";
+import type { Operation } from "./api";
+import NodeRecovery from "./NodeRecovery";
 
 export default function WorkloadStatus({
   operationId,
+  onStarted,
 }: {
   operationId: string;
+  onStarted?: (op: Operation) => void;
 }) {
   const [snapshot, setSnapshot] = useState<WorkloadSnapshot | null>(null);
   const [busy, setBusy] = useState(false);
@@ -74,6 +78,11 @@ export default function WorkloadStatus({
             · observed {snapshot.checkedAt} · saved revision {snapshot.revision}
           </p>
           <p>Ledger consistency was not checked by this refresh.</p>
+          {snapshot.alerts?.map((a) => (
+            <p role="status" key={a.component + a.code}>
+              {a.component}: {a.code}. {a.action}
+            </p>
+          ))}
           <div className="smp-workload-scroll">
             <table>
               <thead>
@@ -121,6 +130,14 @@ export default function WorkloadStatus({
               <li key={hint}>{hint}</li>
             ))}
           </ul>
+          {onStarted && (
+            <NodeRecovery
+              key={operationId}
+              operationId={operationId}
+              snapshot={snapshot}
+              onStarted={onStarted}
+            />
+          )}
         </div>
       )}
     </section>

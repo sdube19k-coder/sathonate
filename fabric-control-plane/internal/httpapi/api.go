@@ -76,6 +76,8 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 	mux.HandleFunc("POST /api/v1/deployments/{operationId}/lifecycle/{action}/deploy", a.lifecycle)
 	mux.HandleFunc("GET /api/v1/networks/{id}/dynamic/preview", a.dynamicNetwork)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/workloads", a.deploymentWorkloads)
+	mux.HandleFunc("GET /api/v1/deployments/{operationId}/recovery/preview", a.nodeRecovery)
+	mux.HandleFunc("POST /api/v1/deployments/{operationId}/recovery/deploy", a.nodeRecovery)
 	mux.HandleFunc("POST /api/v1/networks/{id}/dynamic/deploy", a.dynamicNetwork)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}", a.deploymentStatus)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/health", a.deploymentHealth)

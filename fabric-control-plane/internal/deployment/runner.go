@@ -24,6 +24,8 @@ var Stages = []operations.Stage{
 }
 
 type Result struct {
+	LocalDeletion     *LocalDeletion                         `json:"localDeletion,omitempty"`
+	Recovery          *NodeRecovery                          `json:"recovery,omitempty"`
 	PreviousNetwork   *domain.NetworkSpec                    `json:"previousNetwork,omitempty"`
 	Verifications     []kubernetesfabric.DynamicVerification `json:"verifications,omitempty"`
 	LifecycleApproval string                                 `json:"lifecycleApproval,omitempty"`
@@ -61,6 +63,7 @@ type Runner interface {
 	Run(context.Context, Request, func(string, string) error) (Outcome, error)
 }
 type Request struct {
+	Recovery                                       *NodeRecovery
 	PreviousNetwork                                *domain.NetworkSpec
 	LifecycleAction, LifecycleApproval             string
 	Lifecycle                                      *kubernetesfabric.LifecycleState

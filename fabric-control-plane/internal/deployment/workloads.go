@@ -2,6 +2,8 @@ package deployment
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"sort"
@@ -26,17 +28,29 @@ type VolumeObservation struct {
 	Name  string `json:"name"`
 	Phase string `json:"phase"`
 }
+type ComponentObservation struct {
+	Name  string `json:"name"`
+	Kind  string `json:"kind"`
+	Ready bool   `json:"ready"`
+}
+type WorkloadAlert struct {
+	Code      string `json:"code"`
+	Component string `json:"component"`
+	Action    string `json:"action"`
+}
 type WorkloadSnapshot struct {
-	OperationID    string                `json:"operationId"`
-	Revision       int                   `json:"revision"`
-	CheckedAt      time.Time             `json:"checkedAt"`
-	ReadOnly       bool                  `json:"readOnly"`
-	LedgerChecked  bool                  `json:"ledgerChecked"`
-	WorkloadsReady bool                  `json:"workloadsReady"`
-	Pods           []WorkloadObservation `json:"pods"`
-	Volumes        []VolumeObservation   `json:"volumes"`
-	Missing        []string              `json:"missing"`
-	Guidance       []string              `json:"guidance"`
+	Components     []ComponentObservation `json:"components"`
+	Alerts         []WorkloadAlert        `json:"alerts"`
+	OperationID    string                 `json:"operationId"`
+	Revision       int                    `json:"revision"`
+	CheckedAt      time.Time              `json:"checkedAt"`
+	ReadOnly       bool                   `json:"readOnly"`
+	LedgerChecked  bool                   `json:"ledgerChecked"`
+	WorkloadsReady bool                   `json:"workloadsReady"`
+	Pods           []WorkloadObservation  `json:"pods"`
+	Volumes        []VolumeObservation    `json:"volumes"`
+	Missing        []string               `json:"missing"`
+	Guidance       []string               `json:"guidance"`
 }
 
 func (m *Manager) Workloads(ctx context.Context, tenant, id string) (WorkloadSnapshot, error) {
@@ -62,6 +76,13 @@ func (m *Manager) Workloads(ctx context.Context, tenant, id string) (WorkloadSna
 		return WorkloadSnapshot{}, ErrWorkloadsUnavailable
 	}
 	out.OperationID, out.Revision = id, s.Revision
+	checkpoint := out
+	checkpoint.CheckedAt = time.Time{}
+	raw, _ := json.Marshal(checkpoint)
+	sum := sha256.Sum256(raw)
+	if m.jobs.Observe(tenant, id, out.WorkloadsReady, len(out.Alerts), hex.EncodeToString(sum[:])) != nil {
+		return WorkloadSnapshot{}, ErrWorkloadsUnavailable
+	}
 	return out, nil
 }
 
@@ -102,12 +123,45 @@ func (r SecureRunner) InspectWorkloads(ctx context.Context, q Request) (Workload
 		}
 		expected["smp-smoke"] = "chaincode"
 	}
-	return projectWorkloads(ns, expected, pods, volumes)
+	raw, e := b.run(ctx, "-n", ns, "get", "deployments", "-o", "json")
+	if e != nil {
+		return WorkloadSnapshot{}, ErrWorkloadsUnavailable
+	}
+	var deployments struct {
+		Items []struct {
+			Metadata struct{ Name, Namespace string }
+			Spec     struct {
+				Template struct {
+					Spec struct {
+						Volumes []struct{ PersistentVolumeClaim *struct{ ClaimName string } }
+					}
+				}
+			}
+		}
+	}
+	if json.Unmarshal(raw, &deployments) != nil {
+		return WorkloadSnapshot{}, ErrWorkloadsUnavailable
+	}
+	claims := []string{}
+	for _, d := range deployments.Items {
+		if d.Metadata.Namespace != ns {
+			return WorkloadSnapshot{}, ErrWorkloadsUnavailable
+		}
+		if _, ok := expected[d.Metadata.Name]; !ok {
+			continue
+		}
+		for _, v := range d.Spec.Template.Spec.Volumes {
+			if v.PersistentVolumeClaim != nil {
+				claims = append(claims, v.PersistentVolumeClaim.ClaimName)
+			}
+		}
+	}
+	return projectWorkloads(ns, expected, pods, volumes, claims...)
 }
 
 // Typed projection deliberately excludes arguments, env, Secret references,
 // annotations, logs, event/status messages and Kubernetes error text.
-func projectWorkloads(namespace string, expected map[string]string, pods, volumes []byte) (WorkloadSnapshot, error) {
+func projectWorkloads(namespace string, expected map[string]string, pods, volumes []byte, requiredClaims ...string) (WorkloadSnapshot, error) {
 	out := WorkloadSnapshot{CheckedAt: time.Now().UTC(), ReadOnly: true, WorkloadsReady: true, Pods: []WorkloadObservation{}, Volumes: []VolumeObservation{}, Missing: []string{}, Guidance: []string{}}
 	if len(expected) == 0 || len(pods) > 8<<20 || len(volumes) > 8<<20 {
 		return out, ErrWorkloadsUnavailable
@@ -147,6 +201,9 @@ func projectWorkloads(namespace string, expected map[string]string, pods, volume
 		return out, ErrWorkloadsUnavailable
 	}
 	seen, ready, claims := map[string]bool{}, map[string]bool{}, map[string]bool{}
+	for _, claim := range requiredClaims {
+		claims[claim] = true
+	}
 	for _, p := range list.Items {
 		if p.Metadata.Namespace != namespace || (p.Kind != "" && p.Kind != "Pod") || (p.APIVersion != "" && p.APIVersion != "v1") {
 			return out, ErrWorkloadsUnavailable
@@ -204,7 +261,9 @@ func projectWorkloads(namespace string, expected map[string]string, pods, volume
 		out.Pods = append(out.Pods, row)
 	}
 	for component := range expected {
+		out.Components = append(out.Components, ComponentObservation{Name: component, Kind: expected[component], Ready: ready[component]})
 		if !ready[component] {
+			out.Alerts = append(out.Alerts, WorkloadAlert{Code: "WorkloadUnavailable", Component: component, Action: "Review node status and use an explicitly reviewed recovery; do not create a replacement network."})
 			out.Missing = append(out.Missing, component)
 			out.WorkloadsReady = false
 		}
@@ -234,10 +293,12 @@ func projectWorkloads(namespace string, expected map[string]string, pods, volume
 		out.Volumes = append(out.Volumes, VolumeObservation{Name: v.Metadata.Name, Phase: phase})
 		delete(claims, v.Metadata.Name)
 		if phase != "Bound" {
+			out.Alerts = append(out.Alerts, WorkloadAlert{Code: "StorageUnavailable", Component: v.Metadata.Name, Action: "Resolve volume binding through the approved storage procedure. Automated node recovery must not delete or replace this PVC."})
 			out.WorkloadsReady = false
 		}
 	}
 	for name := range claims {
+		out.Alerts = append(out.Alerts, WorkloadAlert{Code: "StorageUnavailable", Component: name, Action: "Restore the original bound claim through a qualified storage recovery procedure; automatic replacement is blocked."})
 		out.Volumes = append(out.Volumes, VolumeObservation{Name: name, Phase: "Missing"})
 		out.WorkloadsReady = false
 	}
@@ -246,12 +307,18 @@ func projectWorkloads(namespace string, expected map[string]string, pods, volume
 	}
 	for _, p := range out.Pods {
 		if p.WaitingReason != "" || p.LastExitReason == "OOMKilled" {
+			out.Alerts = append(out.Alerts, WorkloadAlert{Code: "ContainerFailure", Component: p.Component, Action: "Check approved image availability, container resources and authenticated diagnostics before retrying."})
 			out.Guidance = append(out.Guidance, "Check approved images, resource limits and authenticated operation diagnostics. Raw container messages are excluded.")
 			break
 		}
 	}
 	out.Guidance = append(out.Guidance, "Workload readiness does not prove ledger consistency. Run an authorized transaction verification for fresh Fabric evidence.")
 	sort.Strings(out.Missing)
+	sort.Slice(out.Components, func(i, j int) bool { return out.Components[i].Name < out.Components[j].Name })
+	sort.Slice(out.Alerts, func(i, j int) bool {
+		a, b := out.Alerts[i], out.Alerts[j]
+		return a.Component+a.Code < b.Component+b.Code
+	})
 	sort.Slice(out.Pods, func(i, j int) bool { return out.Pods[i].Name < out.Pods[j].Name })
 	sort.Slice(out.Volumes, func(i, j int) bool { return out.Volumes[i].Name < out.Volumes[j].Name })
 	return out, nil
