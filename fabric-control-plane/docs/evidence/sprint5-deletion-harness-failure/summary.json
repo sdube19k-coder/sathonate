@@ -1,0 +1,35 @@
+{
+  "schema": "sathonate.sprint1-qualification/v1",
+  "status": "BLOCKED",
+  "cluster": "smp-sprint1-4143d2e7",
+  "checks": {
+    "publicResourcesNoCredentials": "PASS",
+    "helmHistoryNoCredentials": "PASS",
+    "runtimeLogsNoCredentials": "PASS",
+    "sourceAndEvidenceNoActualCredentials": "PASS",
+    "controllerIssuerForeignAndClusterDenials": "PASS",
+    "foreignResourcePreserved": "PASS",
+    "bothLivePeerCertificatesVerified": "PASS",
+    "liveWrongIssuerAndHostnameRejected": "PASS",
+    "privilegedAdmissionDenied": "PASS",
+    "containerLimitAdmissionDenied": "PASS",
+    "effectiveCrossNamespaceIngressDenied": "PASS",
+    "effectiveCrossNamespaceEgressDenied": "PASS",
+    "ownFabricConnectivity": "PASS",
+    "fabricServiceAccountTokenMountsAbsent": "PASS",
+    "defaultServiceAccountTokenDisabled": "PASS"
+  },
+  "provenance": {
+    "backendCommit": "dd0a913af8d24d311224d680650f39da9450ec5f",
+    "apiBinarySHA256": "406a4e22ac3b9584fecc102c6ceccaac577a7c1f2d9420799f081dab4da9e501",
+    "workerImageID": "sha256:13a9035bda2e3056e087fab12afd8351201d4ea46510e762e186ce9ac4b0d80a",
+    "backendDiffSHA256": "9f60191c639ac2e32e7741b6da24d2adecfa8458f2d07a8f74458e29bb4b9d30"
+  },
+  "failureCategory": "NameError",
+  "disposableClusterRemoved": true,
+  "startedAt": 1794060710.7192345,
+  "finishedAt": 1794061235.6309385,
+  "browserStatus": "PASS",
+  "failure": "NameError: shared deletion harness API helper not in scope; before browser deletion",
+  "productDeletionAcceptance": "NOT_EXECUTED"
+}

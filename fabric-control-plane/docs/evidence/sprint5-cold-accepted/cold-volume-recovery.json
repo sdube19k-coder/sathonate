@@ -1,0 +1,732 @@
+{
+  "status": "PASS_LOCAL_COLD_VOLUME_RECOVERY",
+  "capture": {
+    "schema": "sathonate.local-cold-backup/v1",
+    "action": "capture",
+    "namespace": "smp-s-434e5ea792b86f063eb74e9127a2e572",
+    "artifactSHA256": "5bb3aca90a437419099ee73269bbadb88be1a912ec458beb306817d26641e13c",
+    "volumes": 7,
+    "workloadsQuiesced": true,
+    "notice": "Local cold volume recovery only; encrypted bundle includes frozen control rows and identity resources. No production, clone activation, database rollback or full disaster recovery is qualified. Resume requires fresh API transaction verification.",
+    "binding": {
+      "tenantId": "lp-a2f0401190a985228a5011ca0169b02f084f3610f344fc8e",
+      "networkId": "0652192ac90bb3d7f92b5599c8f3776d",
+      "targetSHA256": "92b8b3e8d7d9f6604127b2b297d3658c4f22f25cc54f497532f510ae5aa4f935",
+      "networkSHA256": "b441589403de3e25786158e9511327d21a84dc00cbdcf4282d2d48045bcb1814"
+    },
+    "operationId": "op_d6b97a3d4479295fd85b8f9037f08816"
+  },
+  "restore": {
+    "schema": "sathonate.local-cold-backup/v1",
+    "action": "restore",
+    "namespace": "smp-s-434e5ea792b86f063eb74e9127a2e572",
+    "volumes": 7,
+    "workloadsQuiesced": true,
+    "notice": "Local cold volume recovery only; encrypted bundle includes frozen control rows and identity resources. No production, clone activation, database rollback or full disaster recovery is qualified. Resume requires fresh API transaction verification.",
+    "binding": {
+      "tenantId": "lp-a2f0401190a985228a5011ca0169b02f084f3610f344fc8e",
+      "networkId": "0652192ac90bb3d7f92b5599c8f3776d",
+      "targetSHA256": "92b8b3e8d7d9f6604127b2b297d3658c4f22f25cc54f497532f510ae5aa4f935",
+      "networkSHA256": "b441589403de3e25786158e9511327d21a84dc00cbdcf4282d2d48045bcb1814"
+    },
+    "operationId": "op_d6b97a3d4479295fd85b8f9037f08816"
+  },
+  "resume": {
+    "schema": "sathonate.local-cold-backup/v1",
+    "action": "resume",
+    "namespace": "smp-s-434e5ea792b86f063eb74e9127a2e572",
+    "volumes": 7,
+    "workloadsQuiesced": false,
+    "notice": "Local cold volume recovery only; encrypted bundle includes frozen control rows and identity resources. No production, clone activation, database rollback or full disaster recovery is qualified. Resume requires fresh API transaction verification.",
+    "binding": {
+      "tenantId": "lp-a2f0401190a985228a5011ca0169b02f084f3610f344fc8e",
+      "networkId": "0652192ac90bb3d7f92b5599c8f3776d",
+      "targetSHA256": "92b8b3e8d7d9f6604127b2b297d3658c4f22f25cc54f497532f510ae5aa4f935",
+      "networkSHA256": "b441589403de3e25786158e9511327d21a84dc00cbdcf4282d2d48045bcb1814"
+    },
+    "operationId": "op_d6b97a3d4479295fd85b8f9037f08816"
+  },
+  "volumesRestored": [
+    "raft-1",
+    "raft-2",
+    "raft-3",
+    "retailer-issuer",
+    "retailer-p1",
+    "warehouse-issuer",
+    "warehouse-p1"
+  ],
+  "pvcUIDsPreserved": true,
+  "priorTransactionsPreserved": [
+    {
+      "peer": "retailer-p1",
+      "channel": "shipments",
+      "transactionId": "e92089065e182f39176346542f4672991defe0c80013ffa8fcbb92db8de43928",
+      "validationCode": 0
+    },
+    {
+      "peer": "warehouse-p1",
+      "channel": "shipments",
+      "transactionId": "e92089065e182f39176346542f4672991defe0c80013ffa8fcbb92db8de43928",
+      "validationCode": 0
+    }
+  ],
+  "identitySecretsRecovered": [
+    {
+      "name": "retailer-p1-tls-identity",
+      "originalUID": "2e038107-9b67-473f-8580-c8c814ff6e0f",
+      "dataSHA256": "7a14becd2be0474b44b24a376960f9be8f8cf40d499b5abb8b0dba22fee67a02"
+    },
+    {
+      "name": "warehouse-p1-tls-identity",
+      "originalUID": "09bbf848-bbdf-465e-94e9-fff008d4d472",
+      "dataSHA256": "10c23351673768d405d6346e8349379d2a7425731ad62b5be84b92cb132d9a89"
+    }
+  ],
+  "scopedControlRowsRecovered": true,
+  "negativeChecks": "REUSED_FROM_20261107_130435",
+  "activeExecutorRejected": null,
+  "wrongKeyRejected": null,
+  "tamperRejected": null,
+  "nonemptyVolumeRejected": null,
+  "postRestore": {
+    "recovery": {
+      "node": "",
+      "kind": "reconcile",
+      "replicas": 0,
+      "podUIDs": [],
+      "claims": {},
+      "materials": {},
+      "digest": "4c017c6b1450f7563b84cfe91d8d5a02af96b188506b5a4c13e26286e5be5acd"
+    },
+    "previousNetwork": {
+      "apiVersion": "fabric.sathonate.io/v1alpha1",
+      "kind": "FabricNetwork",
+      "metadata": {
+        "id": "browser-customer-2c25c7b4",
+        "name": "Browser customer-defined network"
+      },
+      "spec": {
+        "configuration": {
+          "placements": {
+            "approved-local": {
+              "nodeSelector": {
+                "kubernetes.io/hostname": "smp-sprint1-2c25c7b4-control-plane"
+              }
+            }
+          },
+          "nodes": {
+            "raft-1": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "raft-2": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "raft-3": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "retailer-p1": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "warehouse-p1": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            }
+          },
+          "authorities": [
+            {
+              "id": "warehouse-issuer",
+              "organizationRef": "warehouse",
+              "roles": [
+                "signing",
+                "tls"
+              ],
+              "placementRef": "approved-local",
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            {
+              "id": "retailer-issuer",
+              "organizationRef": "retailer",
+              "roles": [
+                "signing",
+                "tls"
+              ],
+              "placementRef": "approved-local",
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            }
+          ],
+          "anchors": {
+            "shipments": [
+              "warehouse-p1",
+              "retailer-p1"
+            ]
+          },
+          "chaincodes": [
+            {
+              "name": "customer-ledger",
+              "channelRef": "shipments",
+              "version": "1.0",
+              "sequence": 1,
+              "packageSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+              "runtimeImage": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+              "endorsement": {
+                "mspIds": [
+                  "WarehouseMSP",
+                  "RetailerMSP"
+                ],
+                "minimum": 2
+              }
+            }
+          ]
+        },
+        "environment": "development",
+        "fabricVersion": "2.5.15",
+        "deployment": {
+          "engine": "bevel",
+          "targetRef": "smp-dynamic-local-v1",
+          "runtime": "kubernetes",
+          "provider": "local"
+        },
+        "ordering": {
+          "consensus": "raft",
+          "channelCapability": "V2_0"
+        },
+        "organizations": [
+          {
+            "id": "warehouse",
+            "mspId": "WarehouseMSP",
+            "identityProviderRef": "warehouse-issuer"
+          },
+          {
+            "id": "retailer",
+            "mspId": "RetailerMSP",
+            "identityProviderRef": "retailer-issuer"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "warehouse-p1",
+            "organizationRef": "warehouse",
+            "role": "peer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "retailer-p1",
+            "organizationRef": "retailer",
+            "role": "peer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "raft-1",
+            "organizationRef": "warehouse",
+            "role": "orderer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "raft-2",
+            "organizationRef": "warehouse",
+            "role": "orderer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "raft-3",
+            "organizationRef": "warehouse",
+            "role": "orderer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          }
+        ],
+        "channels": [
+          {
+            "id": "shipments",
+            "organizationRefs": [
+              "warehouse",
+              "retailer"
+            ],
+            "ordererRefs": [
+              "raft-1",
+              "raft-2",
+              "raft-3"
+            ],
+            "peerRefs": [
+              "warehouse-p1",
+              "retailer-p1"
+            ]
+          }
+        ]
+      }
+    },
+    "verifications": [
+      {
+        "health": {
+          "checkedAt": "2026-11-07T14:05:22.232464783Z",
+          "ready": true,
+          "channel": "shipments",
+          "peers": [
+            {
+              "peer": "retailer-p1",
+              "mspId": "RetailerMSP",
+              "available": true,
+              "height": 6,
+              "currentBlockHash": "cQW3e1bX2aj0K53HH89qQjStG4OyUrSol8t48kF0ihY="
+            },
+            {
+              "peer": "warehouse-p1",
+              "mspId": "WarehouseMSP",
+              "available": true,
+              "height": 6,
+              "currentBlockHash": "cQW3e1bX2aj0K53HH89qQjStG4OyUrSol8t48kF0ihY="
+            }
+          ],
+          "orderers": [
+            {
+              "name": "raft-1",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 6
+            },
+            {
+              "name": "raft-2",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 6
+            },
+            {
+              "name": "raft-3",
+              "status": "active",
+              "consensusRelation": "consenter",
+              "height": 6
+            }
+          ],
+          "certificateAuthorities": [
+            {
+              "name": "warehouse-issuer",
+              "available": true,
+              "tls": true
+            },
+            {
+              "name": "retailer-issuer",
+              "available": true,
+              "tls": true
+            }
+          ],
+          "chaincode": {
+            "name": "customer-ledger",
+            "available": true,
+            "version": "1.0",
+            "sequence": 1
+          },
+          "alerts": []
+        },
+        "transactionId": "04374547c9645c12d6ee497c767babab85b78dd3b58ae16c892f428a91fc24e7",
+        "packageId": "customer-ledger_1:c1f9c3bd2cb3697f5c46a5549679db42c6918e36aee5bb0e94188f7515d3e069",
+        "artifactSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+        "codeVersion": "1.0"
+      }
+    ],
+    "lifecycleApproval": "4c017c6b1450f7563b84cfe91d8d5a02af96b188506b5a4c13e26286e5be5acd",
+    "lifecycleParent": "op_d6b97a3d4479295fd85b8f9037f08816",
+    "lifecycleAction": "node-recovery",
+    "security": {
+      "samples": 195,
+      "caCommands": 2,
+      "protectedCLICommands": 1,
+      "credentialsAbsent": true
+    },
+    "mode": "secure-local",
+    "simulated": false,
+    "network": {
+      "apiVersion": "fabric.sathonate.io/v1alpha1",
+      "kind": "FabricNetwork",
+      "metadata": {
+        "id": "browser-customer-2c25c7b4",
+        "name": "Browser customer-defined network"
+      },
+      "spec": {
+        "configuration": {
+          "placements": {
+            "approved-local": {
+              "nodeSelector": {
+                "kubernetes.io/hostname": "smp-sprint1-2c25c7b4-control-plane"
+              }
+            }
+          },
+          "nodes": {
+            "raft-1": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "raft-2": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "raft-3": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "retailer-p1": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            "warehouse-p1": {
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            }
+          },
+          "authorities": [
+            {
+              "id": "warehouse-issuer",
+              "organizationRef": "warehouse",
+              "roles": [
+                "signing",
+                "tls"
+              ],
+              "placementRef": "approved-local",
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            },
+            {
+              "id": "retailer-issuer",
+              "organizationRef": "retailer",
+              "roles": [
+                "signing",
+                "tls"
+              ],
+              "placementRef": "approved-local",
+              "resources": {
+                "cpuRequestMilli": 100,
+                "cpuLimitMilli": 1000,
+                "memoryRequestMiB": 128,
+                "memoryLimitMiB": 1024
+              },
+              "storage": {
+                "class": "standard",
+                "capacityGiB": 1
+              }
+            }
+          ],
+          "anchors": {
+            "shipments": [
+              "warehouse-p1",
+              "retailer-p1"
+            ]
+          },
+          "chaincodes": [
+            {
+              "name": "customer-ledger",
+              "channelRef": "shipments",
+              "version": "1.0",
+              "sequence": 1,
+              "packageSHA256": "75c44bdbcff14cfd0a4567e2081c0a41ce0e0dc63ec5c18d173b828a2a42f41e",
+              "runtimeImage": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+              "endorsement": {
+                "mspIds": [
+                  "WarehouseMSP",
+                  "RetailerMSP"
+                ],
+                "minimum": 2
+              }
+            }
+          ]
+        },
+        "environment": "development",
+        "fabricVersion": "2.5.15",
+        "deployment": {
+          "engine": "bevel",
+          "targetRef": "smp-dynamic-local-v1",
+          "runtime": "kubernetes",
+          "provider": "local"
+        },
+        "ordering": {
+          "consensus": "raft",
+          "channelCapability": "V2_0"
+        },
+        "organizations": [
+          {
+            "id": "warehouse",
+            "mspId": "WarehouseMSP",
+            "identityProviderRef": "warehouse-issuer"
+          },
+          {
+            "id": "retailer",
+            "mspId": "RetailerMSP",
+            "identityProviderRef": "retailer-issuer"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "warehouse-p1",
+            "organizationRef": "warehouse",
+            "role": "peer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "retailer-p1",
+            "organizationRef": "retailer",
+            "role": "peer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "raft-1",
+            "organizationRef": "warehouse",
+            "role": "orderer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "raft-2",
+            "organizationRef": "warehouse",
+            "role": "orderer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          },
+          {
+            "id": "raft-3",
+            "organizationRef": "warehouse",
+            "role": "orderer",
+            "placementRef": "approved-local",
+            "failureDomain": "local-host"
+          }
+        ],
+        "channels": [
+          {
+            "id": "shipments",
+            "organizationRefs": [
+              "warehouse",
+              "retailer"
+            ],
+            "ordererRefs": [
+              "raft-1",
+              "raft-2",
+              "raft-3"
+            ],
+            "peerRefs": [
+              "warehouse-p1",
+              "retailer-p1"
+            ]
+          }
+        ]
+      }
+    },
+    "revision": 1,
+    "operationId": "op_1a60e86cc58acb7774db8963365c426f",
+    "targetSHA256": "92b8b3e8d7d9f6604127b2b297d3658c4f22f25cc54f497532f510ae5aa4f935",
+    "phase": "running",
+    "ready": true,
+    "verified": true,
+    "checkedAt": "2026-11-07T14:05:25.5798143Z",
+    "resources": [
+      {
+        "name": "warehouse-p1",
+        "kind": "peer",
+        "organization": "warehouse",
+        "status": "running"
+      },
+      {
+        "name": "retailer-p1",
+        "kind": "peer",
+        "organization": "retailer",
+        "status": "running"
+      },
+      {
+        "name": "raft-1",
+        "kind": "orderer",
+        "organization": "warehouse",
+        "status": "running"
+      },
+      {
+        "name": "raft-2",
+        "kind": "orderer",
+        "organization": "warehouse",
+        "status": "running"
+      },
+      {
+        "name": "raft-3",
+        "kind": "orderer",
+        "organization": "warehouse",
+        "status": "running"
+      }
+    ],
+    "transactionId": "04374547c9645c12d6ee497c767babab85b78dd3b58ae16c892f428a91fc24e7",
+    "notice": "Real local Kubernetes deployment using Bevel Fabric operator. No paid cloud infrastructure is provisioned.",
+    "health": {
+      "checkedAt": "2026-11-07T14:05:22.232464783Z",
+      "ready": true,
+      "channel": "shipments",
+      "peers": [
+        {
+          "peer": "retailer-p1",
+          "mspId": "RetailerMSP",
+          "available": true,
+          "height": 6,
+          "currentBlockHash": "cQW3e1bX2aj0K53HH89qQjStG4OyUrSol8t48kF0ihY="
+        },
+        {
+          "peer": "warehouse-p1",
+          "mspId": "WarehouseMSP",
+          "available": true,
+          "height": 6,
+          "currentBlockHash": "cQW3e1bX2aj0K53HH89qQjStG4OyUrSol8t48kF0ihY="
+        }
+      ],
+      "orderers": [
+        {
+          "name": "raft-1",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        },
+        {
+          "name": "raft-2",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        },
+        {
+          "name": "raft-3",
+          "status": "active",
+          "consensusRelation": "consenter",
+          "height": 6
+        }
+      ],
+      "certificateAuthorities": [
+        {
+          "name": "warehouse-issuer",
+          "available": true,
+          "tls": true
+        },
+        {
+          "name": "retailer-issuer",
+          "available": true,
+          "tls": true
+        }
+      ],
+      "chaincode": {
+        "name": "customer-ledger",
+        "available": true,
+        "version": "1.0",
+        "sequence": 1
+      },
+      "alerts": []
+    }
+  },
+  "limits": [
+    "Only missing scoped network control rows and missing captured Secrets are recreated; existing divergent data, authentication memberships, database roles and schema are never overwritten.",
+    "Same-namespace, original-PVC cold recovery only; physical multi-server/disaster recovery remains unqualified."
+  ]
+}

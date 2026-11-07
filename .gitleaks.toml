@@ -206,3 +206,51 @@ condition = "AND"
 regexTarget = "line"
 paths = ['(^|/)fabric-control-plane/docs/evidence/sprint5-node-recovery/summary\.json$']
 regexes = ['^\s*"apiBinarySHA256":\ "43b14550add2da7fe9b4eb20786756e6fe29accb50f1654df7620621cdad10a6",\s*$']
+
+[[allowlists]]
+description = "Exact reviewed public executable checksum in Sprint 5 cold evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint5\\-cold\\-pretransaction/summary\\.json$"]
+regexes = ["^\\s*\"apiBinarySHA256\":\\ \"00d4e6bee472dcf8f5add9b0c252c5ce8c0efc71fec39d331eb026948e4803c6\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public executable checksum in Sprint 5 cold evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint5\\-cold\\-pretransaction/summary\\.json$"]
+regexes = ["^\\s*\"postColdAPIBinarySHA256\":\\ \"8f5f3a42a157526338530da7b42cc984e0221be1c246e7f1048643a0436f757b\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public executable checksum in Sprint 5 cold evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint5\\-cold\\-accepted/summary\\.json$"]
+regexes = ["^\\s*\"apiBinarySHA256\":\\ \"805357c0675530b2c7089513a7f6c102491225fce6cc55079e0e1297df134237\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public executable checksum in Sprint 5 cold evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint5\\-cold\\-accepted/summary\\.json$"]
+regexes = ["^\\s*\"postColdAPIBinarySHA256\":\\ \"805357c0675530b2c7089513a7f6c102491225fce6cc55079e0e1297df134237\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public executable checksum in final Sprint 5 evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint5\\-final/deletion\\-runtime\\.json$"]
+regexes = ["^\\s*\"apiBinarySHA256\":\\ \"406a4e22ac3b9584fecc102c6ceccaac577a7c1f2d9420799f081dab4da9e501\",\\s*$"]
+
+[[allowlists]]
+description = "Exact reviewed public executable checksum in final Sprint 5 evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint5\\-deletion\\-harness\\-failure/summary\\.json$"]
+regexes = ["^\\s*\"apiBinarySHA256\":\\ \"406a4e22ac3b9584fecc102c6ceccaac577a7c1f2d9420799f081dab4da9e501\",\\s*$"]

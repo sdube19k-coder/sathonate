@@ -1,0 +1,35 @@
+{
+  "status": "IN_PROGRESS",
+  "capture": {
+    "schema": "sathonate.local-cold-backup/v1",
+    "action": "capture",
+    "namespace": "smp-s-80b8fda67f858ef7f3b224f73c86d411",
+    "artifactSHA256": "8f3dfc583f43040609333ac4c6b43164a2e93197e22d88bd98bfc6e89b7ca299",
+    "volumes": 7,
+    "workloadsQuiesced": true,
+    "notice": "Local cold volume recovery only; encrypted bundle includes frozen control rows and identity resources. No production, clone activation, database rollback or full disaster recovery is qualified. Resume requires fresh API transaction verification.",
+    "binding": {
+      "tenantId": "lp-6112c34aa95c9d40483bc14efd8c8a4b2b362c8e760f18a0",
+      "networkId": "ea10c81093d3d064494170cc24353265",
+      "targetSHA256": "f35f24b47968699df7298d09e63121bc0bd1900d765726acb06ccf97ff444a26",
+      "networkSHA256": "f001472e9bfa31ab08178fccf1eeb587e0804075515c629e0c89fbc779700cac"
+    },
+    "operationId": "op_a54953121d91bc97a2af765bbd43652e"
+  },
+  "restore": {
+    "schema": "sathonate.local-cold-backup/v1",
+    "action": "restore",
+    "namespace": "smp-s-80b8fda67f858ef7f3b224f73c86d411",
+    "volumes": 7,
+    "workloadsQuiesced": true,
+    "notice": "Local cold volume recovery only; encrypted bundle includes frozen control rows and identity resources. No production, clone activation, database rollback or full disaster recovery is qualified. Resume requires fresh API transaction verification.",
+    "binding": {
+      "tenantId": "lp-6112c34aa95c9d40483bc14efd8c8a4b2b362c8e760f18a0",
+      "networkId": "ea10c81093d3d064494170cc24353265",
+      "targetSHA256": "f35f24b47968699df7298d09e63121bc0bd1900d765726acb06ccf97ff444a26",
+      "networkSHA256": "f001472e9bfa31ab08178fccf1eeb587e0804075515c629e0c89fbc779700cac"
+    },
+    "operationId": "op_a54953121d91bc97a2af765bbd43652e"
+  },
+  "stage": "RESTORED"
+}

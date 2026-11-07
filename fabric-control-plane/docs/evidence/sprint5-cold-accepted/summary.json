@@ -1,0 +1,77 @@
+{
+  "schema": "sathonate.sprint5-cold-accepted/v1",
+  "status": "PASS_BOUNDED_COLD_RECOVERY_ONLY",
+  "sourceRun": "dynamic-browser-s5-20261107-191711",
+  "wholeFixtureStatus": "BLOCKED",
+  "wholeFixtureFailure": "Retained-data deletion browser acceptance failed",
+  "checks": {
+    "publicResourcesNoCredentials": "PASS",
+    "helmHistoryNoCredentials": "PASS",
+    "runtimeLogsNoCredentials": "PASS",
+    "sourceAndEvidenceNoActualCredentials": "PASS",
+    "controllerIssuerForeignAndClusterDenials": "PASS",
+    "foreignResourcePreserved": "PASS",
+    "bothLivePeerCertificatesVerified": "PASS",
+    "liveWrongIssuerAndHostnameRejected": "PASS",
+    "privilegedAdmissionDenied": "PASS",
+    "containerLimitAdmissionDenied": "PASS",
+    "effectiveCrossNamespaceIngressDenied": "PASS",
+    "effectiveCrossNamespaceEgressDenied": "PASS",
+    "ownFabricConnectivity": "PASS",
+    "fabricServiceAccountTokenMountsAbsent": "PASS",
+    "defaultServiceAccountTokenDisabled": "PASS",
+    "offlineColdVolumeRecovery": "PASS",
+    "postColdCredentialInspection": "PASS",
+    "coldPrivateArtifactsRemoved": "PASS"
+  },
+  "provenance": {
+    "backendCommit": "dd0a913af8d24d311224d680650f39da9450ec5f",
+    "apiBinarySHA256": "805357c0675530b2c7089513a7f6c102491225fce6cc55079e0e1297df134237",
+    "workerImageID": "sha256:13a9035bda2e3056e087fab12afd8351201d4ea46510e762e186ce9ac4b0d80a",
+    "backendDiffSHA256": "1d4bd5ef47146c66fd7538aa4d62952521cd9bbb801757585b8c5e23165608e6"
+  },
+  "postColdAPIBinarySHA256": "805357c0675530b2c7089513a7f6c102491225fce6cc55079e0e1297df134237",
+  "coldToolBinarySHA256": "80ee5f00ba681a3ea779ad612ab734338b78366419002b929207900eab2b886f",
+  "postColdCredentialInspection": {
+    "status": "PASS",
+    "helmHistoryRecords": 12,
+    "logStreams": 11,
+    "sourceEvidenceFiles": 504,
+    "publicResourcesInspected": true
+  },
+  "inspection": {
+    "helmReleases": 12,
+    "logStreams": 10,
+    "knownPrivateValues": 92
+  },
+  "images": {
+    "sathonate/controller-candidate:atomic": "sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c",
+    "hyperledger/fabric-ca:1.5.15": "hyperledger/fabric-ca@sha256:61ed7bd64819ef935833c747cce9e5dbd1c05dc516f930e70f4ca8355cdc3975",
+    "hyperledger/fabric-peer:2.5.15": "hyperledger/fabric-peer@sha256:b046b46c05cfe8ecd68def9e001990d59d96a25dfac58b4f4892cedf54e2ba20",
+    "hyperledger/fabric-orderer:2.5.15": "hyperledger/fabric-orderer@sha256:26bd18aabe441b05d7b03e1356200bbb7261cc5bdecb676ddc7e4578c77e6e04",
+    "sathonate/smp-smoke:local": "sathonate/smp-smoke@sha256:85bc9e7966dc9d439c69c623cf8a721156fa10ef6acd7c4a10c1902dfc4cb7fc",
+    "sathonate/fabric-worker:sprint5-recovery": "sathonate/fabric-worker@sha256:0bd007412734edd61882451d79707cbca0e6fa09db0ef5fd94037eacd4190543",
+    "sathonate/smp-smoke:dynamic-v1": "sathonate/smp-smoke@sha256:424c95433bb589349fbb2cf8d2797cb1645cf8193193bffb10703ca04be9bb2a",
+    "sathonate/smp-smoke:dynamic-v2": "sathonate/smp-smoke@sha256:0137d3ea4c7f10155d32fd2ca5c9d99fd8e444954a8b918a52fa8191d35fbe57"
+  },
+  "networkPolicyFixture": {
+    "provider": "Calico",
+    "version": "v3.31.4",
+    "manifestURL": "https://raw.githubusercontent.com/projectcalico/calico/v3.31.4/manifests/calico.yaml",
+    "manifestSHA256": "6e89ee080d6dae58c620c47e3fcb7a9bfc40748422c868c924b7482dd5145ce2",
+    "images": {
+      "quay.io/calico/cni:v3.31.4": "quay.io/calico/cni@sha256:a43a7dd4ed67adad4535fc948b483dac0a3c905bae64b007fae05e4d0867a02b",
+      "quay.io/calico/kube-controllers:v3.31.4": "quay.io/calico/kube-controllers@sha256:8a41b637f143971a95ce78234ece53e43201361bd38bad7fc65508f5798306d0",
+      "quay.io/calico/node:v3.31.4": "quay.io/calico/node@sha256:972f29ffd956ca83688b41ef5c696b633c6c63529bc63e2b058413fd4fff0cd0"
+    },
+    "enforcement": "PASS"
+  },
+  "disposableClusterRemoved": true,
+  "finishedAt": 1794060574.9524198,
+  "deletion": "FAIL_HTTP_RESPONSE_SOCKET_HANG_UP; not qualified by this run",
+  "negativeChecks": "Reused from sprint5-cold-pretransaction; not repeated",
+  "limitations": [
+    "Only missing scoped network control rows and missing captured Secrets are recreated; existing divergent data, authentication memberships, database roles and schema are never overwritten.",
+    "Same-namespace, original-PVC cold recovery only; physical multi-server/disaster recovery remains unqualified."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "sathonate.sprint5-acceptance/v1",
+  "status": "PASS_BOUNDED_LOCAL_OPERATIONS",
+  "closedOn": "2026-11-08",
+  "runtimeDates": "2026-11-07; final regressions and cleanup recheck 2026-11-08 Asia/Calcutta",
+  "gates": {
+    "nodeRecovery": "PASS_PRESERVED_THREE_CASES",
+    "coldRestore": "PASS_PRESERVED_ORIGINAL_PVC_RECOVERY",
+    "retainedDeletion": "PASS_LIVE_BROWSER",
+    "authorizationIsolationTLSSecurity": "PASS",
+    "regressions": "PASS",
+    "cleanup": "PASS"
+  },
+  "references": {
+    "nodes": "../sprint5-node-recovery/summary.json",
+    "cold": "../sprint5-cold-accepted/summary.json",
+    "earlierColdFailure": "../sprint5-cold-pretransaction/summary.json",
+    "harnessFailure": "../sprint5-deletion-harness-failure/summary.json"
+  },
+  "deletedOwnedResources": 17,
+  "retainedObjectsVerified": 126,
+  "awsAccessed": false,
+  "retainedNetworkModified": false,
+  "productionEnabled": false,
+  "sourceProvenance": "SOURCE_SHA256SUMS uses CRLF-to-LF canonical hashes, matching the accepted runtime; only internal/httpapi/deployment.go changed after cold acceptance, to bound cleanup response delivery. Worker compiled-file receipt remains unchanged.",
+  "limits": [
+    "Single-node disposable kind only. No multi-server or replacement-cluster/PVC disaster recovery.",
+    "Offline cold utility accepts only loopback fabric_smp_tests and original namespace/PVC UIDs; bounded encrypted artifact, not an ongoing backup service.",
+    "Retained deletion preserves data and a retirement fence; no permanent erasure or qualified reactivation.",
+    "Live deletion acknowledgement was read back and replayed against PostgreSQL-backed API; reopen/interruption recovery is separately regression-tested, not a live database-crash qualification.",
+    "Real Okta, historical-key remediation and AWS/production gates remain open."
+  ],
+  "implementationCommit": "f0936f6510c19740f3460a6217f02f10a1fe1894",
+  "sourceWhitespaceOnlyAfterAcceptance": "Tracked Windows line endings preserved; one blank Python line trimmed. Canonical Go runtime source hashes remain exact.",
+  "credentialScan": {
+    "status": "PASS",
+    "scope": "Current tracked/untracked source and public evidence; not historical Git remediation",
+    "review": "Six exact public executable-checksum findings excluded by exact path, field and value; no broad credential exclusions."
+  }
+}

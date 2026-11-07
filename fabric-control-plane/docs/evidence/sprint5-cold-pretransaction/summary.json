@@ -1,0 +1,49 @@
+{
+  "schema": "sathonate.sprint5-cold-pretransaction/v1",
+  "status": "PARTIAL_POST_RESTORE_API_STARTUP_FAILED",
+  "recordedAt": "2026-11-07T13:47:43.957449+00:00",
+  "sourceRun": "dynamic-browser-s5-20261107-130435",
+  "checks": {
+    "publicResourcesNoCredentials": "PASS",
+    "helmHistoryNoCredentials": "PASS",
+    "runtimeLogsNoCredentials": "PASS",
+    "sourceAndEvidenceNoActualCredentials": "PASS",
+    "controllerIssuerForeignAndClusterDenials": "PASS",
+    "foreignResourcePreserved": "PASS",
+    "bothLivePeerCertificatesVerified": "PASS",
+    "liveWrongIssuerAndHostnameRejected": "PASS",
+    "privilegedAdmissionDenied": "PASS",
+    "containerLimitAdmissionDenied": "PASS",
+    "effectiveCrossNamespaceIngressDenied": "PASS",
+    "effectiveCrossNamespaceEgressDenied": "PASS",
+    "ownFabricConnectivity": "PASS",
+    "fabricServiceAccountTokenMountsAbsent": "PASS",
+    "defaultServiceAccountTokenDisabled": "PASS",
+    "coldPrivateArtifactsRemoved": "PASS"
+  },
+  "provenance": {
+    "backendCommit": "2df69d5b95ed5536236916069c25393e93a8040e",
+    "apiBinarySHA256": "00d4e6bee472dcf8f5add9b0c252c5ce8c0efc71fec39d331eb026948e4803c6",
+    "workerImageID": "sha256:13a9035bda2e3056e087fab12afd8351201d4ea46510e762e186ce9ac4b0d80a",
+    "backendDiffSHA256": "56443d5fefaebdc696163ed3a4702e319bf42b590a46b797d63d215342fc05db"
+  },
+  "postColdAPIBinarySHA256": "8f5f3a42a157526338530da7b42cc984e0221be1c246e7f1048643a0436f757b",
+  "coldToolBinarySHA256": "6d172a8b893eb2b122a9ee7c3a65d13e60068ac0820b6047248030eb616cce2c",
+  "capture": "PASS",
+  "restoreSevenOriginalPVCs": "PASS",
+  "coldNegatives": {
+    "activeExecutorRefusal": "EXECUTED_BEFORE_CAPTURE_RECEIPT",
+    "wrongKeyTamperAndNonemptyVolumeRefusal": "EXECUTED_BEFORE_RESTORE_RECEIPT",
+    "receiptInterpretation": "The source-linked orchestrator reaches the saved RESTORED receipt only after these negative calls returned failure as required; per-call receipts were not exported."
+  },
+  "priorTransactionValidation": "EXECUTED_BY_CONTROL_FLOW_BEFORE_RESTART_CALLBACK_BUT_NO_PER_PEER_RECEIPT_SAVED",
+  "newPostRestoreTransaction": "NOT_EXECUTED",
+  "retainedDataDeletion": "NOT_EXECUTED",
+  "failure": "API startup rejected the deliberately expired negative-test grant still present in fixture configuration",
+  "securityFix": "Remove expired fixture entries at restart without extending active expiry, changing permissions or relaxing backend validation; two Python tests pass.",
+  "disposableClusterRemoved": true,
+  "privateArtifactsRemoved": "PASS",
+  "awsAccessed": false,
+  "retainedNetworkModified": false,
+  "minimumRerun": "Explicitly authorized by user; recovery cases are not repeated."
+}

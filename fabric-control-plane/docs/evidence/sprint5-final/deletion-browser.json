@@ -1,0 +1,1529 @@
+{
+  "status": "PASS",
+  "checks": {
+    "administratorRequired": "PASS",
+    "restoredTenantProjectIsolation": "PASS",
+    "staleApprovalDenied": "PASS",
+    "replacedResourceUIDDenied": "PASS",
+    "explicitBrowserApproval": "PASS",
+    "retainedObjectsVerified": "PASS",
+    "acknowledgementIdempotent": "PASS",
+    "automaticRecoveryBlocked": "PASS"
+  },
+  "operationId": "op_c35de6202cc2001ede26337f38da02df",
+  "preview": {
+    "schema": "sathonate.local-retained-deletion/v1",
+    "targetSHA256": "95e80871f1658b4308b4a9c29ff211aca04e3ad1df23c38199f16796b403b556",
+    "networkSHA256": "e118fd52cb25745733d76db7a710f361e418c9dab0706736a97b523ee8ce2fb9",
+    "bindingSHA256": "0484c612786b9b4b3568543ee6c5dbbb9181759bee1f0fa2ab6aeb1e5c815af2",
+    "namespaceUID": "8fec170a-0bb7-488c-96d7-859e1d29cb40",
+    "digest": "9a605f22013a07ba0f15dfd3fe5626977cb8943d0241793e138fe3ab39041049",
+    "observedAt": "2026-11-07T14:30:14.659715Z",
+    "delete": [
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "secure-controller",
+        "uid": "fe8d16c2-71df-4eb9-ade1-47be0a4f1a45"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "cc-be491fd5b4aa73a7-s1",
+        "uid": "d2deafd8-6e95-47e9-a46f-6f37c4bfa326"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "raft-1",
+        "uid": "22175e9a-e8b2-425e-bb16-2e6abadc3e80"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "raft-2",
+        "uid": "f993253f-8e4b-495a-8efd-c02d1ee4e60c"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "raft-3",
+        "uid": "8b522703-552e-4950-a600-c481e4d0ba09"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "retailer-issuer",
+        "uid": "3f28746d-7114-44be-b8b1-fb390c475d9a"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "retailer-p1",
+        "uid": "cb95a4c7-f69b-4a55-88d2-9647cf424232"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "warehouse-issuer",
+        "uid": "390f6208-3ced-45d3-8ce3-51aa2d5aff92"
+      },
+      {
+        "resource": "deployments",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "warehouse-p1",
+        "uid": "957b2d2f-9e7a-4340-b064-1afd18d857cc"
+      },
+      {
+        "resource": "jobs",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "deletion-owned-canary",
+        "uid": "66ee267d-1614-4ef3-9b83-9c65acf5a9cc"
+      },
+      {
+        "resource": "jobs",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "smp-c35de6202cc2001ede26337f38da02df",
+        "uid": "d68451ef-9829-4273-bf69-ffc9f0711cbe"
+      },
+      {
+        "resource": "rolebindings",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "secure-controller",
+        "uid": "c7b76642-6f0a-47bf-aeb7-4f5649c851ea"
+      },
+      {
+        "resource": "rolebindings",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "secure-issuer",
+        "uid": "0d33cb89-9a66-4cfc-8e4e-efb51ee60248"
+      },
+      {
+        "resource": "roles",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "secure-controller",
+        "uid": "e6feed9d-f77f-46a2-aef0-1e62b22e7970"
+      },
+      {
+        "resource": "roles",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "secure-issuer",
+        "uid": "979b5441-7880-4c2a-89ba-51829b3a4c4d"
+      },
+      {
+        "resource": "serviceaccounts",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "secure-controller",
+        "uid": "b084096a-de96-4f7a-8694-76700fe885fc"
+      },
+      {
+        "resource": "serviceaccounts",
+        "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+        "name": "secure-issuer",
+        "uid": "644d55be-770f-4043-b538-e272805be86c"
+      }
+    ],
+    "retain": [
+      "namespace",
+      "Fabric-CRs-and-channel-configuration",
+      "Secrets-and-Helm-history",
+      "persistentvolumeclaims",
+      "services-configmaps-and-network-isolation"
+    ],
+    "retainedObjects": [
+      {
+        "resource": "fabriccas",
+        "name": "retailer-issuer",
+        "uid": "40d963f7-f886-456a-a7f2-da5fcfa2138f"
+      },
+      {
+        "resource": "fabriccas",
+        "name": "warehouse-issuer",
+        "uid": "87440ab3-2cb9-46b7-a9b1-6afdf668ee43"
+      },
+      {
+        "resource": "fabricchaincodes",
+        "name": "cc-be491fd5b4aa73a7-s1",
+        "uid": "eae12cc8-a5d4-4351-a784-96500f885085"
+      },
+      {
+        "resource": "fabricorderernodes",
+        "name": "raft-1",
+        "uid": "362c88a9-d923-4bde-ae33-bb3464aacd3b"
+      },
+      {
+        "resource": "fabricorderernodes",
+        "name": "raft-2",
+        "uid": "7bf95d0f-ffa7-456f-b9e6-6443123f5f97"
+      },
+      {
+        "resource": "fabricorderernodes",
+        "name": "raft-3",
+        "uid": "dccad6a8-1b64-4538-8b95-0c406dc1be2c"
+      },
+      {
+        "resource": "fabricpeers",
+        "name": "retailer-p1",
+        "uid": "2f1c6366-af92-4695-a49c-51cf9d1275fb"
+      },
+      {
+        "resource": "fabricpeers",
+        "name": "warehouse-p1",
+        "uid": "bcfe43fa-6c74-4405-b4f5-4c8b6dc87b3e"
+      },
+      {
+        "resource": "persistentvolumeclaims",
+        "name": "raft-1",
+        "uid": "401cf634-bc86-4d0c-8d5a-b59f53bc9edf"
+      },
+      {
+        "resource": "persistentvolumeclaims",
+        "name": "raft-2",
+        "uid": "bfb81631-08c2-4aab-82ba-34ee7aa1d78d"
+      },
+      {
+        "resource": "persistentvolumeclaims",
+        "name": "raft-3",
+        "uid": "9b3a3a8b-e644-40aa-a65e-401f334687dd"
+      },
+      {
+        "resource": "persistentvolumeclaims",
+        "name": "retailer-issuer",
+        "uid": "4a76de05-c007-4921-885e-a286e61ae9c8"
+      },
+      {
+        "resource": "persistentvolumeclaims",
+        "name": "retailer-p1",
+        "uid": "3aa6f011-3cb3-4520-b479-b553c0703778"
+      },
+      {
+        "resource": "persistentvolumeclaims",
+        "name": "warehouse-issuer",
+        "uid": "20144f74-5418-4450-adf7-5fc3ac78baaa"
+      },
+      {
+        "resource": "persistentvolumeclaims",
+        "name": "warehouse-p1",
+        "uid": "9b405efc-2e7a-4cb5-81ba-816ae84d5003"
+      },
+      {
+        "resource": "secrets",
+        "name": "cc-be491fd5b4aa73a7-s1-runtime-tls",
+        "uid": "15a5a78f-d340-4be3-925e-9e63744f680f"
+      },
+      {
+        "resource": "secrets",
+        "name": "cc-be491fd5b4aa73a7-s1-tls-identity",
+        "uid": "46099cc0-ea87-448f-b78c-5b505ccd74aa"
+      },
+      {
+        "resource": "secrets",
+        "name": "channel-shipments-genesis",
+        "uid": "9ff5b35d-8f74-4753-9c72-7abf5e17d2be"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1--genesis",
+        "uid": "aa007716-5ccd-4c76-9629-31a4e4d3147e"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-admin",
+        "uid": "75e8f06b-92ef-41d3-8f46-09e5d452c918"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-aux-identity",
+        "uid": "22d3a3ce-2d3a-4ca1-904f-b6bc1c7f9d6d"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-cacert",
+        "uid": "3a579931-f19e-4e9f-b277-60bfe346f71a"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-idcert",
+        "uid": "b2afdbbf-e602-4756-8dd9-d573b82f5f3d"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-idkey",
+        "uid": "6131506a-a3f9-4e1c-8583-8396604d8816"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-peer-tlsrootcert",
+        "uid": "02556051-fb9c-4c32-9bcb-9a5b2284203b"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-sign-identity",
+        "uid": "ab41a590-d037-4837-8732-09c811a893ed"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-tls",
+        "uid": "f1a1a314-f0dd-4ce4-a830-2b737714e224"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-tls-identity",
+        "uid": "e9214069-1bd5-47d7-9ab5-359dc0ff9061"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-1-tlsrootcert",
+        "uid": "8ff37a03-8064-48ad-a5dd-aff478c83282"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2--genesis",
+        "uid": "d33fa478-087f-473b-b598-ed367d915175"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-admin",
+        "uid": "19b3460e-c165-4dab-8150-98f13986f094"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-aux-identity",
+        "uid": "af0759b6-7f9f-4841-9f68-9890bcd9bc46"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-cacert",
+        "uid": "d7074223-31f4-4dc2-b5cd-5bb1c0ef2402"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-idcert",
+        "uid": "a0ea842b-e74e-424f-b00c-46f576fa5c6b"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-idkey",
+        "uid": "bebf4710-1a95-440c-9f04-6eca2f7df2fa"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-peer-tlsrootcert",
+        "uid": "59610e90-fb8b-4015-95ca-80b39ac91200"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-sign-identity",
+        "uid": "4834fac8-6e2b-4e54-bbe5-48acc29b8e4b"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-tls",
+        "uid": "028c5554-f2e1-42dc-b2db-71d739b51b30"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-tls-identity",
+        "uid": "d3b9d49b-822c-430c-8fbd-3a42dcea91c3"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-2-tlsrootcert",
+        "uid": "107407b9-d3fe-4b89-8a43-472133fe8421"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3--genesis",
+        "uid": "7985a5ab-8704-47e9-b262-9f37a941748b"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-admin",
+        "uid": "a8109337-2886-49e8-aa21-8dbfebba4d44"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-aux-identity",
+        "uid": "535b650a-a686-44f1-8771-47e6357c3277"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-cacert",
+        "uid": "4a9bbcbd-9ea9-413b-9b06-23590e7f54ca"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-idcert",
+        "uid": "497af541-6ad1-40ed-bb66-60230960dd06"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-idkey",
+        "uid": "2d39888c-5743-42fa-a20a-250a768d85d7"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-peer-tlsrootcert",
+        "uid": "518a9885-a69f-42f3-8f0e-8a778e8aa233"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-sign-identity",
+        "uid": "59d3533e-6328-4d84-a47b-3d83a0eec3ab"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-tls",
+        "uid": "dec29d0b-c34d-4c1a-a5c2-fdce95ce7e73"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-tls-identity",
+        "uid": "429680e3-ae4b-405d-9e22-f5a35be4583b"
+      },
+      {
+        "resource": "secrets",
+        "name": "raft-3-tlsrootcert",
+        "uid": "e6c075c8-dc85-4e88-92d3-f069e4d64e5b"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-chaincode-admin-identity",
+        "uid": "85ca4506-6a4e-4459-a1d8-887dc25e470d"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-channel-admin-identity",
+        "uid": "f36ba2d9-cc18-4dba-a345-67729dccc3a2"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-channel-tls-identity",
+        "uid": "a3367520-bf0e-47f0-a411-e6882d18737a"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-client-identity",
+        "uid": "70a08198-1fdd-4942-9b13-aa49f7871260"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-issuer--ca",
+        "uid": "6b15645f-122a-4d46-aca3-68fd7ffbaf16"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-issuer--msp-cryptomaterial",
+        "uid": "24aaf651-06b2-4cc7-869e-033981f8d428"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-issuer--msp-tls-cryptomaterial",
+        "uid": "e0ae5f28-b581-415a-bd87-045962338298"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-issuer--tls-cryptomaterial",
+        "uid": "1110457a-1e48-4090-a258-971234d97fda"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-issuer-registrar-ca-identity",
+        "uid": "43313747-ad75-46af-9321-1f77a9d13a41"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-issuer-registrar-tlsca-identity",
+        "uid": "fdf7884c-aff3-4ce7-abfa-802f92efd761"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-issuer-registry",
+        "uid": "f973742d-77b6-4810-bc4c-07871e43cf12"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-p1-aux-identity",
+        "uid": "e472d9fe-0221-47a2-a0cc-93514002eaeb"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-p1-mat-acea6414f9e73a842d5d7862",
+        "uid": "b04b6879-59ef-444a-b25e-c35552725bf3"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-p1-sign-identity",
+        "uid": "cb3732f0-124c-46f5-85aa-afa8444926e0"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-p1-tls-identity",
+        "uid": "0ca173fb-9929-454e-b4d4-43f9af269965"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-p1-tls-ops",
+        "uid": "05ff3309-3518-48a6-b188-42b01dc93db0"
+      },
+      {
+        "resource": "secrets",
+        "name": "retailer-p1-tlsrootcert",
+        "uid": "558220b9-d61a-4455-82f1-f3ca77117ef7"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.raft-1.v10",
+        "uid": "3c8a5301-305f-47fa-80ed-f7849d701895"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.raft-1.v9",
+        "uid": "37c62be7-f2af-49cd-b733-112a540108d7"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.raft-2.v10",
+        "uid": "507f53e4-396d-48d0-a1ab-2a4ec62ab015"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.raft-2.v9",
+        "uid": "a8140c92-e8e0-4f26-b4ea-37b3f08f9160"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.raft-3.v10",
+        "uid": "2a41df97-9d78-4daf-8503-4aec519cc94f"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.raft-3.v9",
+        "uid": "eb8feb8f-ba69-4a0e-a824-71094fb3cc48"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.retailer-issuer.v5",
+        "uid": "3a9f77cc-8305-40db-bfe8-599c942f80f1"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.retailer-issuer.v6",
+        "uid": "5eb8874c-3c50-46ec-82db-8519fe5a560d"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.retailer-p1.v1",
+        "uid": "47be47d2-24bf-4608-950d-7f487383ab08"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.warehouse-issuer.v5",
+        "uid": "cfe0e419-077c-42f0-874f-71a6adc371d5"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.warehouse-issuer.v6",
+        "uid": "9da5bceb-5013-415c-95a4-df5f28768fa9"
+      },
+      {
+        "resource": "secrets",
+        "name": "sh.helm.release.v1.warehouse-p1.v1",
+        "uid": "ebea8208-195b-4e25-a370-5fa7929cda43"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-cc-be491fd5b4aa73a7-s1-tls",
+        "uid": "2b35387c-4211-446c-ad2d-9cc1618f24f6"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-1-aux",
+        "uid": "72472f01-19e5-4577-949f-ae52302fe1f5"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-1-sign",
+        "uid": "27423fe7-1359-4861-ae52-e1ad91698f32"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-1-tls",
+        "uid": "6aaf77d6-f35e-41df-932c-8490be9e3deb"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-2-aux",
+        "uid": "23c960ca-7f00-4775-8978-5b2fa1ac35fe"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-2-sign",
+        "uid": "88df71b2-40f5-4d6b-9735-5472eb176cac"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-2-tls",
+        "uid": "1c51f490-03b4-45ce-8692-e818feb4ec26"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-3-aux",
+        "uid": "f0f5efe3-b45d-476b-bb55-00ef66c47f3e"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-3-sign",
+        "uid": "e575ad98-d780-4e40-ad1d-c7772460fcf5"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-raft-3-tls",
+        "uid": "392d2ccd-855f-49dc-9d70-d1d3f30a3168"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-registrar-retailer-issuer-ca",
+        "uid": "d9cbd1fd-1593-41e8-95ae-4de5e3ba96af"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-registrar-retailer-issuer-tlsca",
+        "uid": "f50ef461-8a53-4ecd-8969-a4674de28ba4"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-registrar-warehouse-issuer-ca",
+        "uid": "d7d5bf92-de06-44e2-bfe2-5c7f359b6b32"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-registrar-warehouse-issuer-tlsca",
+        "uid": "898cca36-453f-456c-9920-e2e4642ec487"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-retailer-chaincode-admin",
+        "uid": "77ff5b6b-30b6-419b-bc3e-2f960ba48262"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-retailer-channel-admin",
+        "uid": "83aa9c96-785d-4dfb-86c1-1533e651f728"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-retailer-channel-tls",
+        "uid": "1171d401-01a4-4f2a-97bf-eb2f67b18369"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-retailer-client",
+        "uid": "b2d80382-b707-4462-a349-b7112dea653b"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-retailer-p1-aux",
+        "uid": "3048458e-a8e1-4c77-8e52-ed6a33ea4a56"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-retailer-p1-sign",
+        "uid": "996120c2-45bd-492a-b686-99bb1c594905"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-retailer-p1-tls",
+        "uid": "1405fda0-aa95-4da8-a1d6-6b0274571c90"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-warehouse-chaincode-admin",
+        "uid": "55983db8-a254-4167-a100-2e41cf0b5ee9"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-warehouse-channel-admin",
+        "uid": "7ba134f5-db48-4943-afc8-c82cee8d926a"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-warehouse-channel-tls",
+        "uid": "bf4026fb-89a3-4b43-8133-bc6bff648f63"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-warehouse-client",
+        "uid": "c77a018d-e39b-408b-87ad-70c42ab26b08"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-warehouse-p1-aux",
+        "uid": "916275d6-8e04-4e34-8c89-18abf65353e1"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-warehouse-p1-sign",
+        "uid": "c1430940-434c-4157-9762-4492fe27710f"
+      },
+      {
+        "resource": "secrets",
+        "name": "smp-enrollment-secure-warehouse-p1-tls",
+        "uid": "68baa6e0-50cf-44cb-9a32-55568bf8bd2f"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-chaincode-admin-identity",
+        "uid": "43b5d52b-06d1-4132-bd80-83ccee9b35f3"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-channel-admin-identity",
+        "uid": "6d6feca0-18bb-44bc-bf47-9b9825d964de"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-channel-tls-identity",
+        "uid": "e0aaa3c3-8917-40b6-9bb0-937c8ea0f1a4"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-client-identity",
+        "uid": "14b8af41-6129-4f16-a62c-ccfdf42c5fc9"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-issuer--ca",
+        "uid": "14c9e20f-f8f8-4add-8f8f-87fd0b256e78"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-issuer--msp-cryptomaterial",
+        "uid": "44a3a62a-8f33-4fa6-8667-d1470a9959fe"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-issuer--msp-tls-cryptomaterial",
+        "uid": "725b91ad-eebe-4be9-bbf8-47c22429a45b"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-issuer--tls-cryptomaterial",
+        "uid": "b9c33254-c865-4ffe-ac45-4810b2cfa6c1"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-issuer-registrar-ca-identity",
+        "uid": "7ed4bc00-e471-44de-8857-dcbb7479b344"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-issuer-registrar-tlsca-identity",
+        "uid": "9d84d1f4-139f-4497-9df2-38e13c8e8109"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-issuer-registry",
+        "uid": "43c4b450-1906-44ef-bbfb-8412b1ab499f"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-p1-aux-identity",
+        "uid": "53a333d1-1d44-43e0-9dee-a3e84131591d"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-p1-mat-86eeaf899794c6cdd8bddad2",
+        "uid": "edd350ba-67bf-4b30-85f1-5f11439fb325"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-p1-sign-identity",
+        "uid": "f11f82c1-354a-4d3d-9367-0d788c17e404"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-p1-tls-identity",
+        "uid": "f759f483-4deb-4c33-827c-12438e6f163a"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-p1-tls-ops",
+        "uid": "6a05305e-33cf-4ace-a784-969b09aaa280"
+      },
+      {
+        "resource": "secrets",
+        "name": "warehouse-p1-tlsrootcert",
+        "uid": "d8dad38a-bf22-4f07-a70b-d3fe052ca374"
+      },
+      {
+        "resource": "serviceaccounts",
+        "name": "default",
+        "uid": "a0fc4c11-df84-4a4f-b948-702f242240cd"
+      }
+    ],
+    "retentionVerified": false,
+    "cloudVolumeInventoryVerified": false,
+    "notice": "Remove owned workloads and execution access; permanently fence this namespace against automatic redeployment. Preserve Fabric CRs to avoid Helm uninstall finalizers deleting PVCs. No data erasure or backup is performed."
+  },
+  "completion": {
+    "plan": {
+      "schema": "sathonate.local-retained-deletion/v1",
+      "targetSHA256": "95e80871f1658b4308b4a9c29ff211aca04e3ad1df23c38199f16796b403b556",
+      "networkSHA256": "e118fd52cb25745733d76db7a710f361e418c9dab0706736a97b523ee8ce2fb9",
+      "bindingSHA256": "0484c612786b9b4b3568543ee6c5dbbb9181759bee1f0fa2ab6aeb1e5c815af2",
+      "namespaceUID": "8fec170a-0bb7-488c-96d7-859e1d29cb40",
+      "digest": "9a605f22013a07ba0f15dfd3fe5626977cb8943d0241793e138fe3ab39041049",
+      "observedAt": "2026-11-07T14:30:15.7616158Z",
+      "delete": [
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "secure-controller",
+          "uid": "fe8d16c2-71df-4eb9-ade1-47be0a4f1a45"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "cc-be491fd5b4aa73a7-s1",
+          "uid": "d2deafd8-6e95-47e9-a46f-6f37c4bfa326"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "raft-1",
+          "uid": "22175e9a-e8b2-425e-bb16-2e6abadc3e80"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "raft-2",
+          "uid": "f993253f-8e4b-495a-8efd-c02d1ee4e60c"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "raft-3",
+          "uid": "8b522703-552e-4950-a600-c481e4d0ba09"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "retailer-issuer",
+          "uid": "3f28746d-7114-44be-b8b1-fb390c475d9a"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "retailer-p1",
+          "uid": "cb95a4c7-f69b-4a55-88d2-9647cf424232"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "warehouse-issuer",
+          "uid": "390f6208-3ced-45d3-8ce3-51aa2d5aff92"
+        },
+        {
+          "resource": "deployments",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "warehouse-p1",
+          "uid": "957b2d2f-9e7a-4340-b064-1afd18d857cc"
+        },
+        {
+          "resource": "jobs",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "deletion-owned-canary",
+          "uid": "66ee267d-1614-4ef3-9b83-9c65acf5a9cc"
+        },
+        {
+          "resource": "jobs",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "smp-c35de6202cc2001ede26337f38da02df",
+          "uid": "d68451ef-9829-4273-bf69-ffc9f0711cbe"
+        },
+        {
+          "resource": "rolebindings",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "secure-controller",
+          "uid": "c7b76642-6f0a-47bf-aeb7-4f5649c851ea"
+        },
+        {
+          "resource": "rolebindings",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "secure-issuer",
+          "uid": "0d33cb89-9a66-4cfc-8e4e-efb51ee60248"
+        },
+        {
+          "resource": "roles",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "secure-controller",
+          "uid": "e6feed9d-f77f-46a2-aef0-1e62b22e7970"
+        },
+        {
+          "resource": "roles",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "secure-issuer",
+          "uid": "979b5441-7880-4c2a-89ba-51829b3a4c4d"
+        },
+        {
+          "resource": "serviceaccounts",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "secure-controller",
+          "uid": "b084096a-de96-4f7a-8694-76700fe885fc"
+        },
+        {
+          "resource": "serviceaccounts",
+          "namespace": "smp-s-21330ffc9831feecb93931c6802220c8",
+          "name": "secure-issuer",
+          "uid": "644d55be-770f-4043-b538-e272805be86c"
+        }
+      ],
+      "retain": [
+        "namespace",
+        "Fabric-CRs-and-channel-configuration",
+        "Secrets-and-Helm-history",
+        "persistentvolumeclaims",
+        "services-configmaps-and-network-isolation"
+      ],
+      "retainedObjects": [
+        {
+          "resource": "fabriccas",
+          "name": "retailer-issuer",
+          "uid": "40d963f7-f886-456a-a7f2-da5fcfa2138f"
+        },
+        {
+          "resource": "fabriccas",
+          "name": "warehouse-issuer",
+          "uid": "87440ab3-2cb9-46b7-a9b1-6afdf668ee43"
+        },
+        {
+          "resource": "fabricchaincodes",
+          "name": "cc-be491fd5b4aa73a7-s1",
+          "uid": "eae12cc8-a5d4-4351-a784-96500f885085"
+        },
+        {
+          "resource": "fabricorderernodes",
+          "name": "raft-1",
+          "uid": "362c88a9-d923-4bde-ae33-bb3464aacd3b"
+        },
+        {
+          "resource": "fabricorderernodes",
+          "name": "raft-2",
+          "uid": "7bf95d0f-ffa7-456f-b9e6-6443123f5f97"
+        },
+        {
+          "resource": "fabricorderernodes",
+          "name": "raft-3",
+          "uid": "dccad6a8-1b64-4538-8b95-0c406dc1be2c"
+        },
+        {
+          "resource": "fabricpeers",
+          "name": "retailer-p1",
+          "uid": "2f1c6366-af92-4695-a49c-51cf9d1275fb"
+        },
+        {
+          "resource": "fabricpeers",
+          "name": "warehouse-p1",
+          "uid": "bcfe43fa-6c74-4405-b4f5-4c8b6dc87b3e"
+        },
+        {
+          "resource": "persistentvolumeclaims",
+          "name": "raft-1",
+          "uid": "401cf634-bc86-4d0c-8d5a-b59f53bc9edf"
+        },
+        {
+          "resource": "persistentvolumeclaims",
+          "name": "raft-2",
+          "uid": "bfb81631-08c2-4aab-82ba-34ee7aa1d78d"
+        },
+        {
+          "resource": "persistentvolumeclaims",
+          "name": "raft-3",
+          "uid": "9b3a3a8b-e644-40aa-a65e-401f334687dd"
+        },
+        {
+          "resource": "persistentvolumeclaims",
+          "name": "retailer-issuer",
+          "uid": "4a76de05-c007-4921-885e-a286e61ae9c8"
+        },
+        {
+          "resource": "persistentvolumeclaims",
+          "name": "retailer-p1",
+          "uid": "3aa6f011-3cb3-4520-b479-b553c0703778"
+        },
+        {
+          "resource": "persistentvolumeclaims",
+          "name": "warehouse-issuer",
+          "uid": "20144f74-5418-4450-adf7-5fc3ac78baaa"
+        },
+        {
+          "resource": "persistentvolumeclaims",
+          "name": "warehouse-p1",
+          "uid": "9b405efc-2e7a-4cb5-81ba-816ae84d5003"
+        },
+        {
+          "resource": "secrets",
+          "name": "cc-be491fd5b4aa73a7-s1-runtime-tls",
+          "uid": "15a5a78f-d340-4be3-925e-9e63744f680f"
+        },
+        {
+          "resource": "secrets",
+          "name": "cc-be491fd5b4aa73a7-s1-tls-identity",
+          "uid": "46099cc0-ea87-448f-b78c-5b505ccd74aa"
+        },
+        {
+          "resource": "secrets",
+          "name": "channel-shipments-genesis",
+          "uid": "9ff5b35d-8f74-4753-9c72-7abf5e17d2be"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1--genesis",
+          "uid": "aa007716-5ccd-4c76-9629-31a4e4d3147e"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-admin",
+          "uid": "75e8f06b-92ef-41d3-8f46-09e5d452c918"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-aux-identity",
+          "uid": "22d3a3ce-2d3a-4ca1-904f-b6bc1c7f9d6d"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-cacert",
+          "uid": "3a579931-f19e-4e9f-b277-60bfe346f71a"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-idcert",
+          "uid": "b2afdbbf-e602-4756-8dd9-d573b82f5f3d"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-idkey",
+          "uid": "6131506a-a3f9-4e1c-8583-8396604d8816"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-peer-tlsrootcert",
+          "uid": "02556051-fb9c-4c32-9bcb-9a5b2284203b"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-sign-identity",
+          "uid": "ab41a590-d037-4837-8732-09c811a893ed"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-tls",
+          "uid": "f1a1a314-f0dd-4ce4-a830-2b737714e224"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-tls-identity",
+          "uid": "e9214069-1bd5-47d7-9ab5-359dc0ff9061"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-1-tlsrootcert",
+          "uid": "8ff37a03-8064-48ad-a5dd-aff478c83282"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2--genesis",
+          "uid": "d33fa478-087f-473b-b598-ed367d915175"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-admin",
+          "uid": "19b3460e-c165-4dab-8150-98f13986f094"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-aux-identity",
+          "uid": "af0759b6-7f9f-4841-9f68-9890bcd9bc46"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-cacert",
+          "uid": "d7074223-31f4-4dc2-b5cd-5bb1c0ef2402"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-idcert",
+          "uid": "a0ea842b-e74e-424f-b00c-46f576fa5c6b"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-idkey",
+          "uid": "bebf4710-1a95-440c-9f04-6eca2f7df2fa"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-peer-tlsrootcert",
+          "uid": "59610e90-fb8b-4015-95ca-80b39ac91200"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-sign-identity",
+          "uid": "4834fac8-6e2b-4e54-bbe5-48acc29b8e4b"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-tls",
+          "uid": "028c5554-f2e1-42dc-b2db-71d739b51b30"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-tls-identity",
+          "uid": "d3b9d49b-822c-430c-8fbd-3a42dcea91c3"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-2-tlsrootcert",
+          "uid": "107407b9-d3fe-4b89-8a43-472133fe8421"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3--genesis",
+          "uid": "7985a5ab-8704-47e9-b262-9f37a941748b"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-admin",
+          "uid": "a8109337-2886-49e8-aa21-8dbfebba4d44"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-aux-identity",
+          "uid": "535b650a-a686-44f1-8771-47e6357c3277"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-cacert",
+          "uid": "4a9bbcbd-9ea9-413b-9b06-23590e7f54ca"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-idcert",
+          "uid": "497af541-6ad1-40ed-bb66-60230960dd06"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-idkey",
+          "uid": "2d39888c-5743-42fa-a20a-250a768d85d7"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-peer-tlsrootcert",
+          "uid": "518a9885-a69f-42f3-8f0e-8a778e8aa233"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-sign-identity",
+          "uid": "59d3533e-6328-4d84-a47b-3d83a0eec3ab"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-tls",
+          "uid": "dec29d0b-c34d-4c1a-a5c2-fdce95ce7e73"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-tls-identity",
+          "uid": "429680e3-ae4b-405d-9e22-f5a35be4583b"
+        },
+        {
+          "resource": "secrets",
+          "name": "raft-3-tlsrootcert",
+          "uid": "e6c075c8-dc85-4e88-92d3-f069e4d64e5b"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-chaincode-admin-identity",
+          "uid": "85ca4506-6a4e-4459-a1d8-887dc25e470d"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-channel-admin-identity",
+          "uid": "f36ba2d9-cc18-4dba-a345-67729dccc3a2"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-channel-tls-identity",
+          "uid": "a3367520-bf0e-47f0-a411-e6882d18737a"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-client-identity",
+          "uid": "70a08198-1fdd-4942-9b13-aa49f7871260"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-issuer--ca",
+          "uid": "6b15645f-122a-4d46-aca3-68fd7ffbaf16"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-issuer--msp-cryptomaterial",
+          "uid": "24aaf651-06b2-4cc7-869e-033981f8d428"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-issuer--msp-tls-cryptomaterial",
+          "uid": "e0ae5f28-b581-415a-bd87-045962338298"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-issuer--tls-cryptomaterial",
+          "uid": "1110457a-1e48-4090-a258-971234d97fda"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-issuer-registrar-ca-identity",
+          "uid": "43313747-ad75-46af-9321-1f77a9d13a41"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-issuer-registrar-tlsca-identity",
+          "uid": "fdf7884c-aff3-4ce7-abfa-802f92efd761"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-issuer-registry",
+          "uid": "f973742d-77b6-4810-bc4c-07871e43cf12"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-p1-aux-identity",
+          "uid": "e472d9fe-0221-47a2-a0cc-93514002eaeb"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-p1-mat-acea6414f9e73a842d5d7862",
+          "uid": "b04b6879-59ef-444a-b25e-c35552725bf3"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-p1-sign-identity",
+          "uid": "cb3732f0-124c-46f5-85aa-afa8444926e0"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-p1-tls-identity",
+          "uid": "0ca173fb-9929-454e-b4d4-43f9af269965"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-p1-tls-ops",
+          "uid": "05ff3309-3518-48a6-b188-42b01dc93db0"
+        },
+        {
+          "resource": "secrets",
+          "name": "retailer-p1-tlsrootcert",
+          "uid": "558220b9-d61a-4455-82f1-f3ca77117ef7"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.raft-1.v10",
+          "uid": "3c8a5301-305f-47fa-80ed-f7849d701895"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.raft-1.v9",
+          "uid": "37c62be7-f2af-49cd-b733-112a540108d7"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.raft-2.v10",
+          "uid": "507f53e4-396d-48d0-a1ab-2a4ec62ab015"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.raft-2.v9",
+          "uid": "a8140c92-e8e0-4f26-b4ea-37b3f08f9160"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.raft-3.v10",
+          "uid": "2a41df97-9d78-4daf-8503-4aec519cc94f"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.raft-3.v9",
+          "uid": "eb8feb8f-ba69-4a0e-a824-71094fb3cc48"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.retailer-issuer.v5",
+          "uid": "3a9f77cc-8305-40db-bfe8-599c942f80f1"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.retailer-issuer.v6",
+          "uid": "5eb8874c-3c50-46ec-82db-8519fe5a560d"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.retailer-p1.v1",
+          "uid": "47be47d2-24bf-4608-950d-7f487383ab08"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.warehouse-issuer.v5",
+          "uid": "cfe0e419-077c-42f0-874f-71a6adc371d5"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.warehouse-issuer.v6",
+          "uid": "9da5bceb-5013-415c-95a4-df5f28768fa9"
+        },
+        {
+          "resource": "secrets",
+          "name": "sh.helm.release.v1.warehouse-p1.v1",
+          "uid": "ebea8208-195b-4e25-a370-5fa7929cda43"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-cc-be491fd5b4aa73a7-s1-tls",
+          "uid": "2b35387c-4211-446c-ad2d-9cc1618f24f6"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-1-aux",
+          "uid": "72472f01-19e5-4577-949f-ae52302fe1f5"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-1-sign",
+          "uid": "27423fe7-1359-4861-ae52-e1ad91698f32"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-1-tls",
+          "uid": "6aaf77d6-f35e-41df-932c-8490be9e3deb"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-2-aux",
+          "uid": "23c960ca-7f00-4775-8978-5b2fa1ac35fe"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-2-sign",
+          "uid": "88df71b2-40f5-4d6b-9735-5472eb176cac"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-2-tls",
+          "uid": "1c51f490-03b4-45ce-8692-e818feb4ec26"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-3-aux",
+          "uid": "f0f5efe3-b45d-476b-bb55-00ef66c47f3e"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-3-sign",
+          "uid": "e575ad98-d780-4e40-ad1d-c7772460fcf5"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-raft-3-tls",
+          "uid": "392d2ccd-855f-49dc-9d70-d1d3f30a3168"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-registrar-retailer-issuer-ca",
+          "uid": "d9cbd1fd-1593-41e8-95ae-4de5e3ba96af"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-registrar-retailer-issuer-tlsca",
+          "uid": "f50ef461-8a53-4ecd-8969-a4674de28ba4"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-registrar-warehouse-issuer-ca",
+          "uid": "d7d5bf92-de06-44e2-bfe2-5c7f359b6b32"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-registrar-warehouse-issuer-tlsca",
+          "uid": "898cca36-453f-456c-9920-e2e4642ec487"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-retailer-chaincode-admin",
+          "uid": "77ff5b6b-30b6-419b-bc3e-2f960ba48262"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-retailer-channel-admin",
+          "uid": "83aa9c96-785d-4dfb-86c1-1533e651f728"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-retailer-channel-tls",
+          "uid": "1171d401-01a4-4f2a-97bf-eb2f67b18369"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-retailer-client",
+          "uid": "b2d80382-b707-4462-a349-b7112dea653b"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-retailer-p1-aux",
+          "uid": "3048458e-a8e1-4c77-8e52-ed6a33ea4a56"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-retailer-p1-sign",
+          "uid": "996120c2-45bd-492a-b686-99bb1c594905"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-retailer-p1-tls",
+          "uid": "1405fda0-aa95-4da8-a1d6-6b0274571c90"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-warehouse-chaincode-admin",
+          "uid": "55983db8-a254-4167-a100-2e41cf0b5ee9"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-warehouse-channel-admin",
+          "uid": "7ba134f5-db48-4943-afc8-c82cee8d926a"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-warehouse-channel-tls",
+          "uid": "bf4026fb-89a3-4b43-8133-bc6bff648f63"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-warehouse-client",
+          "uid": "c77a018d-e39b-408b-87ad-70c42ab26b08"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-warehouse-p1-aux",
+          "uid": "916275d6-8e04-4e34-8c89-18abf65353e1"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-warehouse-p1-sign",
+          "uid": "c1430940-434c-4157-9762-4492fe27710f"
+        },
+        {
+          "resource": "secrets",
+          "name": "smp-enrollment-secure-warehouse-p1-tls",
+          "uid": "68baa6e0-50cf-44cb-9a32-55568bf8bd2f"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-chaincode-admin-identity",
+          "uid": "43b5d52b-06d1-4132-bd80-83ccee9b35f3"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-channel-admin-identity",
+          "uid": "6d6feca0-18bb-44bc-bf47-9b9825d964de"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-channel-tls-identity",
+          "uid": "e0aaa3c3-8917-40b6-9bb0-937c8ea0f1a4"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-client-identity",
+          "uid": "14b8af41-6129-4f16-a62c-ccfdf42c5fc9"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-issuer--ca",
+          "uid": "14c9e20f-f8f8-4add-8f8f-87fd0b256e78"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-issuer--msp-cryptomaterial",
+          "uid": "44a3a62a-8f33-4fa6-8667-d1470a9959fe"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-issuer--msp-tls-cryptomaterial",
+          "uid": "725b91ad-eebe-4be9-bbf8-47c22429a45b"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-issuer--tls-cryptomaterial",
+          "uid": "b9c33254-c865-4ffe-ac45-4810b2cfa6c1"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-issuer-registrar-ca-identity",
+          "uid": "7ed4bc00-e471-44de-8857-dcbb7479b344"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-issuer-registrar-tlsca-identity",
+          "uid": "9d84d1f4-139f-4497-9df2-38e13c8e8109"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-issuer-registry",
+          "uid": "43c4b450-1906-44ef-bbfb-8412b1ab499f"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-p1-aux-identity",
+          "uid": "53a333d1-1d44-43e0-9dee-a3e84131591d"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-p1-mat-86eeaf899794c6cdd8bddad2",
+          "uid": "edd350ba-67bf-4b30-85f1-5f11439fb325"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-p1-sign-identity",
+          "uid": "f11f82c1-354a-4d3d-9367-0d788c17e404"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-p1-tls-identity",
+          "uid": "f759f483-4deb-4c33-827c-12438e6f163a"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-p1-tls-ops",
+          "uid": "6a05305e-33cf-4ace-a784-969b09aaa280"
+        },
+        {
+          "resource": "secrets",
+          "name": "warehouse-p1-tlsrootcert",
+          "uid": "d8dad38a-bf22-4f07-a70b-d3fe052ca374"
+        },
+        {
+          "resource": "serviceaccounts",
+          "name": "default",
+          "uid": "a0fc4c11-df84-4a4f-b948-702f242240cd"
+        }
+      ],
+      "retentionVerified": false,
+      "cloudVolumeInventoryVerified": false,
+      "notice": "Remove owned workloads and execution access; permanently fence this namespace against automatic redeployment. Preserve Fabric CRs to avoid Helm uninstall finalizers deleting PVCs. No data erasure or backup is performed."
+    },
+    "actorSHA256": "d9bb85e1bd3ec774928e52c8fae0698c4ff0b4dc148bff1f1005bd4dc3c3b3d1",
+    "completed": true,
+    "retentionVerified": true
+  }
+}

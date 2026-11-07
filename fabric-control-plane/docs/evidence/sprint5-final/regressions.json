@@ -1,0 +1,52 @@
+{
+  "go": {
+    "tests": {
+      "pass": 372,
+      "skip": 23
+    },
+    "packages": {
+      "skip": 11,
+      "pass": 19
+    },
+    "log": "sprint5-close-go.jsonl",
+    "logSHA256": "73ac107ca3023c80be1e15226e81ec69a1d5491b15e7a28640d6d3f2303645b3"
+  },
+  "postgres": {
+    "tests": {
+      "pass": 47,
+      "skip": 1
+    },
+    "packages": {
+      "pass": 5
+    },
+    "log": "sprint5-close-postgres.jsonl",
+    "logSHA256": "f642e32c63866085a7afc0df98ff7fcc96f2b8881dc5f35a05f0aecf28b939df"
+  },
+  "coldHelperLive": {
+    "tests": {
+      "pass": 1
+    },
+    "packages": {
+      "pass": 1
+    },
+    "log": "sprint5-cold-helper-final-roundtrip.jsonl",
+    "logSHA256": "26d2011111cf7b668390fd69a89ddd72b5b50475e816f9071befad9004ecc567"
+  },
+  "goVet": "PASS",
+  "console": {
+    "success": true,
+    "numPassedTests": 26,
+    "numFailedTests": 0,
+    "numPendingTests": 0
+  },
+  "consoleBuild": "PASS_WITH_EXISTING_LARGE_CHUNK_WARNING",
+  "consoleFormat": "PASS",
+  "python": {
+    "atomicHarness": 13,
+    "isolationHarness": 6,
+    "operationsHarness": 4,
+    "status": "PASS"
+  },
+  "pythonStatic": "PASS",
+  "skips": "Opt-in tests require separate fixtures. They are not counted as passing; cold helper and PostgreSQL have dedicated evidence."
+}
