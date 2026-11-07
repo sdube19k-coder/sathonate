@@ -1,0 +1,67 @@
+{
+  "schema": "sathonate.sprint5-node-recovery/v1",
+  "status": "PASS_THREE_NODE_CASES_ONLY",
+  "capturedAt": "2026-11-07T07:40:58.748768+00:00",
+  "apiBinarySHA256": "43b14550add2da7fe9b4eb20786756e6fe29accb50f1654df7620621cdad10a6",
+  "workerImageID": "sha256:13a9035bda2e3056e087fab12afd8351201d4ea46510e762e186ce9ac4b0d80a",
+  "cases": [
+    {
+      "node": "warehouse-p1",
+      "status": "PASS",
+      "operationId": "op_365508d9f67d3e198e854cff9f8df477",
+      "pvcUIDsPreserved": true,
+      "otherNodeUIDsPreserved": true,
+      "idempotentAcknowledgement": true,
+      "transactions": [
+        {
+          "transactionId": "fca60bcf194c0f78650e4fd28001eb13c815a9df2e59cae1a90ba9a1a899e5a7",
+          "channel": "shipments",
+          "height": 6,
+          "equalPeerHashes": true
+        }
+      ]
+    },
+    {
+      "node": "raft-1",
+      "status": "PASS",
+      "operationId": "op_429222da32c575f24807b53bf27c2a86",
+      "pvcUIDsPreserved": true,
+      "otherNodeUIDsPreserved": true,
+      "idempotentAcknowledgement": true,
+      "transactions": [
+        {
+          "transactionId": "3e3cbc3ad47bd574bf187b2a6e98fa29e16e34220e8b3971b14332ad64a49a82",
+          "channel": "shipments",
+          "height": 7,
+          "equalPeerHashes": true
+        }
+      ]
+    },
+    {
+      "node": "warehouse-issuer",
+      "status": "PASS",
+      "operationId": "op_d2707f663a709f48c3aa9d30b0f5acb1",
+      "pvcUIDsPreserved": true,
+      "otherNodeUIDsPreserved": true,
+      "idempotentAcknowledgement": true,
+      "transactions": [
+        {
+          "transactionId": "395a5095b08e6b10022c1fb40fe3fa475a0de8f0f03979820b26258ce5842517",
+          "channel": "shipments",
+          "height": 8,
+          "equalPeerHashes": true
+        }
+      ]
+    }
+  ],
+  "cleanup": "PASS_DISPOSABLE_CLUSTER_REMOVED",
+  "runtimeCredentialAndIsolationInspection": "NOT_EXECUTED_IN_THIS_ATTEMPT",
+  "wholeFixtureStatus": "FAIL_REPORT_GENERATION_CFG_NOT_DEFINED_AFTER_ALL_CASES",
+  "limits": [
+    "The final browser report writer failed after all three case receipts had been saved; this is not a whole-fixture PASS.",
+    "Separate final operations/security acceptance is still required.",
+    "The earlier intermittent unclassified channel-fetch failure was not reproduced in this three-case run; no causal fix is claimed from diagnostic changes alone."
+  ],
+  "awsAccessed": false,
+  "retainedNetworkModified": false
+}

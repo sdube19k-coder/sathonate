@@ -1,0 +1,33 @@
+{
+  "schema": "sathonate.sprint1-qualification/v1",
+  "status": "BLOCKED",
+  "apiToFabric": "NOT VERIFIED",
+  "uiToFabric": "BLOCKED",
+  "cluster": "smp-sprint1-d3a11699",
+  "awsEnabled": false,
+  "productionEnabled": false,
+  "checks": {},
+  "startedAt": 1794019127.898477,
+  "networkPolicyFixture": {
+    "provider": "Calico",
+    "version": "v3.31.4",
+    "manifestURL": "https://raw.githubusercontent.com/projectcalico/calico/v3.31.4/manifests/calico.yaml",
+    "manifestSHA256": "6e89ee080d6dae58c620c47e3fcb7a9bfc40748422c868c924b7482dd5145ce2",
+    "images": {
+      "quay.io/calico/cni:v3.31.4": "quay.io/calico/cni@sha256:a43a7dd4ed67adad4535fc948b483dac0a3c905bae64b007fae05e4d0867a02b",
+      "quay.io/calico/kube-controllers:v3.31.4": "quay.io/calico/kube-controllers@sha256:8a41b637f143971a95ce78234ece53e43201361bd38bad7fc65508f5798306d0",
+      "quay.io/calico/node:v3.31.4": "quay.io/calico/node@sha256:972f29ffd956ca83688b41ef5c696b633c6c63529bc63e2b058413fd4fff0cd0"
+    },
+    "enforcement": "NOT VERIFIED"
+  },
+  "provenance": {
+    "backendCommit": "2df69d5b95ed5536236916069c25393e93a8040e",
+    "apiBinarySHA256": "43b14550add2da7fe9b4eb20786756e6fe29accb50f1654df7620621cdad10a6",
+    "workerImageID": "sha256:13a9035bda2e3056e087fab12afd8351201d4ea46510e762e186ce9ac4b0d80a",
+    "backendDiffSHA256": "7b57f382e1883eb3b479b073b6f5984006646b5a9ea1e0fb4eca66f6cb920b8a"
+  },
+  "browserExitCode": 1,
+  "failureCategory": "Browser acceptance failed; see redacted browser log",
+  "disposableClusterRemoved": true,
+  "finishedAt": 1794019817.0773988
+}

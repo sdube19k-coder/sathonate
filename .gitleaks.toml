@@ -182,3 +182,27 @@ condition = "AND"
 regexTarget = "line"
 paths = ["(^|/)fabric\\-control\\-plane/docs/evidence/sprint4\\-dynamic\\-final/ui\\-qualification\\.json$"]
 regexes = ["^\\s*\"apiBinarySHA256\":\\ \"d6aee1363066861396d94613962ccf24865416585b410825568dea07e51ecb50\",\\s*$"]
+
+[[allowlists]]
+description = "Reviewed public binary/source checksum in Sprint 5 node evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['(^|/)fabric-control-plane/docs/evidence/sprint5-node-recovery/fixture\-outcome\.json$']
+regexes = ['^\s*"apiBinarySHA256":\ "43b14550add2da7fe9b4eb20786756e6fe29accb50f1654df7620621cdad10a6",\s*$']
+
+[[allowlists]]
+description = "Reviewed public binary/source checksum in Sprint 5 node evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['(^|/)fabric-control-plane/docs/evidence/sprint5-node-recovery/worker\-source\-provenance\.json$']
+regexes = ['^\s*"internal/kubernetesfabric/credentials\.go":\ "2559e11a9649ea36e8abe85f86ad3c56df5989a35b1eb09cc667ae5e9514c322",\s*$']
+
+[[allowlists]]
+description = "Reviewed public binary/source checksum in Sprint 5 node evidence"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['(^|/)fabric-control-plane/docs/evidence/sprint5-node-recovery/summary\.json$']
+regexes = ['^\s*"apiBinarySHA256":\ "43b14550add2da7fe9b4eb20786756e6fe29accb50f1654df7620621cdad10a6",\s*$']
