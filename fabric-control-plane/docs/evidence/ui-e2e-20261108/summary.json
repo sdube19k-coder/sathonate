@@ -1,0 +1,65 @@
+{
+  "status": "BLOCKED_CAPACITY",
+  "sourceCommit": "97e0cb5347037adc60d30f8bba7c36f3164e387d",
+  "generatedAt": "2026-11-08T08:56:06.846619+00:00",
+  "scope": "Current source; actual browser-to-API-to-disposable-Fabric acceptance requested",
+  "disposableCluster": "smp-sprint1-f89b1fec",
+  "createdCluster": true,
+  "fabricProvisioned": false,
+  "browserAcceptanceStarted": false,
+  "transactionsExecuted": false,
+  "memory": {
+    "hostBeforeKiB": 4389836,
+    "hostAfterClusterCreationKiB": 372940,
+    "hostAtStopKiB": 899824,
+    "dockerTotalBytes": 6210363392
+  },
+  "reason": "Windows available RAM fell to about 364 MiB during disposable cluster initialization; stopped before Fabric provisioning",
+  "gates": {
+    "localClusterInitialization": "STARTED_THEN_ABORTED",
+    "uiNetworkCreation": "NOT_TESTED",
+    "peerOrgCAOrdererExpansion": "NOT_TESTED",
+    "channelsChaincodeTransactions": "NOT_TESTED",
+    "uiMonitoringRecovery": "NOT_TESTED",
+    "uiRetainedDataDeletion": "NOT_TESTED",
+    "goTests": "PASS",
+    "postgresTests": "PASS",
+    "goVet": "PASS",
+    "consoleTests": "26/26 PASS",
+    "consoleBuild": "PASS_WITH_EXISTING_CHUNK_SIZE_WARNING"
+  },
+  "regressions": {
+    "go-tests": {
+      "tests": {
+        "pass": 379,
+        "skip": 23
+      },
+      "log": ".logs\\ui-full-20261108\\go-tests.jsonl",
+      "sha256": "09be1bc885fbfd93e27e0d5df3f2d578881d3dd15348fae0f8c6408008e991bd"
+    },
+    "postgres-tests": {
+      "tests": {
+        "pass": 45,
+        "skip": 1
+      },
+      "log": ".logs\\ui-full-20261108\\postgres-tests.jsonl",
+      "sha256": "6c119226314e338c6b370a09e8d2167032ff682ce2d80b47500a3763b8926652"
+    }
+  },
+  "cleanup": {
+    "kindClusters": [
+      "smp-qualification"
+    ],
+    "disposableClusterRemoved": true,
+    "disposableConfigAndGrantFilesRemoved": true,
+    "retainedReadOnly": true,
+    "retainedReadyDeployments": 8,
+    "retainedTotalDeployments": 8,
+    "retainedBoundPVCs": 7,
+    "retainedTotalPVCs": 7
+  },
+  "awsAccessed": false,
+  "systemSettingsChanged": false,
+  "priorSprintEvidenceUsedAsCurrentRuntimePass": false,
+  "coldBackupRestore": "Offline administrator operation; not exposed as a customer UI workflow; not repeated"
+}
