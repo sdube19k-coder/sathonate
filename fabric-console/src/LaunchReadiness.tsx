@@ -98,7 +98,9 @@ export function CloudReadiness() {
           <small>
             {report
               ? `Last checked ${formatDate(report.checkedAt)}`
-              : "Loading server readiness…"}
+              : error
+                ? "Readiness unavailable for this session"
+                : "Loading server readiness…"}
           </small>
         </div>
         {error && (

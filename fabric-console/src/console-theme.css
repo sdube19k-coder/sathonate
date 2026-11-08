@@ -1,0 +1,1110 @@
+/* Shared product skin: shell, type, surfaces and responsive behavior. */
+.smp.smp-reference {
+  --smp-blue: #5855e7;
+  --smp-ink: #20283f;
+  --smp-text: #58627b;
+  --smp-muted: #68738b;
+  --smp-line: #e5e8f0;
+  --smp-bg: #f5f6fa;
+  font-family: "DM Sans Variable", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.smp-reference h1,
+.smp-reference h2,
+.smp-reference h3,
+.smp-reference h4 {
+  font-family: "Manrope Variable", sans-serif;
+  color: var(--smp-ink);
+  letter-spacing: -0.5px;
+}
+.smp-reference h1 {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.smp-reference h2 {
+  font-size: 17px;
+  font-weight: 750;
+}
+.smp-reference h3 {
+  font-size: 15px;
+  font-weight: 750;
+}
+.smp-reference h4 {
+  font-size: 14px;
+}
+.smp-reference button {
+  font-family: inherit;
+}
+.smp-reference .smp-main {
+  margin-left: 232px;
+  padding-top: 80px;
+  min-width: 0;
+}
+.smp-reference .smp-header {
+  left: 232px;
+  height: 80px;
+  padding: 0 36px;
+  gap: 20px;
+  background: #ffffffed;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--smp-line);
+}
+.smp-reference .smp-brand {
+  position: fixed;
+  left: 24px;
+  top: 23px;
+  height: 36px;
+  border: 0;
+  padding: 0;
+  color: white;
+  font-family: "Manrope Variable", sans-serif;
+  font-size: 22px;
+  gap: 10px;
+  z-index: 85;
+}
+.smp-reference .smp-brand-icon {
+  width: 34px;
+  height: 36px;
+  border-radius: 10px;
+  background: #7771ff;
+}
+.smp-reference .smp-brand small {
+  color: #b6b7d5;
+  font-size: 8px;
+  letter-spacing: 2.4px;
+  margin-top: 1px;
+}
+.smp-header-title {
+  font-size: 14px !important;
+  font-weight: 650;
+  color: #69718a;
+  white-space: normal;
+}
+.smp-reference .smp-user {
+  min-width: 0;
+  gap: 14px;
+}
+.smp-reference .smp-user > div {
+  display: flex;
+  max-width: 255px;
+  min-width: 0;
+}
+.smp-reference .smp-user strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.smp-reference .smp-user small {
+  font-size: 11px;
+  color: #69718a;
+}
+.smp-reference .smp-avatar {
+  width: 35px;
+  height: 35px;
+  background: #eeedff;
+  color: #5954c9;
+  font-weight: 750;
+  border: 1px solid #e2e0fa;
+}
+.smp-api-state {
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 0 4px #eaf8f1;
+}
+.smp-app-navigation {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 232px;
+  background: #191e36;
+  color: #c3c8df;
+  z-index: 70;
+  padding: 111px 16px 86px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.smp-nav-caption {
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  font-weight: 650;
+  color: #9098ba;
+  padding: 0 14px;
+  margin-bottom: 16px;
+}
+.smp-app-navigation nav {
+  display: grid;
+  gap: 6px;
+}
+.smp-app-navigation nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 47px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: none;
+  color: #b9c0da;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.4;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.smp-app-navigation nav button svg {
+  flex-shrink: 0;
+  color: #8f99bd;
+}
+.smp-app-navigation nav button:hover {
+  background: #ffffff09;
+  color: #fff;
+}
+.smp-app-navigation nav button.active {
+  background: #615be6;
+  color: #fff;
+  box-shadow: 0 4px 14px #00000018;
+}
+.smp-app-navigation nav button.active svg {
+  color: #fff;
+}
+.smp-nav-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d5d3ff;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.smp-nav-context {
+  margin-top: auto;
+  padding: 22px 14px 12px;
+  border-top: 1px solid #ffffff12;
+  display: grid;
+  gap: 8px;
+}
+.smp-nav-context > svg {
+  color: #a6a1ff;
+  margin-bottom: 4px;
+}
+.smp-nav-context strong {
+  font-size: 12px;
+  color: #e5e7f5;
+  font-weight: 600;
+}
+.smp-nav-context p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #a2abc8;
+}
+.smp-nav-context > span {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  margin-top: 8px;
+  color: #9ca6c8;
+}
+.smp-nav-scrim {
+  display: none;
+}
+.smp-reference .smp-content,
+.smp-reference.is-workspace .smp-content,
+.smp-reference.is-wizard .smp-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px 36px 48px;
+  min-height: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+.smp-reference .smp-page-heading {
+  margin: 28px 0;
+  gap: 20px;
+  align-items: center;
+}
+.smp-reference .smp-page-heading p {
+  font-size: 14px;
+  max-width: 760px;
+  color: #69738a;
+  margin-top: 9px;
+  line-height: 1.7;
+}
+.smp-reference .smp-eyebrow {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  font-weight: 750;
+  color: #777c97;
+  margin-bottom: 8px;
+}
+.smp-reference .smp-title-prefix {
+  display: none;
+}
+.smp-history-banner {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: #eeedf9;
+  border: 1px solid #e0def3;
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: #555181;
+}
+.smp-history-banner > svg {
+  flex-shrink: 0;
+  color: #7066bd;
+}
+.smp-history-banner strong {
+  font-size: 12px;
+  font-weight: 700;
+  display: block;
+}
+.smp-history-banner p {
+  font-size: 12px;
+  color: #69658c;
+  margin-top: 2px;
+  line-height: 1.5;
+}
+.smp-history-tag {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  background: #e3e0f4;
+  border-radius: 5px;
+  padding: 5px 8px;
+}
+.smp-reference .smp-card {
+  border: 1px solid var(--smp-line);
+  border-radius: 14px;
+  padding: 24px;
+  background: #fff;
+  box-shadow: 0 3px 10px #242a4110;
+}
+.smp-reference[data-step="1"] .smp-flow-primary > .smp-card {
+  padding: 24px;
+  border: 1px solid var(--smp-line);
+  border-radius: 14px;
+  box-shadow: 0 3px 10px #242a4110;
+}
+.smp-reference .smp-card-heading {
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eff0f5;
+}
+.smp-reference .smp-card-heading h2 {
+  font-size: 15px;
+}
+.smp-reference .smp-btn {
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 650;
+  gap: 8px;
+  box-shadow: none;
+  white-space: normal;
+  line-height: 1.5;
+}
+.smp-reference .smp-btn.primary {
+  background: var(--smp-blue);
+  border: 1px solid var(--smp-blue);
+  color: white;
+  box-shadow: 0 3px 6px #5855e71b;
+}
+.smp-reference .smp-btn.primary:not(:disabled):hover {
+  background: #4743cf;
+  border-color: #4743cf;
+}
+.smp-reference .smp-btn.secondary {
+  background: #fff;
+  border: 1px solid #dce0eb;
+  color: #4f5975;
+}
+.smp-reference .smp-btn.secondary:not(:disabled):hover {
+  background: #f5f4fd;
+  border-color: #bbb6ef;
+  color: #5149b5;
+}
+.smp-reference .smp-text-btn {
+  color: #5855c5;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 8px;
+  border-radius: 5px;
+  line-height: 1.6;
+}
+.smp-reference .smp-text-btn:hover {
+  background: #f1f0fc;
+}
+.smp-reference button:disabled {
+  opacity: 0.48;
+}
+.smp-reference :is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 3px solid #9b93ee;
+  outline-offset: 3px;
+}
+.smp-reference input:not([type="checkbox"]):not([type="radio"]),
+.smp-reference select,
+.smp-reference textarea {
+  font: inherit;
+  font-size: 13px;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid #dce1ec;
+  background: #fbfcfe;
+  color: #333e58;
+  border-radius: 8px;
+  padding: 11px 13px;
+  box-shadow: inset 0 1px 2px #17254603;
+}
+.smp-reference input:focus,
+.smp-reference select:focus,
+.smp-reference textarea:focus {
+  border-color: #9992e8;
+  background: #fff;
+}
+.smp-reference label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #525d75;
+}
+.smp-reference code {
+  font-size: 11px;
+  color: #5d6481;
+  overflow-wrap: anywhere;
+}
+.smp-workspace-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 27px;
+}
+.smp-workspace-summary > div {
+  border: 1px solid var(--smp-line);
+  background: #fff;
+  padding: 20px 22px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px #242a4106;
+}
+.smp-workspace-summary span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #66708a;
+}
+.smp-workspace-summary svg {
+  color: #8378c9;
+}
+.smp-workspace-summary strong {
+  font:
+    800 30px "Manrope Variable",
+    sans-serif;
+  display: block;
+  color: #28324b;
+  margin: 12px 0 3px;
+}
+.smp-workspace-summary small {
+  font-size: 11px;
+  color: #707b91;
+}
+.smp-reference .smp-search {
+  max-width: 420px;
+  margin-bottom: 23px;
+  background: white;
+  border: 1px solid var(--smp-line);
+  border-radius: 9px;
+  padding: 0 12px;
+}
+.smp-reference .smp-search input {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  min-height: 43px;
+}
+.smp-reference .smp-network-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+  gap: 22px;
+}
+.smp-reference .smp-network-card {
+  text-align: left;
+  min-height: 230px;
+  padding: 23px;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.smp-reference .smp-network-card:hover {
+  border-color: #bbb5e8;
+  box-shadow: 0 8px 25px #3022690c;
+  transform: translateY(-2px);
+}
+.smp-reference .smp-network-card h2 {
+  font-size: 17px;
+  margin-top: 22px;
+}
+.smp-reference .smp-network-card p {
+  font-size: 12px;
+  margin-top: 8px;
+}
+.smp-reference .smp-network-card footer {
+  font-size: 12px;
+  border-color: #eef0f6;
+  color: #6157c7;
+  padding-top: 17px;
+  margin-top: 20px;
+}
+.smp-reference .smp-tile {
+  background: #f0edff;
+  color: #7770cf;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+}
+.smp-reference .smp-status {
+  font-size: 10px;
+  font-weight: 650;
+  border-radius: 5px;
+  padding: 4px 8px;
+  line-height: 1.5;
+  letter-spacing: 0.1px;
+}
+.smp-reference .smp-status.green {
+  background: #eaf6f0;
+  color: #277653;
+}
+.smp-reference .smp-status.blue {
+  background: #efedff;
+  color: #5a51bb;
+}
+.smp-reference .smp-status.amber {
+  background: #fff4de;
+  color: #946319;
+}
+.smp-reference .smp-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e9ecf3;
+  border-radius: 10px;
+}
+.smp-reference .smp-table {
+  font-size: 13px;
+  min-width: 650px;
+}
+.smp-reference .smp-table th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: #7a8299;
+  padding: 15px 17px;
+  background: #f8f9fc;
+  white-space: nowrap;
+}
+.smp-reference .smp-table td {
+  padding: 18px 17px;
+  border-color: #edf0f5;
+  font-size: 12px;
+  color: #4f5a72;
+}
+.smp-reference .smp-table td small {
+  font-size: 11px;
+  margin-top: 4px;
+  color: #7b859b;
+}
+.smp-reference .smp-table tbody tr:hover {
+  background: #fcfcff;
+}
+.smp-reference .smp-table td:last-child .smp-text-btn {
+  display: inline-flex;
+  margin: 2px 3px;
+  white-space: nowrap;
+}
+.smp-reference .smp-table td code {
+  display: inline-block;
+  max-width: 175px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  font-size: 11px;
+}
+.smp-reference .smp-empty {
+  padding: 40px 20px;
+  background: #fafbfe;
+  border-radius: 10px;
+  color: #6c7791;
+  font-size: 13px;
+  text-align: center;
+}
+.smp-reference .smp-stepper {
+  position: static;
+  transform: none;
+  top: auto;
+  bottom: auto;
+  width: auto;
+  height: auto;
+  margin: 28px 36px 0;
+  padding: 17px 20px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  overflow: visible;
+  border: 1px solid var(--smp-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: none;
+}
+.smp-reference .smp-stepper > button,
+.smp-reference .smp-stepper > button:last-child {
+  min-width: 0;
+  min-height: 58px;
+  padding: 8px;
+  gap: 9px;
+  white-space: normal;
+  border-radius: 8px;
+  align-items: center;
+  flex: 1;
+}
+.smp-reference .smp-stepper > button.current {
+  background: #f0eefe;
+  color: #554dc1;
+}
+.smp-reference .smp-stepper > button > i,
+.smp-reference .smp-step-copy small {
+  display: none;
+}
+.smp-reference .smp-step-copy strong {
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 650;
+}
+.smp-reference .smp-step-number {
+  width: 27px;
+  height: 27px;
+  font-size: 11px;
+  background: #f2f3f8;
+  border: 1px solid #e6e8ef;
+  color: #778099;
+}
+.smp-reference .current .smp-step-number,
+.smp-reference .done .smp-step-number {
+  background: #625ce1;
+  border-color: #625ce1;
+  color: #fff;
+}
+.smp-reference .smp-stepper > button.current .smp-step-number {
+  box-shadow: none;
+}
+.smp-reference .smp-flow-layout {
+  display: block;
+}
+.smp-reference .smp-flow-primary {
+  gap: 22px;
+}
+.smp-reference .smp-flow-footer {
+  background: transparent;
+  border-top: 1px solid var(--smp-line);
+  padding: 23px 0 0;
+  margin-top: 28px;
+  gap: 16px;
+}
+.smp-reference .smp-flow-footer > div {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.smp-reference .smp-provider {
+  border-radius: 12px;
+  border-color: var(--smp-line);
+  background: #fff;
+}
+.smp-reference .smp-provider.selected,
+.smp-reference .smp-method.selected {
+  border-color: #8e83df;
+  background: #f8f7ff;
+  box-shadow: 0 0 0 1px #8e83df;
+}
+.smp-reference .smp-provider strong {
+  font-size: 13px;
+}
+.smp-reference .smp-note {
+  border-radius: 9px;
+  padding: 16px;
+  font-size: 13px;
+  background: #f0f2ff;
+  border-color: #e2e5fa;
+  color: #565c89;
+}
+.smp-reference .smp-note.amber {
+  background: #fff9ec;
+  border-color: #f2e3bf;
+  color: #876d35;
+}
+.smp-reference .smp-note.green {
+  background: #edf7f3;
+  border-color: #d9ece2;
+  color: #3c7860;
+}
+.smp-reference .smp-progress-track {
+  height: 8px;
+  background: #eeedf6;
+  border-radius: 10px;
+}
+.smp-reference .smp-progress-track > span {
+  background: linear-gradient(90deg, #857ae9, #5953cd);
+  border-radius: 10px;
+}
+.smp-reference .smp-progress-percent {
+  color: #6257cc;
+  font-family: "Manrope Variable", sans-serif;
+}
+.smp-reference .smp-progress-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 22px;
+}
+.smp-reference .smp-stage-list li {
+  padding: 18px 0;
+  gap: 12px;
+}
+.smp-reference .smp-stage-list li strong {
+  font-size: 12px;
+}
+.smp-reference .smp-stage-list li p {
+  font-size: 11px;
+}
+.smp-reference .smp-stage-list li > svg {
+  flex-shrink: 0;
+}
+.smp-reference .smp-log {
+  border-radius: 10px;
+  background: #1b2239;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.smp-reference .smp-custom-networks > p {
+  margin: 9px 0 19px;
+  color: #6c768d;
+  font-size: 13px;
+}
+.smp-reference .smp-custom-networks > label {
+  display: grid;
+  gap: 8px;
+  margin: 20px 0;
+}
+.smp-reference .smp-custom-networks textarea {
+  width: 100%;
+  resize: vertical;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  padding: 18px;
+  background: #f8f9fd;
+}
+.smp-reference .smp-custom-networks details {
+  margin: 15px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--smp-line);
+  border-radius: 9px;
+  background: #fcfcff;
+  min-width: 0;
+}
+.smp-reference summary {
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  color: #625aaf;
+}
+.smp-reference details[open] > summary {
+  margin-bottom: 17px;
+}
+.smp-reference .smp-custom-networks .smp-inline-actions {
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 23px 0;
+}
+.smp-reference .smp-custom-networks > section {
+  border: 1px solid var(--smp-line);
+  border-radius: 11px;
+  padding: 22px;
+  margin-top: 22px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.smp-reference .smp-custom-networks section > h3 {
+  margin-bottom: 10px;
+}
+.smp-reference .smp-custom-networks section p {
+  font-size: 12px;
+  margin: 8px 0;
+  color: #707a91;
+}
+.smp-reference .smp-custom-networks section ol {
+  padding-left: 25px;
+  font-size: 12px;
+  line-height: 2.3;
+  color: #56617a;
+}
+.smp-reference .smp-custom-networks section > section {
+  margin-top: 20px;
+  border-top: 1px solid var(--smp-line);
+  padding-top: 20px;
+}
+.smp-reference .smp-custom-networks section table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin-top: 18px;
+  font-size: 12px;
+}
+.smp-reference .smp-custom-networks section th,
+.smp-reference .smp-custom-networks section td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid var(--smp-line);
+  min-width: 90px;
+  max-width: 260px;
+}
+.smp-reference .smp-custom-networks section th {
+  background: #f6f7fc;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.smp-reference .smp-custom-networks pre {
+  overflow: auto;
+  max-width: 100%;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.smp-reference .smp-inline-actions {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.smp-reference .smp-error {
+  border-radius: 9px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.smp-reference .smp-launch-readiness {
+  display: grid;
+  gap: 20px;
+}
+.smp-reference .smp-summary {
+  border-radius: 10px;
+}
+.local-sign-out {
+  position: fixed !important;
+  z-index: 90 !important;
+  left: 26px !important;
+  bottom: 26px !important;
+  right: auto !important;
+  top: auto !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: #c1c7df !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font:
+    12px "DM Sans Variable",
+    sans-serif !important;
+  padding: 9px !important;
+}
+.local-sign-out:hover {
+  color: white !important;
+  background: #ffffff0b !important;
+}
+.auth-screen {
+  background:
+    radial-gradient(ellipse at 15% 5%, #e7e3fc, transparent 55%), #f4f5fa;
+}
+.auth-card {
+  border: 1px solid #e1e2ee;
+  border-radius: 20px;
+  padding: 42px;
+  box-shadow: 0 24px 70px #24234a0d;
+}
+.auth-card h1 {
+  font-family: "Manrope Variable", sans-serif;
+  letter-spacing: -1px;
+}
+.auth-card .button.primary {
+  background: #5c55d9;
+  border-color: #5c55d9;
+  border-radius: 9px;
+}
+@media (min-width: 1600px) {
+  .smp-reference.is-wizard .smp-content {
+    max-width: 1440px;
+    margin-right: auto;
+  }
+}
+@media (max-width: 1180px) {
+  .smp-reference .smp-stepper {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .smp-reference .smp-header-title {
+    display: none;
+  }
+  .smp-reference .smp-progress-grid {
+    grid-template-columns: 1fr;
+  }
+  .smp-reference .smp-providers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .smp-reference .smp-main {
+    margin-left: 0;
+    padding-top: 72px;
+  }
+  .smp-reference .smp-header {
+    left: 0;
+    height: 72px;
+    padding: 0 20px;
+    gap: 12px;
+  }
+  .smp-reference .smp-brand {
+    position: static;
+    color: #272b46;
+    font-size: 20px;
+  }
+  .smp-reference .smp-brand small {
+    color: #82849a;
+  }
+  .smp-reference .smp-mobile-menu {
+    display: flex;
+  }
+  .smp-reference .smp-user {
+    gap: 12px;
+  }
+  .smp-reference .smp-user > div,
+  .smp-reference .smp-user > svg {
+    display: none;
+  }
+  .smp-app-navigation {
+    top: 72px;
+    z-index: 80;
+    padding-top: 28px;
+    transform: translateX(-100%);
+    transition: transform 0.2s;
+  }
+  .navigation-open .smp-app-navigation {
+    transform: translateX(0);
+  }
+  .smp-reference .smp-nav-scrim {
+    display: block;
+    position: fixed;
+    inset: 72px 0 0;
+    background: #151c3c66;
+    border: 0;
+    z-index: 75;
+    backdrop-filter: blur(2px);
+  }
+  .local-sign-out {
+    left: auto !important;
+    right: 18px !important;
+    top: 24px !important;
+    bottom: auto !important;
+    color: #626482 !important;
+    z-index: 65 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  .smp-reference .smp-user {
+    margin-right: 86px;
+  }
+  .smp-reference .smp-user > .smp-avatar {
+    display: none;
+  }
+  .smp-reference .smp-content,
+  .smp-reference.is-workspace .smp-content,
+  .smp-reference.is-wizard .smp-content {
+    padding: 24px;
+  }
+  .smp-reference .smp-stepper {
+    margin: 24px 24px 0;
+  }
+  .smp-reference h1 {
+    font-size: 27px;
+  }
+}
+@media (max-width: 600px) {
+  .smp-reference .smp-header {
+    padding: 0 15px;
+  }
+  .smp-reference .smp-brand {
+    font-size: 17px;
+    gap: 8px;
+  }
+  .smp-reference .smp-brand-icon {
+    height: 31px;
+    width: 30px;
+  }
+  .smp-reference .smp-brand-icon svg {
+    width: 23px;
+  }
+  .smp-reference .smp-brand small {
+    font-size: 7px;
+  }
+  .smp-reference .smp-user > .smp-icon-btn {
+    display: none;
+  }
+  .smp-reference .smp-content,
+  .smp-reference.is-workspace .smp-content,
+  .smp-reference.is-wizard .smp-content {
+    padding: 20px 16px 36px;
+  }
+  .smp-reference .smp-stepper {
+    margin: 20px 16px 0;
+    padding: 10px;
+    gap: 4px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .smp-reference .smp-stepper > button {
+    min-height: 46px;
+    padding: 6px;
+  }
+  .smp-reference .smp-step-copy strong {
+    font-size: 10px;
+  }
+  .smp-reference .smp-page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    margin: 25px 0;
+    gap: 16px;
+  }
+  .smp-reference h1 {
+    font-size: 26px;
+  }
+  .smp-reference .smp-page-heading p {
+    font-size: 13px;
+  }
+  .smp-history-banner {
+    padding: 13px;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .smp-history-tag {
+    display: none;
+  }
+  .smp-history-banner p {
+    font-size: 11px;
+  }
+  .smp-workspace-summary {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .smp-workspace-summary > div {
+    padding: 15px 17px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 12px;
+  }
+  .smp-workspace-summary strong {
+    grid-row: 1/3;
+    grid-column: 2;
+    font-size: 27px;
+    margin: 0;
+  }
+  .smp-workspace-summary small {
+    margin-top: 4px;
+  }
+  .smp-reference .smp-card {
+    padding: 19px;
+    border-radius: 12px;
+  }
+  .smp-reference .smp-fields.two,
+  .smp-reference .smp-fields.three {
+    grid-template-columns: 1fr;
+  }
+  .smp-reference .smp-providers {
+    grid-template-columns: 1fr 1fr;
+  }
+  .smp-reference .smp-flow-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .smp-reference .smp-flow-footer > div:last-child {
+    margin-left: 0;
+  }
+  .smp-reference .smp-flow-footer .smp-btn {
+    font-size: 12px;
+    min-height: 42px;
+  }
+  .smp-reference .smp-custom-networks > section {
+    padding: 16px;
+  }
+  .smp-reference .smp-custom-networks textarea {
+    font-size: 11px;
+    padding: 12px;
+  }
+  .smp-reference .smp-stage-list li {
+    flex-wrap: wrap;
+  }
+  .smp-reference .smp-stage-list li > .smp-status {
+    margin-left: 33px;
+  }
+  .smp-reference .smp-launch-actions {
+    grid-template-columns: 1fr;
+  }
+  .smp-reference .smp-readiness-check {
+    flex-wrap: wrap;
+  }
+  .auth-card {
+    padding: 30px 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smp-reference * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+  .smp-reference .spin {
+    animation: none;
+  }
+}
+
+/* Keep the brand outside the fixed header's stacking context. */
+.smp-reference .smp-search input:not([type="checkbox"]):not([type="radio"]) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  flex: 1;
+  width: 100%;
+  padding-left: 2px;
+}
+@media (max-width: 900px) {
+  .smp-reference .smp-brand {
+    position: fixed;
+    left: 55px;
+    top: 18px;
+  }
+  .smp-reference .smp-user {
+    margin-left: auto;
+  }
+}
+@media (max-width: 600px) {
+  .smp-reference .smp-brand {
+    left: 51px;
+    top: 19px;
+  }
+}
+@media (max-width: 900px) {
+  .smp-app-navigation {
+    visibility: hidden;
+  }
+  .navigation-open .smp-app-navigation {
+    visibility: visible;
+  }
+}

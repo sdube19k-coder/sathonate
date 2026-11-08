@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { LogOut } from "lucide-react";
 import { api, setTokenProvider } from "./api";
 import { setWorkspace, WorkspaceContext, type Project } from "./workspace";
 export default function LocalSignIn({ children }: { children: ReactNode }) {
@@ -34,8 +35,12 @@ export default function LocalSignIn({ children }: { children: ReactNode }) {
   if (project)
     return (
       <WorkspaceContext.Provider value={project}>
-        <button className="smp-text-btn local-sign-out" onClick={clear}>
-          Sign out of local workspace
+        <button
+          className="smp-text-btn local-sign-out"
+          aria-label="Sign out of local workspace"
+          onClick={clear}
+        >
+          <LogOut size={17} /> Sign out
         </button>
         {children}
       </WorkspaceContext.Provider>

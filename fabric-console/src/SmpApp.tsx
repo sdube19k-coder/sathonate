@@ -65,6 +65,7 @@ import { CloudReadiness } from "./LaunchReadiness";
 import CustomNetworks from "./CustomNetworks";
 import "./smp.css";
 import "./reference-design.css";
+import "./console-theme.css";
 
 type View =
   | "create"
@@ -134,6 +135,14 @@ export default function SmpApp() {
   const [logs, setLogs] = useState(""),
     [node, setNode] = useState("peer1"),
     [search, setSearch] = useState("");
+  useEffect(() => {
+    if (!menu) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenu(false);
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [menu]);
   const helpRef = useDialog(help, () => setHelp(false));
   const cleanupRef = useDialog(confirmCleanup, () => setConfirmCleanup(false));
   useEffect(() => {
@@ -165,15 +174,7 @@ export default function SmpApp() {
         if (active) {
           setMeta(m);
           setTargets(t.items);
-          setNetworks(
-            secure
-              ? n.items.filter(
-                  (item) =>
-                    item.desired.spec.deployment.targetRef ===
-                    "smp-secure-local-v1",
-                )
-              : n.items,
-          );
+          setNetworks(n.items);
           const resumed = n.items.find((item) => item.id === draft.recordId);
           if (resumed) {
             setSaved(resumed);
@@ -741,30 +742,33 @@ export default function SmpApp() {
       data-step={step + 1}
     >
       <div className="smp-main">
+        <a
+          className="smp-brand"
+          href="#/create/1"
+          onClick={(e) => {
+            e.preventDefault();
+            go(0);
+            setView("create");
+          }}
+        >
+          <span className="smp-brand-icon">
+            <Boxes size={29} />
+          </span>
+          <span>
+            Sathonate<small>FABRIC SMP</small>
+          </span>
+        </a>
         <header className="smp-header">
           <button
             className="smp-mobile-menu smp-icon-btn"
-            aria-label="Open navigation"
+            aria-label={menu ? "Close navigation" : "Open navigation"}
+            aria-expanded={menu}
+            aria-controls="workspace-navigation"
             onClick={() => setMenu(!menu)}
           >
             <Menu size={22} />
           </button>
-          <a
-            className="smp-brand"
-            href="#/create/1"
-            onClick={(e) => {
-              e.preventDefault();
-              go(0);
-              setView("create");
-            }}
-          >
-            <span className="smp-brand-icon">
-              <Boxes size={29} />
-            </span>
-            <span>
-              Sathonate<small>FABRIC SMP</small>
-            </span>
-          </a>
+
           <strong className="smp-header-title">
             {view === "create"
               ? "Create Hyperledger Fabric Network"
@@ -779,24 +783,7 @@ export default function SmpApp() {
               }
               title={meta ? "Control plane connected" : "Connecting to API"}
             />
-            <nav className="smp-workspace-links" aria-label="Main navigation">
-              {(
-                [
-                  ["networks", "Networks"],
-                  ["custom", "Customer configurations"],
-                  ["operations", "Operations"],
-                  ["settings", "Cloud readiness"],
-                ] as const
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  className="smp-text-btn"
-                  onClick={() => navigate(id as View)}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
+
             <button
               className="smp-icon-btn"
               aria-label="Help"
@@ -821,6 +808,57 @@ export default function SmpApp() {
             <ChevronDown size={15} />
           </div>
         </header>
+        {menu && (
+          <button
+            className="smp-nav-scrim"
+            aria-label="Close navigation overlay"
+            onClick={() => setMenu(false)}
+          />
+        )}
+        <aside
+          className="smp-app-navigation"
+          id="workspace-navigation"
+          aria-label="Workspace navigation"
+        >
+          <span className="smp-nav-caption">WORKSPACE</span>
+          <nav aria-label="Main navigation">
+            {(
+              [
+                ["networks", "Networks", NetworkIcon],
+                ["custom", "Customer configurations", Boxes],
+                ["nodes", "Nodes", Server],
+                ["chaincode", "Chaincode", Code2],
+                ["operations", "Operations", Activity],
+                ["settings", "Cloud readiness", ShieldCheck],
+              ] as const
+            ).map(([id, label, Icon]) => (
+              <button
+                key={id}
+                className={view === id ? "active" : ""}
+                aria-current={view === id ? "page" : undefined}
+                onClick={() => navigate(id)}
+              >
+                <Icon size={19} />
+                <span>{label}</span>
+                {view === id && <span className="smp-nav-dot" />}
+              </button>
+            ))}
+          </nav>
+          <div className="smp-nav-context">
+            <ShieldCheck size={21} />
+            <strong>
+              {meta?.deploymentMode === "history-only"
+                ? "History workspace"
+                : "Secure control plane"}
+            </strong>
+            <p>
+              {meta?.deploymentMode === "history-only"
+                ? "Recorded results. Live execution is disabled."
+                : "Project-scoped access. Server-enforced permissions."}
+            </p>
+            <span>LOCAL DEVELOPMENT</span>
+          </div>
+        </aside>
         {view === "create" && (
           <nav className="smp-stepper" aria-label="Network creation steps">
             {flowSteps.map((s, i) => (
@@ -860,9 +898,16 @@ export default function SmpApp() {
         )}
         <main className="smp-content">
           {meta?.deploymentMode === "history-only" && (
-            <div role="status" className="smp-inline-warning">
-              Read-only recorded history. Live Fabric state was not queried;
-              deployment execution is disabled.
+            <div role="status" className="smp-history-banner">
+              <ShieldCheck size={20} aria-hidden="true" />
+              <div>
+                <strong>Recorded history · Read only</strong>
+                <p>
+                  Live Fabric state was not queried. Deployment execution is
+                  disabled.
+                </p>
+              </div>
+              <span className="smp-history-tag">HISTORY MODE</span>
             </div>
           )}
           {error && (
@@ -1016,6 +1061,7 @@ export default function SmpApp() {
                   {step === 4 && (
                     <ProgressScreen
                       operation={operation}
+                      recorded={meta?.deploymentMode === "history-only"}
                       retrying={busy}
                       onRetry={() => void retry()}
                       onDashboard={() => go(5)}
@@ -1066,7 +1112,9 @@ export default function SmpApp() {
                     <Card title="Deployment Verification">
                       <Note tone="amber">
                         {runtime
-                          ? "This network has not passed deployment verification. Check its operation before opening the dashboard."
+                          ? meta?.deploymentMode === "history-only"
+                            ? "Live verification is unavailable in this read-only history session. View deployment progress for the recorded result."
+                            : "This network has not passed deployment verification. Check its operation before opening the dashboard."
                           : "Loading the saved runtime and verification status…"}
                       </Note>
                       <button
@@ -1207,38 +1255,28 @@ export default function SmpApp() {
             </>
           ) : (
             <>
-              <nav
-                className="smp-workspace-tabs"
-                aria-label="Workspace sections"
-              >
-                {(
-                  [
-                    ["networks", "Networks"],
-                    ["nodes", "Nodes"],
-                    ["chaincode", "Chaincode"],
-                    ["operations", "Operations"],
-                    ["settings", "Cloud readiness"],
-                  ] as const
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    className={`smp-btn ${view === id ? "primary" : "secondary"}`}
-                    onClick={() => navigate(id as View)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </nav>
               <div className="smp-page-heading">
                 <div>
                   <span className="smp-eyebrow">FABRIC SMP WORKSPACE</span>
-                  <h1>{view.charAt(0).toUpperCase() + view.slice(1)}</h1>
+                  <h1>
+                    {view === "custom"
+                      ? "Customer configurations"
+                      : view === "settings"
+                        ? "Cloud readiness"
+                        : view.charAt(0).toUpperCase() + view.slice(1)}
+                  </h1>
                   <p>
                     {view === "networks"
                       ? "Your deployed networks and saved network designs."
                       : view === "operations"
                         ? "Persisted operations and real deployment stage history."
-                        : "Inventory and configuration from your connected environment."}
+                        : view === "custom"
+                          ? "Design your topology. Track every change from configuration to committed state."
+                          : view === "nodes"
+                            ? "Peers, orderers and certificate authorities in the selected deployment."
+                            : view === "chaincode"
+                              ? "Committed contracts, definitions and transaction verification."
+                              : "Review deployment requirements and the security gates still to resolve."}
                   </p>
                 </div>
                 <button className="smp-btn primary" onClick={newFlow}>
@@ -1252,6 +1290,42 @@ export default function SmpApp() {
                   initialId={customNetworkId}
                   capabilities={meta?.dynamicLocal}
                 />
+              )}
+              {(view === "networks" || view === "operations") && (
+                <div
+                  className="smp-workspace-summary"
+                  aria-label="Recorded workspace summary"
+                >
+                  <div>
+                    <span>
+                      <NetworkIcon size={17} /> Saved networks
+                    </span>
+                    <strong>{networks.length}</strong>
+                    <small>In this project</small>
+                  </div>
+                  <div>
+                    <span>
+                      <CheckCircle2 size={17} /> Completed operations
+                    </span>
+                    <strong>
+                      {history.filter((op) => op.status === "succeeded").length}
+                    </strong>
+                    <small>Recorded successes</small>
+                  </div>
+                  <div>
+                    <span>
+                      <Activity size={17} /> Needs attention
+                    </span>
+                    <strong>
+                      {
+                        history.filter((op) =>
+                          ["failed", "interrupted"].includes(op.status),
+                        ).length
+                      }
+                    </strong>
+                    <small>Failed or interrupted operations</small>
+                  </div>
+                </div>
               )}
               {view === "networks" && (
                 <>

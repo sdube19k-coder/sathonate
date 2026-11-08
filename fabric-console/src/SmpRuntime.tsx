@@ -25,12 +25,14 @@ import type {
 export function ProgressScreen({
   operation,
   retrying = false,
+  recorded = false,
   onRetry,
   onDashboard,
   error,
 }: {
   operation: Operation | null;
   retrying?: boolean;
+  recorded?: boolean;
   onRetry: () => void;
   onDashboard: () => void;
   error: string;
@@ -147,12 +149,22 @@ export function ProgressScreen({
             )}
           </Card>
           <Card
-            title="Live Logs"
+            title={
+              recorded || operation?.status !== "running"
+                ? "Recorded logs"
+                : "Live logs"
+            }
             action={
               <Status
-                tone={operation?.status === "running" ? "green" : "neutral"}
+                tone={
+                  !recorded && operation?.status === "running"
+                    ? "green"
+                    : "neutral"
+                }
               >
-                {operation?.status === "running" ? "Live" : "Recorded"}
+                {!recorded && operation?.status === "running"
+                  ? "Live"
+                  : "Recorded"}
               </Status>
             }
           >
@@ -183,7 +195,7 @@ export function ProgressScreen({
         <div className="smp-inline-actions">
           <button
             className="smp-btn secondary"
-            disabled={retrying}
+            disabled={retrying || recorded}
             onClick={onRetry}
           >
             <RefreshCw size={16} />
@@ -195,7 +207,7 @@ export function ProgressScreen({
           </span>
         </div>
       )}
-      {operation?.status === "succeeded" && (
+      {operation?.status === "succeeded" && !recorded && (
         <Note tone="green">
           <strong>Deployment verification passed.</strong> Open the dashboard
           for live channel, orderer, CA and contract health.{" "}
