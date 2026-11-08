@@ -1,6 +1,5 @@
 """Separate disposable Calico fixture. No existing cluster is selected or changed."""
-import hashlib,json,re,subprocess,urllib.request
-from pathlib import Path
+import hashlib,json,re,urllib.request
 VERSION='v3.31.4'
 URL='https://raw.githubusercontent.com/projectcalico/calico/'+VERSION+'/manifests/calico.yaml'
 SHA256='6e89ee080d6dae58c620c47e3fcb7a9bfc40748422c868c924b7482dd5145ce2'
@@ -23,11 +22,16 @@ def install(run,kub,apply,load,kind,name,cache,report):
  kub('wait','node',name+'-control-plane','--for=condition=Ready','--timeout=120s')
  report['networkPolicyFixture']={'provider':'Calico','version':VERSION,'manifestURL':URL,'manifestSHA256':SHA256,'images':images,'enforcement':'NOT VERIFIED'}
 
-def inspect(kub,apply,admission_denied,namespace,worker,report,probe_peer="org1-peer-1",managed_releases=None):
+def inspect(kub,apply,admission_denied,namespace,worker,report,probe_peer="org1-peer-1",managed_releases=None,probe_nodes=None):
  foreign=report['cluster']+'-foreign'
  # A foreign pod and an own-namespace observer must run identical probes. Own
  # success excludes a broken peer/listener as the reason a foreign probe fails.
  pod=lambda ns,name: {'apiVersion':'v1','kind':'Pod','metadata':{'name':name,'namespace':ns},'spec':{'automountServiceAccountToken':False,'restartPolicy':'Never','containers':[{'name':'probe','image':worker,'imagePullPolicy':'Never','command':['python','-c','import time;time.sleep(600)'],'securityContext':{'runAsNonRoot':True,'runAsUser':10001,'allowPrivilegeEscalation':False,'capabilities':{'drop':['ALL']},'seccompProfile':{'type':'RuntimeDefault'}},'resources':{'requests':{'cpu':'25m','memory':'32Mi'},'limits':{'cpu':'100m','memory':'128Mi'}}}]}}
+ if probe_nodes is not None:
+  if len(probe_nodes)!=2 or len(set(probe_nodes))!=2 or not all(re.fullmatch('[a-z0-9][a-z0-9.-]*',n) for n in probe_nodes):raise RuntimeError('Two distinct approved probe workers required')
+  unpinned=pod
+  def pod(ns,name):
+   value=unpinned(ns,name);value['spec']['nodeSelector']={'kubernetes.io/hostname':probe_nodes[0] if ns==namespace else probe_nodes[1]};return value
  privileged=pod(namespace,'privileged-denial');privileged['spec']['containers'][0]['securityContext']={'privileged':True}
  admission_denied(privileged,'violates PodSecurity')
  excessive=pod(namespace,'limit-denial');excessive['spec']['containers'][0]['resources']['limits']['cpu']='3'
@@ -35,6 +39,11 @@ def inspect(kub,apply,admission_denied,namespace,worker,report,probe_peer="org1-
  report['checks'].update(privilegedAdmissionDenied='PASS',containerLimitAdmissionDenied='PASS')
  for ns in (namespace,foreign):
   apply(pod(ns,'isolation-probe'));kub('-n',ns,'wait','pod/isolation-probe','--for=condition=Ready','--timeout=90s')
+ if probe_nodes is not None:
+  for ns,expected in zip((namespace,foreign),probe_nodes):
+   actual=json.loads(kub('-n',ns,'get','pod','isolation-probe','-o','json'))['spec'].get('nodeName')
+   if actual!=expected:raise RuntimeError('Cross-worker probe scheduling mismatch')
+  report['networkPolicyFixture']['probeWorkers']=list(probe_nodes)
  script='import socket;socket.create_connection(("'+probe_peer+'.'+namespace+'",7051),timeout=3).close();print("CONNECTED")'
  own=kub('-n',namespace,'exec','isolation-probe','--','python','-c',script).strip()
  if own!='CONNECTED':raise RuntimeError('Own Fabric network connectivity unverified')
@@ -61,3 +70,4 @@ def inspect(kub,apply,admission_denied,namespace,worker,report,probe_peer="org1-
  if managed_releases and not set(managed_releases).issubset(observed):raise RuntimeError('Managed Fabric pod token inspection is incomplete')
  report['checks'].update(effectiveCrossNamespaceIngressDenied='PASS',effectiveCrossNamespaceEgressDenied='PASS',ownFabricConnectivity='PASS',fabricServiceAccountTokenMountsAbsent='PASS',defaultServiceAccountTokenDisabled='PASS')
  report['networkPolicyFixture']['enforcement']='PASS'
+ if probe_nodes is not None:report['checks']['crossWorkerCalicoEnforcement']='PASS'

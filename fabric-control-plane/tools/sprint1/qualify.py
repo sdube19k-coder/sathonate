@@ -30,6 +30,7 @@ if MULTI and (PREFIX!='sprint6' or not DYNAMIC or not CALICO):raise RuntimeError
 if PREFIX=='sprint6' and not MULTI:raise RuntimeError('Sprint 6 requires the multi-node fixture')
 
 def run(args,data=None,timeout=240):
+ if MULTI and Path(str(args[0])).name.lower() in ('docker','docker.exe','kind','kind.exe') and report.get('dockerEndpoint'):guard_engine()
  p=subprocess.run([str(x) for x in args],input=data,capture_output=True,text=True,encoding="utf-8",errors="replace",timeout=timeout)
  if p.returncode:raise RuntimeError('Qualification command failed: '+Path(str(args[0])).name+'; private diagnostics withheld')
  return p.stdout
@@ -43,9 +44,28 @@ def admission_denied(manifest,marker):
 def image_nodes():
  return [NAME+'-control-plane']+([NAME+'-worker',NAME+'-worker2',NAME+'-worker3'] if MULTI else [])
 
+def guard_engine():
+ if MULTI and preflight.local_engine_endpoint()!=report.get('dockerEndpoint'):raise RuntimeError('Local Docker engine selection changed; command refused')
+
 def guard():
+ guard_engine()
  for node in image_nodes():
   if kub('get','node',node,'-o','jsonpath={.spec.providerID}')!='kind://docker/'+NAME+'/'+node:raise RuntimeError('Disposable node identity mismatch')
+
+def cleanup_cluster():
+ guard_engine()
+ if MULTI:
+  owned=[]
+  for node in run([KIND,'get','nodes','--name',NAME]).splitlines():
+   info=json.loads(run(['docker','inspect','--format','{"id":{{json .Id}},"labels":{{json .Config.Labels}},"paused":{{json .State.Paused}}}',node],timeout=20))
+   if node not in image_nodes() or info['labels'].get('io.x-k8s.kind.cluster')!=NAME or not re.fullmatch('[a-f0-9]{64}',info['id']):raise RuntimeError('Partial fixture cleanup ownership mismatch')
+   owned.append(info)
+  # Validate the complete inventory before any mutation. Unpause even after a
+  # child test timeout, then delete only this exact disposable cluster.
+  for info in owned:
+   if info['paused']:run(['docker','unpause',info['id']],timeout=20)
+ else:guard()
+ run([KIND,'delete','cluster','--name',NAME])
 
 def load(image):
  if image=='sathonate/controller-candidate:atomic':
@@ -59,7 +79,8 @@ def load(image):
  identity=run(['docker','image','inspect','--format','{{.Id}}',image]).strip()
  if not re.fullmatch('sha256:[a-f0-9]{64}',identity):raise RuntimeError('Public image identity invalid')
  archive=CACHE/('sprint1-public-'+identity.split(':')[1]+'.tar');receipt=archive.with_suffix('.sha256')
- digest=lambda p:hashlib.file_digest(p.open('rb'),'sha256').hexdigest()
+ def digest(path):
+  with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
  if not archive.exists() or not receipt.exists() or digest(archive)!=receipt.read_text():
   original=archive.with_suffix('.original.tar');run(['docker','image','save','--platform','linux/amd64','-o',original,image])
   try:
@@ -165,11 +186,12 @@ def inspect(namespace,worker,api=None):
  report['inspection']={'helmReleases':release_count,'logStreams':log_count,'knownPrivateValues':len(private)}
 
 try:
- run(['docker','info','--format','{{.ServerVersion}}'])
  if MULTI:
   sys.path.insert(0,str(ROOT/'tools/sprint6'));import preflight
+  report['dockerEndpoint']=preflight.local_engine_endpoint()
   capacity=preflight.metrics();report['capacity']={'metrics':capacity,**preflight.assess(capacity)}
   if report['capacity']['status']!='PASS_PREFLIGHT_ONLY':raise RuntimeError('Sprint 6 capacity reservation not met; no resources created')
+ else:run(['docker','info','--format','{{.ServerVersion}}'])
  metadata=json.loads(run(['docker','inspect','smp-postgres']))[0];values=dict(x.split('=',1) for x in metadata['Config']['Env'] if '=' in x)
  password=run(['docker','exec','smp-postgres','cat','/run/secrets/postgres-password']).strip()
  from urllib.parse import quote
@@ -226,25 +248,40 @@ try:
    (CACHE/(NAME+'-cleanup-now')).unlink(missing_ok=True)
   raise RuntimeError('Real API acceptance failed; see redacted Go test result')
  api=json.loads(RESULT.read_text());report['apiToFabric']=api['apiToFabric'];report['apiEvidenceSHA256']=hashlib.sha256(RESULT.read_bytes()).hexdigest();report['images']={key:value[0] for key,value in images.items()}
+ if MULTI:
+  import worker_live,worker_failure
+  recovery=worker_live.qualify(run,kub,guard,ROOT,CACHE,RUNTIME,env,api,OUTPUT,report)
+  report['workerFailureRecovery']=recovery
+  if not worker_failure.completed_case(recovery):raise RuntimeError('Bounded worker failure/recovery acceptance failed; inspect redacted checkpoint')
+  report['checks']['workerFailureRecovery']='PASS'
  print('Sprint 1: inspecting actual runtime resources and credentials',flush=True);inspect(api['namespace'],config['workerImage'],api)
- if CALICO:isolation.inspect(kub,apply,admission_denied,api['namespace'],config['workerImage'],report,api.get('inspectionPeers',['org1-peer-1'])[0],api.get('expectedWorkloads',api.get('expectedReleases')))
+ if CALICO:
+  selected=None
+  if MULTI:
+   peer=api['inspectionPeers'][0]
+   pods=json.loads(kub('-n',api['namespace'],'get','pods','-l','release='+peer,'-o','json'))['items']
+   nodes={p['spec'].get('nodeName') for p in pods if not p['metadata'].get('deletionTimestamp')}
+   if len(nodes)!=1:raise RuntimeError('Cross-worker peer placement unavailable')
+   selected=worker_failure.cross_probe_workers(config['workerNodes'],next(iter(nodes)))
+  isolation.inspect(kub,apply,admission_denied,api['namespace'],config['workerImage'],report,api.get('inspectionPeers',['org1-peer-1'])[0],api.get('expectedWorkloads',api.get('expectedReleases')),probe_nodes=selected)
  retained=json.loads(run(['kubectl','--kubeconfig',str(CACHE/'smp-qualification.kubeconfig'),'--context','kind-smp-qualification','-n','smp-n-968a212068be7d07','get','deployments','-o','json']))['items']
  ready=len(retained)==8 and all(x['status'].get('readyReplicas')==x['spec'].get('replicas',1)==1 for x in retained)
  report['retainedNetwork']={'readOnly':True,'readyDeployments':sum(x['status'].get('readyReplicas',0)==1 for x in retained),'total':len(retained),'ready':ready}
  if not ready:raise RuntimeError('Retained read-only readiness did not meet 8/8')
  report['status']=PREFIX.upper()+'_LOCAL_SECURITY_PASS_EXTERNAL_GATES_BLOCKED' if PREFIX!='sprint1' else 'BACKEND_LOCAL_QUALIFICATION_PASS_UI_BLOCKED'
  if MULTI:
-  report['status']='SPRINT6_PARTIAL_WORKER_FAILURE_NOT_QUALIFIED'
-  report['checks']['workerFailureRecovery']='NOT_TESTED'
+  if not worker_failure.completed_case(report.get('workerFailureRecovery',{})) or report['checks'].get('crossWorkerCalicoEnforcement')!='PASS':raise RuntimeError('Multi-node acceptance gates incomplete')
+  report['status']='SPRINT6_BOUNDED_LOCAL_MULTI_NODE_PASS_EXTERNAL_GATES_BLOCKED'
 except Exception as error:
  report['failureCategory']=str(error) if isinstance(error,RuntimeError) else type(error).__name__
  raise
 finally:
- if created:
-  if MULTI:
-   for node in run([KIND,'get','nodes','--name',NAME]).splitlines():
-    labels=json.loads(run(['docker','inspect','--format','{{json .Config.Labels}}',node]))
-    if node not in image_nodes() or labels.get('io.x-k8s.kind.cluster')!=NAME:raise RuntimeError('Partial fixture cleanup ownership mismatch')
-  else:guard()
-  run([KIND,'delete','cluster','--name',NAME]);CONFIG.unlink(missing_ok=True);RUNTIME.unlink(missing_ok=True);(CACHE/(NAME+'-kind.json')).unlink(missing_ok=True);report['disposableClusterRemoved']=True
- report['finishedAt']=time.time();REPORT.write_text(json.dumps(report,indent=2)+'\n')
+ cleanup_error=None
+ try:
+  if created:
+   cleanup_cluster();CONFIG.unlink(missing_ok=True);RUNTIME.unlink(missing_ok=True);(CACHE/(NAME+'-kind.json')).unlink(missing_ok=True);report['disposableClusterRemoved']=True
+ except Exception as error:
+  cleanup_error=error;report['disposableClusterRemoved']=False;report['cleanupFailureCategory']=type(error).__name__;report['status']='FAIL_CLEANUP'
+ finally:
+  report['finishedAt']=time.time();REPORT.write_text(json.dumps(report,indent=2)+'\n')
+ if cleanup_error:raise RuntimeError('Disposable cleanup not verified; preserve exact run identity and inspect cleanup receipt')

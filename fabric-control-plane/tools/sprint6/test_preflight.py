@@ -1,7 +1,8 @@
-import copy,unittest
-from preflight import assess,cluster_plan,worker_inventory,local_endpoint,GIB
+import copy,os,unittest
+from unittest.mock import patch
+from preflight import assess,cluster_plan,worker_inventory,local_endpoint,local_engine_endpoint,GIB
 class Preflight(unittest.TestCase):
- def good(self):return {'dockerCPUs':4,'dockerMemoryTotal':8*GIB,'dockerMemoryAvailable':6*GIB,'hostMemoryAvailable':2*GIB,'backingDiskFree':40*GIB}
+ def good(self):return {'dockerCPUs':4,'dockerMemoryTotal':8*GIB,'dockerMemoryAvailable':6*GIB,'hostMemoryAvailable':8*GIB,'backingDiskFree':40*GIB}
  def test_exact_budget_is_preflight_only(self):self.assertEqual(assess(self.good())['status'],'PASS_PREFLIGHT_ONLY')
  def test_each_resource_is_required_and_fail_closed(self):
   for field in self.good():
@@ -19,6 +20,11 @@ class Preflight(unittest.TestCase):
   self.assertTrue(local_endpoint('npipe:////./pipe/dockerDesktopLinuxEngine','nt'));self.assertTrue(local_endpoint('unix:///var/run/docker.sock','posix'))
   for endpoint in ['tcp://remote:2376','ssh://remote','https://remote','unix:///var/run/docker.sock']:
    self.assertFalse(local_endpoint(endpoint,'nt'))
+ def test_remote_environment_override_is_rejected_before_any_command(self):
+  with patch.dict(os.environ,{'DOCKER_HOST':'tcp://remote:2376','DOCKER_CONTEXT':''}):
+   with patch('preflight.command') as command:
+    with self.assertRaises(RuntimeError):local_engine_endpoint()
+    command.assert_not_called()
  def test_retained_or_ambiguous_name_refused(self):
   for name in ['smp-qualification','smp-sprint1-a1b2c3d4;bad','other','smp-sprint1-']:
    with self.assertRaises(ValueError):cluster_plan(name)

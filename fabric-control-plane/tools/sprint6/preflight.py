@@ -9,13 +9,16 @@ GIB=1024**3
 MIN_TOTAL=8*GIB
 MIN_AVAILABLE=6*GIB
 MIN_DISK=40*GIB
+# WSL free virtual pages need not already be physically resident in Windows.
+# Reserve the entire new 6-GiB allocation plus 2 GiB for the host.
+MIN_HOST_AVAILABLE=MIN_AVAILABLE+2*GIB
 
 def assess(metrics):
  failures=[]
- for field,minimum in [('dockerCPUs',4),('dockerMemoryTotal',MIN_TOTAL),('dockerMemoryAvailable',MIN_AVAILABLE),('hostMemoryAvailable',2*GIB),('backingDiskFree',MIN_DISK)]:
+ for field,minimum in [('dockerCPUs',4),('dockerMemoryTotal',MIN_TOTAL),('dockerMemoryAvailable',MIN_AVAILABLE),('hostMemoryAvailable',MIN_HOST_AVAILABLE),('backingDiskFree',MIN_DISK)]:
   value=metrics.get(field)
   if type(value) is not int or value<minimum:failures.append({'metric':field,'observed':value,'required':minimum})
- return {'status':'PASS_PREFLIGHT_ONLY' if not failures else 'BLOCKED_CAPACITY','failures':failures,'policy':{'estimatedNewFixtureMemoryBytes':MIN_AVAILABLE,'minimumDockerMemoryBytes':MIN_TOTAL,'minimumBackingDiskFreeBytes':MIN_DISK,'estimatesAreNotRuntimeEvidence':True}}
+ return {'status':'PASS_PREFLIGHT_ONLY' if not failures else 'BLOCKED_CAPACITY','failures':failures,'policy':{'estimatedNewFixtureMemoryBytes':MIN_AVAILABLE,'minimumDockerMemoryBytes':MIN_TOTAL,'minimumBackingDiskFreeBytes':MIN_DISK,'minimumHostAvailableBytes':MIN_HOST_AVAILABLE,'estimatesAreNotRuntimeEvidence':True}}
 
 def cluster_plan(name):
  if not re.fullmatch(r'smp-sprint1-[a-f0-9]{8}',name):raise ValueError('Only a fresh disposable qualification name is allowed')
@@ -34,9 +37,18 @@ def command(args):
 def local_endpoint(endpoint,platform):
  return endpoint in ('npipe:////./pipe/dockerDesktopLinuxEngine','npipe:////./pipe/docker_engine') if platform=='nt' else endpoint.startswith('unix:///')
 
-def metrics():
+def local_engine_endpoint():
+ override=os.environ.get('DOCKER_HOST','')
+ if override and os.environ.get('DOCKER_CONTEXT'):raise RuntimeError('Ambiguous Docker host/context overrides refused')
+ if override:
+  if not local_endpoint(override,os.name):raise RuntimeError('Remote Docker host override refused')
+  return override
  endpoint=command(['docker','context','inspect','--format','{{.Endpoints.docker.Host}}']).strip()
  if not local_endpoint(endpoint,os.name):raise RuntimeError('Local Docker endpoint required; remote capacity cannot be inferred from this host')
+ return endpoint
+
+def metrics():
+ local_engine_endpoint()
  docker=json.loads(command(['docker','info','--format','{"cpus":{{.NCPU}},"memory":{{.MemTotal}}}']))
  if os.name=='nt':
   import ctypes

@@ -20,11 +20,11 @@ try {
  $evidence=Join-Path '.logs' $env:SMP_QUALIFICATION_RUN_LABEL
  New-Item -ItemType Directory -Path $evidence | Out-Null
  # The Python entry point gates capacity before credential access or creation.
- # Even after initial/expansion acceptance it reports PARTIAL until worker
- # outage/rescheduling/local-storage recovery has been implemented and qualified.
+ # The bounded worker pause, stateless rescheduling and original-local-PV
+ # recovery suite runs after initial provisioning and customer expansion.
  & python tools/sprint1/qualify.py *> (Join-Path $evidence 'orchestrator.log')
  if($LASTEXITCODE -ne 0){throw "Sprint 6 blocked/failed; inspect $evidence. No capacity bypass is supported."}
- Write-Output "Initial/expansion fixture finished; inspect remaining gates in $evidence. This is not full Sprint 6 acceptance."
+ Write-Output "Fixture finished; inspect bounded acceptance and remaining release gates in $evidence."
 } finally {
  foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$prior[$name],'Process')}
  Pop-Location
