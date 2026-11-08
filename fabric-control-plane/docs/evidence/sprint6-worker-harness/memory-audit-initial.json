@@ -1,0 +1,60 @@
+{
+  "schema": "sathonate.sprint6-memory-audit/v1",
+  "checkedAt": "2026-11-07T19:50:26.424655+00:00",
+  "settingsChanged": false,
+  "wslRestarted": false,
+  "dockerRestarted": false,
+  "retainedNetworkModified": false,
+  "metrics": {
+    "dockerCPUs": 20,
+    "dockerMemoryTotal": 6210359296,
+    "dockerMemoryAvailable": 4099244032,
+    "hostMemoryAvailable": 5845823488,
+    "backingDiskFree": 48596275200
+  },
+  "capacity": {
+    "status": "BLOCKED_CAPACITY",
+    "failures": [
+      {
+        "metric": "dockerMemoryTotal",
+        "observed": 6210359296,
+        "required": 8589934592
+      },
+      {
+        "metric": "dockerMemoryAvailable",
+        "observed": 4099244032,
+        "required": 6442450944
+      },
+      {
+        "metric": "hostMemoryAvailable",
+        "observed": 5845823488,
+        "required": 8589934592
+      }
+    ],
+    "policy": {
+      "estimatedNewFixtureMemoryBytes": 6442450944,
+      "minimumDockerMemoryBytes": 8589934592,
+      "minimumBackingDiskFreeBytes": 42949672960,
+      "minimumHostAvailableBytes": 8589934592,
+      "estimatesAreNotRuntimeEvidence": true
+    }
+  },
+  "windows": {
+    "availableBytes": 5725995008,
+    "wslPrivateBytes": 3363926016,
+    "logicalCPUs": 20,
+    "wslWorkingSetBytes": 1983324160,
+    "physicalBytes": 16908730368
+  },
+  "wslConfiguration": {
+    "state": "EXPLICIT",
+    "value": "6GB",
+    "bytes": 6442450944,
+    "fileSHA256": "fba48900a8f6b31749d46817dd67fe42d85507120f983398a1efbfdad1d5a09a"
+  },
+  "canSupplyBudgetWithoutSettingsChange": false,
+  "status": "BLOCKED_CURRENT_LIMITS_OR_HEADROOM",
+  "hostAdditionalAvailableNeededBytes": 2744111104,
+  "interpretation": "Current observations only. Installed RAM is not free RAM. A larger WSL cap alone does not prove safe physical headroom; the new fixture reservation must remain available with host margin.",
+  "configurationDocumentation": "https://learn.microsoft.com/en-us/windows/wsl/wsl-config"
+}

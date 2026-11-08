@@ -1,0 +1,46 @@
+{
+  "schema": "sathonate.sprint6-worker-harness/v1",
+  "status": "PARTIAL_RUNTIME_CAPACITY_BLOCKED",
+  "recordedAt": "2026-11-08T03:18:04.085908+00:00",
+  "baselineCommit": "c2a76f7c03369e575cedc440f3aad4d209962013",
+  "harnessImplementation": "IMPLEMENTED_FOR_BOUNDED_PAUSE_CASE",
+  "targetedRegressionStatus": "PASS",
+  "liveWorkerCase": "NOT_STARTED",
+  "liveInitialExpansion": "NOT_STARTED",
+  "durationsSeconds": {
+    "deployment": null,
+    "expansion": null,
+    "recovery": null
+  },
+  "kubernetesOrDockerResourcesCreated": false,
+  "retainedNetworkModified": false,
+  "settingsChangedByAgent": false,
+  "wslRestartedByAgent": false,
+  "cloudAccessed": false,
+  "wslConfigurationHashUnchanged": true,
+  "memoryFindings": {
+    "configuredWSLMemory": "6GB",
+    "dockerMemoryTotalBytes": 6210375680,
+    "dockerAvailableBytes": 4016111616,
+    "windowsAvailableBytes": 3674779648,
+    "minimumDockerTotalBytes": 8589934592,
+    "minimumDockerAvailableBytes": 6442450944,
+    "minimumHostAvailableBytes": 8589934592
+  },
+  "memoryPolicyChange": "Host free-memory floor strengthened from 2 to 8 GiB: conservatively reserve the new 6-GiB allocation plus 2 GiB host margin; free WSL virtual pages need not be physically resident. This is a safety reservation, not a vendor minimum.",
+  "limits": [
+    "One bounded pause/unreachability case on one disposable worker; not disk loss, hard power failure, or long-eviction acceptance.",
+    "180-second independent polling watchdog requests resume, but external Docker/host failure can prevent cleanup; such a case must FAIL.",
+    "Stateless rescheduling and read-only contradictory-local-PV-affinity refusal are distinct. No stateful migration or forced pod/PVC deletion.",
+    "No writes during outage. Prior committed transactions and new authenticated API transactions/ledger convergence are required after original worker returns.",
+    "Healthy mTLS participation membership/height is checked during outage; leader identity/election latency and commit availability during outage are not qualified.",
+    "Single-PC kind does not establish independent physical-host resilience or disaster recovery.",
+    "Native API listener ownership attestation currently supports Windows; other host platforms fail closed."
+  ],
+  "implementationCommit": "ce322b9a22fef83fc05c475799f53c48e4bbf94f",
+  "credentialScan": {
+    "status": "PASS",
+    "scope": "Current tracked/untracked source and public evidence; no historical-key remediation claim",
+    "newAllowlistExceptions": 0
+  }
+}

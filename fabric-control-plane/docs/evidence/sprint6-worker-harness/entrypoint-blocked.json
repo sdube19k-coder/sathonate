@@ -1,0 +1,48 @@
+{
+  "schema": "sathonate.sprint6-qualification/v1",
+  "status": "BLOCKED",
+  "apiToFabric": "NOT VERIFIED",
+  "uiToFabric": "NOT_RERUN_SPRINT6",
+  "cluster": "smp-sprint1-76c368b4",
+  "awsEnabled": false,
+  "productionEnabled": false,
+  "checks": {},
+  "startedAt": 1794107205.1300316,
+  "dockerEndpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+  "capacity": {
+    "metrics": {
+      "dockerCPUs": 20,
+      "dockerMemoryTotal": 6210375680,
+      "dockerMemoryAvailable": 4055732224,
+      "hostMemoryAvailable": 2364706816,
+      "backingDiskFree": 47805743104
+    },
+    "status": "BLOCKED_CAPACITY",
+    "failures": [
+      {
+        "metric": "dockerMemoryTotal",
+        "observed": 6210375680,
+        "required": 8589934592
+      },
+      {
+        "metric": "dockerMemoryAvailable",
+        "observed": 4055732224,
+        "required": 6442450944
+      },
+      {
+        "metric": "hostMemoryAvailable",
+        "observed": 2364706816,
+        "required": 8589934592
+      }
+    ],
+    "policy": {
+      "estimatedNewFixtureMemoryBytes": 6442450944,
+      "minimumDockerMemoryBytes": 8589934592,
+      "minimumBackingDiskFreeBytes": 42949672960,
+      "minimumHostAvailableBytes": 8589934592,
+      "estimatesAreNotRuntimeEvidence": true
+    }
+  },
+  "failureCategory": "Sprint 6 capacity reservation not met; no resources created",
+  "finishedAt": 1794107206.0140193
+}

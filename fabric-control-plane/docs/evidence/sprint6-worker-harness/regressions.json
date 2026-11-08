@@ -1,0 +1,35 @@
+{
+  "schema": "sathonate.sprint6-worker-regressions/v1",
+  "sprint6Python": {
+    "passed": 45,
+    "failed": 0,
+    "resourceWarningsTreatedAsErrors": true
+  },
+  "existingIsolationDefault": {
+    "passed": 1,
+    "failed": 0
+  },
+  "pythonStatic": "PASS",
+  "powerShellSyntax": "PASS",
+  "nativeWindowsListenerOwnership": "PASS_REAL_EPHEMERAL_LOOPBACK_SOCKET_ONLY",
+  "liveKubernetesFabric": "NOT_EXECUTED",
+  "preservedNotRerun": {
+    "sourceCommit": "c2a76f7",
+    "go": {
+      "passed": 379,
+      "skipped": 23
+    },
+    "postgres": {
+      "passed": 47,
+      "skipped": 1
+    },
+    "productionGoAndFixtureCanonicalHashesMatched": 6,
+    "frontend": "UNCHANGED"
+  },
+  "logSHA256": {
+    "sprint6-worker-final-tests.log": "cb3307c36f99137a0aedf3cfd03648b0fcf3daa7ff98d34567f5178739719083",
+    "sprint6-isolation-default-test.log": "1a52ff93b2b7c8bc576900f70c9062f5baedb573cf55507ec33070c999cd9b12",
+    "sprint6-worker-final-static.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "Model/adaptor/guard regression tests are not live Kubernetes, Fabric, TLS, CNI or real API acceptance."
+}
