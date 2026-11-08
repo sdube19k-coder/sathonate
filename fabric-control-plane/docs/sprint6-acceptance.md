@@ -2,12 +2,24 @@
 
 8 November 2026. **PARTIAL — bounded worker-failure harness implemented and regression-tested; live qualification remains capacity-blocked.** [Current evidence](evidence/sprint6-worker-harness/summary.json) preserves memory observations, the actual gated attempt, targeted tests and read-only retained health. Earlier [Sprint 6 preparation evidence](evidence/sprint6-preflight/summary.json) and all Sprint 4/5 receipts remain unchanged.
 
+## Latest resume — 8 November, 09:25 IST
+
+The unchanged committed gate was rechecked and failed. [Resume evidence](evidence/sprint6-resume-20261108-092455/summary.json) and [exact memory values](evidence/sprint6-resume-20261108-092455/memory-audit.json):
+
+| Metric | Actual bytes | Actual GiB | Required GiB | Result |
+| --- | ---: | ---: | ---: | --- |
+| Docker total | 6,210,375,680 | 5.78 | 8 | FAIL |
+| Docker available | 4,022,329,344 | 3.75 | 6 | FAIL |
+| Windows available (gate sample) | 3,454,947,328 | 3.22 | 8 | FAIL |
+
+The explicit WSL cap is still `memory=6GB`; its configuration checksum is unchanged. No system settings were altered and runtime testing stopped before creation. All live gates remain NOT EXECUTED and deployment/expansion/recovery durations remain unmeasured. No completed implementation or regression suites were repeated. Fresh read-only inventory still shows only the retained kind cluster, eight ready deployments and seven Bound PVCs. No cleanup was necessary because nothing was created.
+
 ## Current gates
 
 | Gate | Result | Evidence / limitation |
 | --- | --- | --- |
 | Inspect Windows / WSL2 / Docker limits without changing settings | PASS | [Initial audit](evidence/sprint6-worker-harness/memory-audit-initial.json), [final audit](evidence/sprint6-worker-harness/memory-audit-final.json); `.wslconfig` checksum unchanged |
-| Safe capacity for four additional kind nodes | FAIL / BLOCKED | Explicit WSL `memory=6GB`; Docker about 5.78 GiB total / 3.74 GiB available; final Windows available RAM about 3.42 GiB |
+| Safe capacity for four additional kind nodes | FAIL / BLOCKED | Explicit WSL `memory=6GB`; Docker about 5.78 GiB total / 3.75 GiB available; latest Windows available RAM about 3.22 GiB |
 | Worker-pause/rescheduling/recovery harness implementation | PASS source/targeted regression; PARTIAL runtime | 45 Sprint 6 Python tests and one existing default isolation fixture test pass; no live Fabric case executed |
 | Dynamic initial provisioning and peer/org/CA/Raft expansion across workers | PARTIAL — NOT EXECUTED | Existing API fixture and generic placement/expansion implementation preserved; memory gate stopped before creation |
 | Directed cross-worker DNS/TLS/MSP and Calico enforcement | PARTIAL — NOT EXECUTED | Actual probe placement and mTLS checks implemented; mocked fixture tests are not enforcement proof |
@@ -20,7 +32,7 @@
 
 The host has approximately 15.75 GiB physical RAM and 20 logical CPUs. `%USERPROFILE%/.wslconfig` explicitly sets `[wsl2] memory=6GB`. Docker is the local Linux WSL2 engine, with about 5.78 GiB usable RAM. This cannot meet the unchanged **8-GiB Docker total / 6-GiB Docker available** gates under current settings. Installed RAM alone does not establish usable headroom.
 
-The host-available gate was **strengthened from 2 to 8 GiB**, reserving the conservative new-fixture allocation of 6 GiB plus 2 GiB for Windows/host margin. Free guest virtual pages need not already be resident physical Windows RAM; raising the VM cap alone is not proof that Windows can absorb the fixture peak. This is a conservative safety policy, not a measured Fabric/vendor minimum. Samples varied as other host workloads changed; the final sample had about 3.42 GiB Windows-available RAM, still below that reserve.
+The host-available gate was **strengthened from 2 to 8 GiB**, reserving the conservative new-fixture allocation of 6 GiB plus 2 GiB for Windows/host margin. Free guest virtual pages need not already be resident physical Windows RAM; raising the VM cap alone is not proof that Windows can absorb the fixture peak. This is a conservative safety policy, not a measured Fabric/vendor minimum. Samples varied as other host workloads changed; the earlier final sample had about 3.42 GiB Windows-available RAM (latest resume: 3.22 GiB), still below that reserve.
 
 The reservation for the new fixture remains 2.5 GiB Kubernetes/CNI + 2 GiB Fabric requests + 1 GiB worker peak + 0.5 GiB headroom. CPU and backing disk capacity passed their gates. No WSL/Docker settings, other applications, caches or retained resources were changed or reclaimed. The before/after WSL configuration checksum is identical.
 

@@ -1,0 +1,29 @@
+{
+  "schema": "sathonate.sprint6-resume/v1",
+  "status": "PARTIAL_CAPACITY_BLOCKED",
+  "checkedAt": "2026-11-08T03:55:28.376668+00:00",
+  "baselineCommit": "4daab89c0bc12c1fc58ba052ae76172ecdcdf433",
+  "harnessCommit": "ce322b9",
+  "settingsChanged": false,
+  "retainedClusterModified": false,
+  "resourcesCreated": false,
+  "cloudAccessed": false,
+  "gates": {
+    "capacity": "FAIL_SAFETY_GATE",
+    "dynamicProvisioning": "NOT_EXECUTED",
+    "postDeploymentExpansion": "NOT_EXECUTED",
+    "crossWorkerTransactions": "NOT_EXECUTED",
+    "ledgerConsistency": "NOT_EXECUTED",
+    "workerFailureRecovery": "NOT_EXECUTED",
+    "localPVSafety": "NOT_EXECUTED",
+    "authorization": "NOT_EXECUTED_LIVE",
+    "cleanup": "PASS_NOTHING_CREATED"
+  },
+  "durationsSeconds": {
+    "deployment": null,
+    "expansion": null,
+    "recovery": null
+  },
+  "priorEvidence": "Sprint 4/5 and earlier Sprint 6 evidence preserved; no implementation/regression tests unnecessarily rerun.",
+  "blocker": "Explicit WSL memory=6GB. Actual Docker total/available and Windows available RAM are below the unchanged committed safety policy."
+}

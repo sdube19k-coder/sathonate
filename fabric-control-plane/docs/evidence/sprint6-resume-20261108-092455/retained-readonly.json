@@ -1,0 +1,11 @@
+{
+  "readOnly": true,
+  "checkedAt": "2026-11-08T03:55:28.121998+00:00",
+  "readyDeployments": 8,
+  "totalDeployments": 8,
+  "boundPVCs": 7,
+  "totalPVCs": 7,
+  "clusters": [
+    "smp-qualification"
+  ]
+}
