@@ -8,7 +8,8 @@ const config = JSON.parse(input);
 input = "";
 const tokens = config.tokens,
   checks = {},
-  records = [];
+  records = [],
+  diagnostics = [];
 const safe = (value) =>
   Object.values(tokens).reduce(
     (s, t) => s.split(t).join("[REDACTED]"),
@@ -362,9 +363,30 @@ try {
           ],
           { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
         );
-      } catch {
+      } catch (error) {
+        const stderr = String(error.stderr ?? "").toLowerCase();
+        const category = /timed out|timeout|deadline exceeded/.test(stderr)
+          ? "timeout"
+          : /connection refused|unable to connect|i\/o timeout/.test(stderr)
+            ? "api-unavailable"
+            : /forbidden/.test(stderr)
+              ? "forbidden"
+              : /notfound|not found/.test(stderr)
+                ? "not-found"
+                : "unclassified";
+        const verb = /^[a-z-]+$/.test(args[0] ?? "") ? args[0] : "unknown";
+        const target = /^[a-z0-9./-]+$/.test(args[1] ?? "")
+          ? args[1]
+          : "omitted";
+        diagnostics.push({
+          at: new Date().toISOString(),
+          verb,
+          target,
+          category,
+          exitCode: typeof error.status === "number" ? error.status : null,
+        });
         throw new Error(
-          "Guarded disposable fault/observation failed; private diagnostics withheld",
+          `Guarded disposable ${verb} ${target} failed (${category}); raw diagnostics withheld`,
         );
       }
     };
@@ -815,6 +837,7 @@ try {
           .filter((n) => n.role === "peer")
           .map((n) => n.id),
         networkId: draft.id,
+        diagnostics,
         requests: records,
       },
       null,
@@ -830,6 +853,7 @@ try {
         schema: "sathonate.sprint4-dynamic-browser/v1",
         status: "FAIL",
         checks,
+        diagnostics,
         requests: records,
         error: safe(error.message),
       },

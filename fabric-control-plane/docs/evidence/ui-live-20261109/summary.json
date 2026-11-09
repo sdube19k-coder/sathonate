@@ -1,0 +1,125 @@
+{
+  "status": "PARTIAL",
+  "coreCustomerLifecycle": "PASS_COMBINED_LIVE_RECEIPTS",
+  "fullImplementedUIQualification": "PARTIAL_GUIDED_WIZARD_NOT_TESTED",
+  "recordedAt": "2026-11-09T04:11:30.704311+00:00",
+  "runtimeSourceCommit": "ec042c36201e36e690c734fff49dd2bd866cc5fc",
+  "productUICommit": "97e0cb5",
+  "provenance": {
+    "backendCommit": "ec042c36201e36e690c734fff49dd2bd866cc5fc",
+    "apiBinarySHA256": "1a7f7a6f062a277abaef111dc3b02ae56b9774a5ed83b7e43bd27456b920dceb",
+    "workerImageID": "sha256:13a9035bda2e3056e087fab12afd8351201d4ea46510e762e186ce9ac4b0d80a",
+    "backendDiffSHA256": "e17434108ff8e97860b9a19eed431892bb22b78ce018369cadb42f9f1efe64d7"
+  },
+  "expandedRun": {
+    "status": "PARTIAL_INTERRUPTED",
+    "checks": {
+      "invalidToken": "PASS",
+      "customerConfigurationSaved": "PASS",
+      "missingDeploymentGrantDenied": "PASS",
+      "initialBrowserProvisioningAndTransaction": "PASS",
+      "refreshRestoresServerOwnedOperation": "PASS",
+      "reviewedExpansionMembershipChannelAnchorAndCodeUpgrade": "PASS",
+      "liveMonitoringAndAuthorization": "PASS",
+      "pendingStorageDetectedAndRecoveryRefused": "PASS"
+    },
+    "topology": {
+      "organizations": 3,
+      "peers": 4,
+      "certificateAuthorities": 3,
+      "raftOrderers": 5,
+      "channels": 2
+    },
+    "hostSleepIST": "2026-11-08 15:14:55",
+    "hostResumeIST": "2026-11-08 15:59:27",
+    "exactFailedRequest": "Not captured; host sleep overlaps failure, not treated as a proven product defect",
+    "verifiedExpandedPeerRecovery": "warehouse-expanded"
+  },
+  "recoveryRun": {
+    "status": "PASS",
+    "runtimeMinutes": 17.06,
+    "checks": {
+      "invalidToken": "PASS",
+      "customerConfigurationSaved": "PASS",
+      "missingDeploymentGrantDenied": "PASS",
+      "initialBrowserProvisioningAndTransaction": "PASS",
+      "refreshRestoresServerOwnedOperation": "PASS",
+      "liveMonitoringAndAuthorization": "PASS",
+      "pendingStorageDetectedAndRecoveryRefused": "PASS",
+      "raftQuorumGuard": "PASS",
+      "peerOrdererCARecoveryAndTransactions": "PASS",
+      "crossTenantProjectDenied": "PASS",
+      "credentialsMemoryOnly": "PASS",
+      "responsiveDashboard": "PASS"
+    },
+    "securityAndDeletionChecks": {
+      "publicResourcesNoCredentials": "PASS",
+      "helmHistoryNoCredentials": "PASS",
+      "runtimeLogsNoCredentials": "PASS",
+      "sourceAndEvidenceNoActualCredentials": "PASS",
+      "controllerIssuerForeignAndClusterDenials": "PASS",
+      "foreignResourcePreserved": "PASS",
+      "bothLivePeerCertificatesVerified": "PASS",
+      "liveWrongIssuerAndHostnameRejected": "PASS",
+      "privilegedAdmissionDenied": "PASS",
+      "containerLimitAdmissionDenied": "PASS",
+      "effectiveCrossNamespaceIngressDenied": "PASS",
+      "effectiveCrossNamespaceEgressDenied": "PASS",
+      "ownFabricConnectivity": "PASS",
+      "fabricServiceAccountTokenMountsAbsent": "PASS",
+      "defaultServiceAccountTokenDisabled": "PASS",
+      "preDeletionCredentialInspection": "PASS",
+      "retainedSecretBytesAndBoundPVCsVerified": "PASS",
+      "foreignWorkloadDeletionRefused": "PASS",
+      "foreignConfigMapPreserved": "PASS",
+      "previewedRetainedDataDeletion": "PASS"
+    },
+    "recoveries": [
+      {
+        "node": "warehouse-p1",
+        "status": "PASS"
+      },
+      {
+        "node": "raft-1",
+        "status": "PASS"
+      },
+      {
+        "node": "warehouse-issuer",
+        "status": "PASS"
+      }
+    ],
+    "lastTransaction": "8f0802a3488fecdd62061cf9f6fbea3c9ca3a74c128547db37d089a1de580eb4",
+    "lastLedgerHeights": {
+      "shipments": {
+        "retailer-p1": 8,
+        "warehouse-p1": 8
+      }
+    },
+    "deletedResources": 20,
+    "retainedResources": 126,
+    "retainedResourceCategories": 5
+  },
+  "remainingGate": {
+    "name": "Guided fixed-profile wizard, retry, live dashboard and diagnostic download on current UI",
+    "status": "NOT_TESTED_CAPACITY_BLOCKED",
+    "windowsAvailableKiB": 944552,
+    "noNewResourcesStarted": true
+  },
+  "cleanup": {
+    "kindClusters": [
+      "smp-qualification"
+    ],
+    "retainedReadyDeployments": 8,
+    "retainedBoundPVCs": 7,
+    "disposableConfigsRemoved": true
+  },
+  "regressions": "Preserved 8 November results: 379 Go PASS / 23 skip; 45 PostgreSQL PASS / 1 skip; 26 frontend PASS; vet/build PASS. See ../ui-e2e-20261108/summary.json",
+  "limits": [
+    "Single-node kind, not independent hosts",
+    "Local bearer authentication, not real Okta acceptance",
+    "Offline cold backup/restore not repeated; no customer UI exists",
+    "No permanent erasure qualification",
+    "No AWS or production operations",
+    "Sprint 6 and AWS qualification remain open"
+  ]
+}
