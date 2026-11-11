@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"sathonate.local/fabric-control-plane/internal/audit"
 	"sathonate.local/fabric-control-plane/internal/domain"
 	"sathonate.local/fabric-control-plane/internal/drafts"
 	"sathonate.local/fabric-control-plane/internal/maintenance"
@@ -75,7 +76,7 @@ func Open(ctx context.Context, connection string, requireTLS bool) (*Database, e
 
 // Migrate is an explicit administrative command, not implicitly invoked by each API process.
 func (d *Database) Migrate(ctx context.Context) error {
-	_, e := d.pool.Exec(ctx, schema+operations.SQLSchema+maintenance.SQLSchema+OIDCMembershipSchema)
+	_, e := d.pool.Exec(ctx, schema+operations.SQLSchema+maintenance.SQLSchema+OIDCMembershipSchema+audit.SQLSchema)
 	return e
 }
 func (d *Database) Pool() *pgxpool.Pool { return d.pool }

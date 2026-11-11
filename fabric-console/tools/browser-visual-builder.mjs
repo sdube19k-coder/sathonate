@@ -45,22 +45,151 @@ try {
   const placements = {
     "fixture-worker": { "kubernetes.io/hostname": "fixture-worker" },
   };
-  let saved;
+  let saved,
+    deployed,
+    revision = 0,
+    latest = "";
+  let staleExpansion = true,
+    staleRecovery = true;
+  const operations = new Map();
+  const now = new Date().toISOString();
+  const start = (id, kind) => {
+    latest = id;
+    const op = {
+      operationId: id,
+      networkId: "fixture-network",
+      kind,
+      status: "succeeded",
+      stages: [],
+      events: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    operations.set(id, op);
+    return op;
+  };
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
-    if (path === "/api/v1/networks" && request.method() === "POST") {
+    const method = request.method();
+    const headers = request.headers();
+    const parent = new URL(request.url()).searchParams.get("parent");
+    const reply = (json, status = 200) => route.fulfill({ json, status });
+    const record = () => ({
+      id: "fixture-network",
+      desired: saved,
+      revision,
+      issues: [],
+    });
+    if (path === "/api/v1/networks" && method === "POST") {
       saved = request.postDataJSON();
-      return route.fulfill({
-        status: 201,
-        json: {
-          id: "fixture-network",
-          desired: saved,
-          revision: 1,
-          issues: [],
-        },
+      revision = 1;
+      return reply(record(), 201);
+    }
+    if (path === "/api/v1/networks/fixture-network" && method === "PUT") {
+      expect(headers["if-match"]).toBe('"1"');
+      saved = request.postDataJSON();
+      revision = 2;
+      return reply(record());
+    }
+    if (
+      path === "/api/v1/networks/fixture-network/deploy" &&
+      method === "POST"
+    ) {
+      expect(headers["if-match"]).toBe('"1"');
+      expect(headers["idempotency-key"]).toBeTruthy();
+      deployed = structuredClone(saved);
+      return reply(start("initial-op", "secure-local-deploy"), 202);
+    }
+    if (path.endsWith("/dynamic/preview")) {
+      expect(parent).toBe("initial-op");
+      expect(headers["if-match"]).toBe('"2"');
+      const reviewedRevision = staleExpansion ? revision - 1 : revision;
+      staleExpansion = false;
+      return reply({
+        parentOperationId: parent,
+        digest: "expansion-digest",
+        revision: reviewedRevision,
+        before: deployed,
+        after: saved,
+        recovery: "Fixture reviewed expansion",
       });
     }
+    if (path.endsWith("/dynamic/deploy")) {
+      expect(headers["if-match"]).toBe('"2"');
+      expect(headers["idempotency-key"]).toBeTruthy();
+      expect(request.postDataJSON()).toEqual({
+        parentOperationId: "initial-op",
+        approval: "expansion-digest",
+      });
+      deployed = structuredClone(saved);
+      return reply(start("expanded-op", "secure-local-dynamic"), 202);
+    }
+    if (path === "/api/v1/operations")
+      return reply({ items: [...operations.values()].reverse() });
+    if (path.startsWith("/api/v1/operations/"))
+      return reply(
+        operations.get(path.split("/").at(-1)) ?? {},
+        operations.has(path.split("/").at(-1)) ? 200 : 404,
+      );
+    if (path === "/api/v1/deployments/expanded-op/workloads")
+      return reply({
+        operationId: latest,
+        revision,
+        readOnly: true,
+        ledgerChecked: false,
+        checkedAt: now,
+        workloadsReady: false,
+        pods: [],
+        volumes: [],
+        guidance: [],
+        missing: ["retailer-peer"],
+        alerts: [
+          {
+            code: "Unavailable",
+            component: "retailer-peer",
+            action: "Review recovery",
+          },
+        ],
+        components: [{ name: "retailer-peer", kind: "peer", ready: false }],
+      });
+    if (path === "/api/v1/deployments/expanded-op/recovery/preview") {
+      expect(new URL(request.url()).searchParams.get("node")).toBe(
+        "retailer-peer",
+      );
+      const reviewedNode = staleRecovery ? "foreign-peer" : "retailer-peer";
+      staleRecovery = false;
+      return reply({
+        parentOperationId: "expanded-op",
+        plan: {
+          node: reviewedNode,
+          kind: "peer",
+          digest: "recovery-digest",
+        },
+        impact: "Fixture peer recovery",
+        recovery: "Fixture policy",
+      });
+    }
+    if (path === "/api/v1/deployments/expanded-op/recovery/deploy") {
+      expect(headers["idempotency-key"]).toBeTruthy();
+      expect(request.postDataJSON()).toEqual({
+        node: "retailer-peer",
+        approval: "recovery-digest",
+      });
+      return reply(start("recovered-op", "secure-local-recovery"), 202);
+    }
+    if (path === "/api/v1/deployments/" + latest)
+      return reply({
+        operationId: latest,
+        phase: latest === "recovered-op" ? "removed" : "running",
+        verified: true,
+        ready: true,
+        checkedAt: now,
+        resources: [],
+        network: deployed,
+      });
+    if (path === "/api/v1/networks")
+      return reply({ items: saved ? [record()] : [] });
     const fixtures = {
       "/api/v1/auth/config": { mode: "local-token" },
       "/api/v1/projects": {
@@ -148,9 +277,74 @@ try {
     peerRefs: ["retailer-peer"],
     ordererRefs: ["raft-one"],
   });
+  await page.getByRole("button", { name: "Deploy saved network" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Operation initial-op" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Review running-network change" }),
+  ).toBeEnabled();
+  await page.getByRole("tab", { name: /Peers & orderers/ }).click();
+  await add("peer", "retailer-peer-two");
+  await page
+    .getByRole("button", { name: "Save desired configuration" })
+    .click();
+  await expect.poll(() => revision).toBe(2);
+  await page
+    .getByRole("button", { name: "Review running-network change" })
+    .click();
+  await expect(
+    page.getByText(/expansion preview does not match/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Apply approved change" }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Review running-network change" })
+    .click();
+  const apply = page.getByRole("button", { name: "Apply approved change" });
+  await expect(apply).toBeDisabled();
+  await page
+    .getByRole("checkbox", { name: /I approve this exact saved revision/ })
+    .check();
+  await apply.click();
+  await expect(
+    page.getByRole("heading", { name: "Operation expanded-op" }),
+  ).toBeVisible();
+  expect(deployed.spec.nodes.map((n) => n.id)).toContain("retailer-peer-two");
+  await page
+    .getByRole("button", { name: "Refresh current workload status" })
+    .click();
+  await expect(
+    page.getByText("Workloads need attention", { exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Recovery target").selectOption("retailer-peer");
+  await page
+    .getByRole("button", { name: "Review recovery", exact: true })
+    .click();
+  await expect(page.getByText(/recovery preview does not match/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Apply approved recovery" }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Review recovery", exact: true })
+    .click();
+  const recover = page.getByRole("button", { name: "Apply approved recovery" });
+  await expect(recover).toBeDisabled();
+  await page
+    .getByRole("checkbox", { name: /I approve this exact node recovery/ })
+    .check();
+  await recover.click();
+  await expect(
+    page.getByRole("heading", { name: "Operation recovered-op" }),
+  ).toBeVisible();
+  await expect(page.getByText(/This network is retired/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Save desired configuration" }),
+  ).toBeDisabled();
   expect(errors).toEqual([]);
   console.log(
-    "PASS: mobile visual builder, six steps, server inventory and save payload (controlled API fixture)",
+    "PASS: mobile builder, create, reviewed expansion, monitoring, approved recovery and retired fence (controlled API fixture)",
   );
 } finally {
   await browser?.close();

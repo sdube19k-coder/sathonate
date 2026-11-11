@@ -75,11 +75,28 @@ func (r SecureRunner) ColdBackup(ctx context.Context, pool *pgxpool.Pool, o Cold
 		return receipt, denied
 	}
 	defer lease.Release()
+	discardLease := func() {
+		closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = lease.Hijack().Close(closeCtx)
+	}
 	var locked bool
-	if lease.QueryRow(ctx, "SELECT pg_try_advisory_lock(718481029)").Scan(&locked) != nil || !locked {
+	if err := lease.QueryRow(ctx, "SELECT pg_try_advisory_lock(718481029)").Scan(&locked); err != nil {
+		discardLease()
+		return receipt, denied
+	}
+	if !locked {
 		return receipt, errors.New("stop the local API/executor before cold maintenance")
 	}
-	defer lease.Exec(context.Background(), "SELECT pg_advisory_unlock(718481029)")
+	defer func() {
+		unlock, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		var released bool
+		if err := lease.QueryRow(unlock, "SELECT pg_advisory_unlock(718481029)").Scan(&released); err != nil || !released {
+			// A pooled session must never retain an ambiguous executor lease.
+			discardLease()
+		}
+	}()
 	if o.Action == "capture-resume" {
 		o.Action = "capture"
 		captured, err := r.coldBackupWithLease(ctx, lease, o)

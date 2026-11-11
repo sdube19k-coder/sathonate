@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -26,8 +27,9 @@ type Event struct {
 	Status      int       `json:"status,omitempty"`
 }
 type Journal struct {
-	mu   sync.Mutex
-	sink io.Writer
+	mu      sync.Mutex
+	sink    io.Writer
+	persist func(context.Context, string, Event) error
 }
 type metadata struct{ actor, scope string }
 type key struct{}
@@ -44,7 +46,12 @@ func Bind(ctx context.Context, subject, tenant, project string) {
 		m.scope = digest(string(scope))
 	}
 }
-func (j *Journal) append(e Event) error {
+func (j *Journal) append(ctx context.Context, scope string, e Event) error {
+	if j.persist != nil {
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 3*time.Second)
+		defer cancel()
+		return j.persist(ctx, scope, e)
+	}
 	j.mu.Lock()
 	defer j.mu.Unlock()
 	return json.NewEncoder(j.sink).Encode(e)
@@ -81,7 +88,25 @@ func (w *response) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 func (j *Journal) Wrap(next http.Handler) http.Handler {
+	return j.wrap(next, nil)
+}
+
+// WrapProject runs after authentication. The resolver obtains its values from
+// the server-owned principal and leaves public requests outside the project log.
+func (j *Journal) WrapProject(next http.Handler, principal func(context.Context) (scope, subject string)) http.Handler {
+	return j.wrap(next, principal)
+}
+
+func (j *Journal) wrap(next http.Handler, principal func(context.Context) (string, string)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var scope, subject string
+		if principal != nil {
+			scope, subject = principal(r.Context())
+			if scope == "" || subject == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
 		var id [16]byte
 		if _, err := rand.Read(id[:]); err != nil {
 			http.Error(w, "audit unavailable", 503)
@@ -96,7 +121,11 @@ func (j *Journal) Wrap(next http.Handler) http.Handler {
 		e := Event{Schema: "sathonate.audit/v1", RequestID: hex.EncodeToString(id[:]), Phase: "attempt", At: time.Now().UTC(), Method: method, PathSHA256: digest(r.URL.EscapedPath())}
 		// Refuse dispatch if the attempt cannot be journalled. Completion failure
 		// cannot roll back an already committed Fabric operation; retain the attempt.
-		if j.append(e) != nil {
+		if scope != "" {
+			e.ScopeSHA256 = digest(scope)
+			e.ActorSHA256 = digest(scope + "\x00" + subject)
+		}
+		if j.append(r.Context(), scope, e) != nil {
 			http.Error(w, "audit unavailable", 503)
 			return
 		}
@@ -107,8 +136,10 @@ func (j *Journal) Wrap(next http.Handler) http.Handler {
 		defer func() {
 			e.At = time.Now().UTC()
 			e.Phase = "completion"
-			e.ActorSHA256 = m.actor
-			e.ScopeSHA256 = m.scope
+			if scope == "" {
+				e.ActorSHA256 = m.actor
+				e.ScopeSHA256 = m.scope
+			}
 			e.Status = rw.status
 			if !completed {
 				e.Phase = "interrupted"
@@ -120,7 +151,9 @@ func (j *Journal) Wrap(next http.Handler) http.Handler {
 			}
 			// Leave the attempt unmatched if the sink fails. Never retry a mutation or
 			// fabricate completion. Sink durability/alerting is a production gate.
-			_ = j.append(e)
+			if err := j.append(r.Context(), scope, e); err != nil && scope != "" {
+				log.Printf("project audit outcome write failed requestId=%s", e.RequestID)
+			}
 		}()
 		next.ServeHTTP(rw, r)
 		completed = true

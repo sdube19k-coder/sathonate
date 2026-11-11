@@ -60,7 +60,10 @@ export default function CustomNetworks({
   useEffect(() => {
     if (!operation) return;
     let disposed = false;
+    let reading = false;
     async function read() {
+      if (disposed || reading) return;
+      reading = true;
       try {
         const current = await api.operation(operation!.operationId);
         if (disposed) return;
@@ -74,6 +77,8 @@ export default function CustomNetworks({
           setError(
             "Cannot refresh recorded operation status. Reconnect before continuing.",
           );
+      } finally {
+        reading = false;
       }
     }
     void read();
@@ -317,12 +322,20 @@ export default function CustomNetworks({
           }
           onClick={() =>
             void action(async () => {
-              setPreview(
-                await api.previewDynamic(
-                  requireSaved(),
-                  operation!.operationId,
-                ),
-              );
+              const saved = requireSaved();
+              const parent = operation!.operationId;
+              setPreview(null);
+              setApproved(false);
+              const reviewed = await api.previewDynamic(saved, parent);
+              if (
+                reviewed.parentOperationId !== parent ||
+                reviewed.revision !== saved.revision ||
+                !reviewed.digest
+              )
+                throw new Error(
+                  "The expansion preview does not match the saved revision and operation.",
+                );
+              setPreview(reviewed);
               setApproved(false);
             })
           }
@@ -434,6 +447,7 @@ export default function CustomNetworks({
           <OperationDiagnosticsButton operationId={operation.operationId} />
           {!readOnly && observed?.phase !== "removed" && (
             <WorkloadStatus
+              key={operation.operationId}
               operationId={operation.operationId}
               onStarted={
                 !locked && operation.status === "succeeded"

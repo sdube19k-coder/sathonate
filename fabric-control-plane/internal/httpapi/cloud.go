@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"sathonate.local/fabric-control-plane/internal/audit"
 	"sathonate.local/fabric-control-plane/internal/cloud"
 	"sathonate.local/fabric-control-plane/internal/deployment"
 	"sathonate.local/fabric-control-plane/internal/identity"
@@ -13,6 +14,7 @@ import (
 )
 
 type Options struct {
+	AuditRecent func(context.Context, string) ([]audit.Event, error)
 	ReadHistory func(context.Context, string) (*deployment.Manager, error)
 	Auth        identity.Config
 	Registry    cloud.Registry

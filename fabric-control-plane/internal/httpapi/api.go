@@ -37,6 +37,24 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 		a.allowedOrigins[v] = true
 	}
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /api/v1/audit", func(w http.ResponseWriter, r *http.Request) {
+		p := identity.FromContext(r.Context())
+		if !identity.IsProjectAuthenticated(r.Context()) || p.ProjectID == "" || !p.CanAdminister() {
+			problem(w, 403, "audit_denied", "Project administrator required", nil)
+			return
+		}
+		if a.options.AuditRecent == nil {
+			problem(w, 503, "audit_unavailable", "Project audit unavailable", nil)
+			return
+		}
+		items, err := a.options.AuditRecent(r.Context(), p.StorageTenant())
+		if err != nil {
+			problem(w, 503, "audit_unavailable", "Project audit unavailable", nil)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		respond(w, 200, map[string]any{"items": items})
+	})
 	mux.HandleFunc("GET /api/v1/local-runtime", a.localStatus)
 	mux.HandleFunc("GET /api/v1/local-runtime/health", a.localHealth)
 	mux.HandleFunc("GET /api/v1/operations", a.localOperations)

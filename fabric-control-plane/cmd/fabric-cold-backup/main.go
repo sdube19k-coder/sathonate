@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 	"sathonate.local/fabric-control-plane/internal/deployment"
@@ -25,6 +26,7 @@ func main() {
 	bindingFile := flag.String("binding", "", "optional public capture binding for exact scoped control-row restore")
 	scheduleDirectory := flag.String("schedule-directory", "", "operator-owned private absolute directory for daily artifacts")
 	scheduleHour := flag.Int("schedule-hour-utc", -1, "UTC hour at which scheduled-capture may run")
+	retain := flag.Int("schedule-keep", 7, "number of completed daily encrypted artifacts to keep (1-365)")
 	flag.Parse()
 	fail := func() {
 		fmt.Fprintln(os.Stderr, "Cold maintenance failed; private diagnostics withheld. Keep the API stopped and inspect its protected checkpoint.")
@@ -67,13 +69,24 @@ func main() {
 		if *artifact != "" || binding != nil || *tenant == "" || *operation == "" {
 			fail()
 		}
-		target := *tenant + "\x00" + *operation + "\x00" + runner.BindingDigest(deployment.Request{})
-		ran, err := maintenance.RunDailyBackup(*scheduleDirectory, target, *scheduleHour, time.Now(), func(path string) error {
-			receipt, err := runner.ColdBackup(ctx, db.Pool(), deployment.ColdOptions{Tenant: *tenant, Operation: *operation, Action: "capture-resume", Artifact: path, Key: key})
-			if err != nil {
-				return err
-			}
-			return json.NewEncoder(os.Stdout).Encode(receipt)
+		var network string
+		tx, err := db.Pool().BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
+		if err != nil {
+			fail()
+		}
+		if _, err = tx.Exec(ctx, "SELECT set_config('sathonate.tenant_id',$1,true)", *tenant); err == nil {
+			err = tx.QueryRow(ctx, "SELECT network_id FROM sathonate_operations WHERE tenant_id=$1 AND id=$2 AND status='succeeded'", *tenant, *operation).Scan(&network)
+		}
+		_ = tx.Rollback(ctx)
+		if err != nil || network == "" {
+			fail()
+		}
+		target := *tenant + "\x00" + network + "\x00" + runner.BindingDigest(deployment.Request{})
+		var receipt deployment.ColdReceipt
+		ran, err := maintenance.RunDailyBackup(*scheduleDirectory, target, *scheduleHour, *retain, time.Now(), func(path string) (string, error) {
+			var captureErr error
+			receipt, captureErr = runner.ColdBackup(ctx, db.Pool(), deployment.ColdOptions{Tenant: *tenant, Operation: *operation, Action: "capture-resume", Artifact: path, Key: key})
+			return receipt.ArtifactSHA256, captureErr
 		})
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Scheduled backup refused or interrupted:", err)
@@ -81,6 +94,8 @@ func main() {
 		}
 		if !ran {
 			fmt.Println(`{"status":"skipped"}`)
+		} else {
+			_ = json.NewEncoder(os.Stdout).Encode(receipt)
 		}
 		return
 	}

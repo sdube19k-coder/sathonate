@@ -8,7 +8,7 @@
 | Disaster recovery | PARTIAL | Live encrypted PostgreSQL logical backup and restore to a new disposable database passed. Daily cold backup slot, duplicate suppression and interruption fencing passed unit tests. | Run scheduled capture/resume on disposable Fabric. Qualify replacement cluster recovery, restored Fabric identities, ledger consistency and fresh Fabric transactions. Production retention, key escrow and database role/ACL recovery remain open. |
 | Frontend | PARTIAL | Six-step visual builder passed a mobile Edge test against a controlled API. It serializes server inventory, organizations, CAs, peers, orderers, channels and approved chaincode. Existing save, preview, approval and recovery endpoints are reused. | Run browser-driven create and expansion with the new editor against real Fabric. Verify mobile monitoring, recovery and retirement against the final source. |
 
-## Security
+## Security baseline at `f110ffa`
 
 Production requests `urn:okta:loa:2fa:any` through the existing Authorization Code with PKCE flow. The API checks the exact `acr` value on the signed access token before resolving membership. The existing issuer, audience, client, expiry, scopes and PostgreSQL authority checks still apply. The optional local Okta setting is `OKTA_REQUIRED_ACR=urn:okta:loa:2fa:any`. Explicit local bearer authentication remains separate. [Okta assurance documentation](https://developer.okta.com/docs/guides/step-up-authentication/main/)
 
@@ -16,7 +16,7 @@ The Okta administrator must configure the SPA sign-in and authenticator enrollme
 
 The historical incident remains open. Follow the [approved remediation boundaries](sprint2-incident-migration.md). The owner must identify affected leaf, root and signing identities and artifact locations, approve a maintenance and rollback plan, rotate and retire material as appropriate, and verify stale identity rejection and independent restore evidence. The retained cluster was observed read-only.
 
-## Recovery
+## Recovery baseline at `f110ffa`
 
 `fabric-cold-backup -action scheduled-capture -schedule-hour-utc <0-23> -schedule-directory <private-absolute-directory>` adds a daily invocation to the existing cold CLI. Supply its existing protected target config, tenant, latest verified operation, protected key file and database environment. Invoke it from the operator's scheduler inside the selected UTC hour and maintenance window, with the local executor stopped. A single lease covers capture and resume. A started marker blocks repeat attempts for the same UTC date and exact target/operation. A failed capture or resume requires checkpoint review. An invocation outside the hour skips. No scheduler service was installed. Reconfigure the approved operation when a new verified operation supersedes it.
 
@@ -24,9 +24,27 @@ The historical incident remains open. Follow the [approved remediation boundarie
 
 A PostgreSQL replacement database does not qualify Fabric replacement recovery. The cold bundle still binds to original namespace and PVC UIDs. Replacement Fabric needs a separately authorized empty target, a portable identity and volume mapping, staged ownership validation and a cutover fence that prevents two active networks from sharing signing identities. Acceptance must verify exact ledger state and fresh transactions before traffic is switched.
 
-## Verification and next execution
+## Verification at `f110ffa`
 
 - `go test -p 1 ./...` with the dedicated local PostgreSQL fixture and `go vet -p 1 ./...` passed. Optional Fabric and production fixtures were skipped by default.
 - `npm test` passed 31 tests. `npm run build` passed with the existing large-chunk warning. `node tools/browser-visual-builder.mjs` passed a 390px browser interaction and save payload test. The first browser run exposed a missing authority organization selection in the test. Explicit selection and a distinct accessible field name corrected it.
 - Docker connectivity was restored. Windows available memory was approximately 1.5 GiB at PostgreSQL startup and 2.5 GiB at the final check. The prior single-node UI attempt reached 364 MiB with 4.19 GiB initial host headroom. A fresh kind fixture was deferred. Once the host has enough headroom, use the disposable UI harness with an updated browser case that clicks through the builder, then run scheduled cold capture and verify fresh committed transactions.
 - Retained cluster inventory at close showed only `smp-qualification`, eight ready deployments and seven Bound PVCs. Both disposable PostgreSQL databases and their private artifacts were removed. No cloud deployment ran.
+
+
+## 11 November continuation from `f110ffa`
+
+| Gate | Status | Evidence and remaining dependency |
+| --- | --- | --- |
+| Durable project audit | PASS, controlled API with PostgreSQL | Project requests append an attempt before dispatch and an outcome afterward. Audit readback survives handler reconstruction. The authenticated HTTP fixture checks same-tenant cross-project denial, cross-tenant denial, viewer denial and credential-free output. A restricted PostgreSQL role independently checks cross-scope read and insert denial. |
+| Production security | PARTIAL | Real Okta MFA login/logout, audit retention/alerting operations and historical remediation remain owner dependencies. [Historical inventory and rotation approvals](sprint7-historical-credential-inventory.md) |
+| Scheduled encrypted Fabric backups | PASS, controlled orchestration | UTC slots, stable network/target binding, an exclusive filesystem lock, the PostgreSQL executor lease across capture and resume, bounded digest verification and keep-last-N retention. Failed or interrupted slots block later dates until reviewed. No live Fabric scheduled backup was run. |
+| Disaster recovery | PARTIAL | Prior live disposable PostgreSQL restore evidence remains valid. Schedule-to-Fabric capture/resume, replacement-cluster identity and PVC mapping, ledger restoration and new Fabric transactions remain open. |
+| Visual builder API contracts | PASS, controlled browser and backend fixtures | Browser create, revision-bound expansion, stale preview rejection, workload polling, reviewed recovery and retired controls. PostgreSQL-backed controlled API tests exercise authorization, durable approvals, dynamic recovery and workload inspection. |
+| Live Fabric on this revision | PARTIAL | Only the retained cluster is present. Host memory remained below the previously documented safe runtime headroom. Sprint 6 remains PARTIAL. Existing Sprint 4/5 evidence was preserved. |
+
+Apply the existing explicit schema migration to add `public.sathonate_audit_events`. A production runtime role requires `GRANT SELECT, INSERT ON public.sathonate_audit_events TO <api_role>` and no UPDATE, DELETE or TRUNCATE grant on that table. Keep the migration role separate. `GET /api/v1/audit` returns up to 100 events to a project administrator with the required scope. Scope is derived from authenticated membership. Pre-authentication denials stay in the application log and require deployment log collection. A database completion failure leaves an unmatched attempt for reconciliation. Production collection and alerting remain open.
+
+The scheduler accepts `-schedule-keep` from 1 to 365 and defaults to seven completed encrypted artifacts. It retains completion metadata after pruning encrypted files and validates the available artifact inventory against recorded digests before removing eligible files. Keep the directory and encryption key under separate operator-controlled access. Do not put different target schedules in unrelated output directories if they must share retention history. Resolve an abandoned `.lock` or unmatched `.started` only after confirming the prior process stopped and reconciling the Fabric checkpoint and artifact. The existing exact-target and stopped-executor checks still apply. Run a disposable live qualification after the host has sufficient headroom.
+
+Regression results were 430 passing Go test events and seven skips with PostgreSQL enabled, Go vet PASS, 31 frontend tests PASS and build PASS. The final read-only inventory showed 8/8 retained deployments and 7/7 Bound PVCs. Windows had about 3.22 GiB available and Docker about 3.65 GiB available within its unchanged limit. [Continuation receipt](evidence/sprint7/continuation.json)

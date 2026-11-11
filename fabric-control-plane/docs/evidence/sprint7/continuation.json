@@ -1,0 +1,68 @@
+{
+  "dateIST": "2026-11-11",
+  "baseCommit": "f110ffa",
+  "status": "PARTIAL",
+  "goTestEvents": {
+    "pass": 430,
+    "skip": 7,
+    "fail": 0,
+    "postgresFixture": true,
+    "logSHA256": "b4ed41dd19cf391af7aadc7a2f32b4c5e775c671eb07f6f1961d11944f93cc1a"
+  },
+  "goVet": "PASS",
+  "finalAuditAndAPIRecheck": "PASS",
+  "controlledAPICases": {
+    "TestPostgresColdBackupRequiresStoppedExecutorAndExactScope": "PASS",
+    "TestPostgresDynamicApprovalRecoveryAndIsolation": "PASS",
+    "TestPostgresNodeRecoveryApprovalDurabilityAndIsolation": "PASS",
+    "TestPostgresProjectAuditIsolation": "PASS",
+    "TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction/successful-read": "PASS",
+    "TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction/provider-failure": "PASS",
+    "TestPostgresCurrentWorkloadsReadGrantScopeAndFailureRedaction": "PASS",
+    "TestDailyBackupRunsOnceAndFencesInterruptedSlot": "PASS",
+    "TestDailyRetentionKeepsVerifiedArtifactsAndBlocksUnfinishedEarlierSlot": "PASS"
+  },
+  "frontendTests": {
+    "pass": 31,
+    "fail": 0
+  },
+  "frontendBuild": "PASS_WITH_CHUNK_SIZE_WARNING",
+  "browser": {
+    "status": "PASS",
+    "viewport": [
+      390,
+      844
+    ],
+    "api": "controlled",
+    "checks": [
+      "six-step design",
+      "initial deployment contract",
+      "revision and idempotency headers",
+      "stale expansion preview rejected",
+      "explicit expansion approval",
+      "workload observation",
+      "mismatched recovery preview rejected",
+      "explicit recovery approval",
+      "retired-network fence"
+    ]
+  },
+  "liveFabric": "NOT_TESTED_CAPACITY",
+  "historicalKeys": "METADATA_INVENTORY_ONLY_OWNER_APPROVAL_REQUIRED",
+  "sprint6": "PARTIAL",
+  "retainedReadOnly": {
+    "clusters": [
+      "smp-qualification"
+    ],
+    "readyDeployments": 8,
+    "boundPVCs": 7
+  },
+  "capacitySample": {
+    "dockerTotalBytes": 6210363392,
+    "dockerAvailableKiB": 3831408,
+    "windowsAvailableKiB": 3375096
+  },
+  "targetedScheduleRecheck": {
+    "status": "PASS",
+    "includes": "concurrent capture across UTC dates refused"
+  }
+}

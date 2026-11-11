@@ -30,7 +30,18 @@ export default function NodeRecovery({
         setPreview(null);
         setApproved(false);
       } else {
-        setPreview(await api.nodeRecoveryPreview(operationId, node));
+        setPreview(null);
+        setApproved(false);
+        const reviewed = await api.nodeRecoveryPreview(operationId, node);
+        if (
+          reviewed.parentOperationId !== operationId ||
+          reviewed.plan.node !== node ||
+          !reviewed.plan.digest
+        )
+          throw new Error(
+            "The recovery preview does not match the selected operation and node.",
+          );
+        setPreview(reviewed);
         setApproved(false);
       }
     } catch (e) {

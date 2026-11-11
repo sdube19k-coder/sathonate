@@ -268,15 +268,27 @@ func main() {
 			return deployment.OpenHistoryDatabase(ctx, database.Pool(), []string{scope})
 		}
 	}
-	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
-	journal := audit.New(os.Stderr)
-	audited := journal.Wrap(middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		p := identity.FromContext(r.Context())
-		if identity.IsProjectAuthenticated(r.Context()) {
-			audit.Bind(r.Context(), p.Subject, p.TenantID, p.ProjectID)
+	var auditStore audit.Postgres
+	var recent func(context.Context, string) ([]audit.Event, error)
+	if database != nil {
+		auditStore = audit.Postgres{Pool: database.Pool()}
+		if err := auditStore.Ready(startup, production); err != nil {
+			log.Fatal("PostgreSQL audit unavailable; apply the explicit migration and audit grants")
 		}
-		handler.ServeHTTP(w, r)
-	})))
+		recent = auditStore.Recent
+	}
+	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{AuditRecent: recent, ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
+	if database != nil {
+		handler = auditStore.Journal().WrapProject(handler, func(ctx context.Context) (string, string) {
+			p := identity.FromContext(ctx)
+			if !identity.IsProjectAuthenticated(ctx) || p.ProjectID == "" {
+				return "", ""
+			}
+			audit.Bind(ctx, p.Subject, p.TenantID, p.ProjectID)
+			return p.StorageTenant(), p.Subject
+		})
+	}
+	audited := audit.New(os.Stderr).Wrap(middleware(handler))
 	server := &http.Server{Addr: *addr, Handler: audited, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
