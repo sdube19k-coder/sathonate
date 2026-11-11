@@ -33,6 +33,10 @@ export function parseCustomerConfiguration(text: string): NetworkSpec {
   }
   inspect(value);
   const s = value as NetworkSpec;
+  const object = (v: unknown): v is Record<string, unknown> =>
+    v !== null && typeof v === "object" && !Array.isArray(v);
+  const objects = (v: unknown): v is Record<string, unknown>[] =>
+    Array.isArray(v) && v.every(object);
   if (
     s?.apiVersion !== "fabric.sathonate.io/v1alpha1" ||
     s.kind !== "FabricNetwork" ||
@@ -42,10 +46,28 @@ export function parseCustomerConfiguration(text: string): NetworkSpec {
     s.spec.deployment?.targetRef !== "smp-dynamic-local-v1" ||
     s.spec.deployment.provider !== "local" ||
     s.spec.deployment.engine !== "bevel" ||
-    !s.spec.configuration ||
-    !Array.isArray(s.spec.nodes) ||
-    !Array.isArray(s.spec.channels) ||
-    !Array.isArray(s.spec.organizations)
+    !object(s.spec.configuration) ||
+    !object(s.spec.configuration.placements) ||
+    !object(s.spec.configuration.nodes) ||
+    !object(s.spec.configuration.anchors) ||
+    !objects(s.spec.configuration.authorities) ||
+    !objects(s.spec.configuration.chaincodes) ||
+    !objects(s.spec.nodes) ||
+    !objects(s.spec.channels) ||
+    !objects(s.spec.organizations) ||
+    s.spec.configuration.authorities.some(
+      (a) => !Array.isArray(a.roles) || !object(a.resources),
+    ) ||
+    s.spec.configuration.chaincodes.some(
+      (c) => !object(c.endorsement) || !Array.isArray(c.endorsement.mspIds),
+    ) ||
+    s.spec.channels.some(
+      (c) =>
+        !Array.isArray(c.organizationRefs) ||
+        !Array.isArray(c.peerRefs) ||
+        !Array.isArray(c.ordererRefs),
+    ) ||
+    Object.values(s.spec.configuration.anchors).some((v) => !Array.isArray(v))
   )
     throw new Error(
       "Use a customer-defined development network for the explicit dynamic local target.",

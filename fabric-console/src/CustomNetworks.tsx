@@ -13,13 +13,17 @@ import {
 import OperationDiagnosticsButton from "./OperationDiagnostics";
 import WorkloadStatus from "./WorkloadStatus";
 import RetainedDeletion from "./RetainedDeletion";
+import NetworkVisualBuilder from "./NetworkVisualBuilder";
+import { emptyVisualNetwork } from "./visual-network";
 
 export default function CustomNetworks({
   initialId,
   capabilities,
+  readOnly = false,
 }: {
   initialId?: string;
   capabilities?: DynamicCapabilities;
+  readOnly?: boolean;
 }) {
   const [items, setItems] = useState<Network[]>([]),
     [network, setNetwork] = useState<Network | null>(null),
@@ -31,7 +35,7 @@ export default function CustomNetworks({
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
-    [editing, setEditing] = useState(true);
+    [editing, setEditing] = useState(false);
   async function load(id?: string) {
     const list = await api.networks();
     const custom = list.items.filter(
@@ -124,6 +128,16 @@ export default function CustomNetworks({
     return network;
   }
   const running = operation?.status === "running";
+  const statusPending =
+    operation?.status === "succeeded" &&
+    observed?.operationId !== operation.operationId;
+  const locked = readOnly || observed?.phase === "removed" || statusPending;
+  let visualSpec: ReturnType<typeof parseCustomerConfiguration> | null = null;
+  try {
+    if (text) visualSpec = parseCustomerConfiguration(text);
+  } catch {
+    /* advanced JSON can be incomplete */
+  }
   const latestVerified =
     operation?.status === "succeeded" &&
     observed?.verified &&
@@ -150,6 +164,26 @@ export default function CustomNetworks({
           Dynamic execution is disabled on this API. Saving a design does not
           deploy it.
         </p>
+      )}
+      {locked && (
+        <p role="status">
+          {readOnly
+            ? "Read-only session. Configuration and execution controls are disabled."
+            : statusPending
+              ? "Checking the saved deployment status before enabling changes."
+              : "This network is retired. Configuration and automatic redeployment are fenced."}
+        </p>
+      )}
+      {!text && (
+        <button
+          className="smp-btn primary"
+          disabled={locked || busy}
+          onClick={() =>
+            changed(JSON.stringify(emptyVisualNetwork(capabilities), null, 2))
+          }
+        >
+          Create visual design
+        </button>
       )}
       <label>
         Saved customer network
@@ -198,6 +232,15 @@ export default function CustomNetworks({
         />
       </label>
       <p>{summary}</p>
+      {visualSpec && (
+        <NetworkVisualBuilder
+          value={visualSpec}
+          capabilities={capabilities}
+          disabled={locked || busy || running}
+          deployed={!!operation}
+          onChange={(next) => changed(JSON.stringify(next, null, 2))}
+        />
+      )}
       <details
         open={editing}
         onToggle={(e) => setEditing(e.currentTarget.open)}
@@ -209,7 +252,7 @@ export default function CustomNetworks({
             aria-label="Customer network JSON"
             rows={22}
             value={text}
-            disabled={busy || running}
+            disabled={locked || busy || running}
             spellCheck={false}
             onChange={(e) => changed(e.target.value)}
           />
@@ -239,7 +282,7 @@ export default function CustomNetworks({
       <div className="smp-inline-actions">
         <button
           className="smp-btn secondary"
-          disabled={busy || running || !text}
+          disabled={locked || busy || running || !text}
           onClick={() => void action(save)}
         >
           Save desired configuration
@@ -247,7 +290,12 @@ export default function CustomNetworks({
         <button
           className="smp-btn primary"
           disabled={
-            busy || running || !network || !capabilities?.enabled || !!operation
+            locked ||
+            busy ||
+            running ||
+            !network ||
+            !capabilities?.enabled ||
+            !!operation
           }
           onClick={() =>
             void action(async () => {
@@ -261,7 +309,11 @@ export default function CustomNetworks({
         <button
           className="smp-btn secondary"
           disabled={
-            busy || running || !latestVerified || !capabilities?.enabled
+            locked ||
+            busy ||
+            running ||
+            !latestVerified ||
+            !capabilities?.enabled
           }
           onClick={() =>
             void action(async () => {
@@ -307,7 +359,7 @@ export default function CustomNetworks({
             </label>
             <button
               className="smp-btn primary"
-              disabled={busy || !approved}
+              disabled={locked || busy || !approved}
               onClick={() =>
                 void action(async () => {
                   setOperation(
@@ -341,7 +393,7 @@ export default function CustomNetworks({
               </li>
             ))}
           </ol>
-          {["failed", "interrupted"].includes(operation.status) && (
+          {!locked && ["failed", "interrupted"].includes(operation.status) && (
             <button
               className="smp-btn secondary"
               disabled={busy}
@@ -361,6 +413,7 @@ export default function CustomNetworks({
               redeployment is blocked.
             </p>
           ) : (
+            !locked &&
             operation.status === "succeeded" && (
               <RetainedDeletion
                 key={operation.operationId}
@@ -379,17 +432,19 @@ export default function CustomNetworks({
             )
           )}
           <OperationDiagnosticsButton operationId={operation.operationId} />
-          <WorkloadStatus
-            operationId={operation.operationId}
-            onStarted={
-              operation.status === "succeeded"
-                ? (next) => {
-                    setOperation(next);
-                    setObserved(null);
-                  }
-                : undefined
-            }
-          />
+          {!readOnly && observed?.phase !== "removed" && (
+            <WorkloadStatus
+              operationId={operation.operationId}
+              onStarted={
+                !locked && operation.status === "succeeded"
+                  ? (next) => {
+                      setOperation(next);
+                      setObserved(null);
+                    }
+                  : undefined
+              }
+            />
+          )}
         </section>
       )}
       {observed && (

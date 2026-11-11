@@ -152,6 +152,12 @@ export default function SmpApp() {
     )
       setNode(health.peers[0].peer);
   }, [health, node]);
+  const visualCreation =
+    secure &&
+    meta?.dynamicLocal?.enabled &&
+    step < 4 &&
+    !saved &&
+    !selectedOperation;
   const local = draft.provider === "local",
     kube = draft.provider === "kubernetes",
     running =
@@ -859,7 +865,7 @@ export default function SmpApp() {
             <span>LOCAL DEVELOPMENT</span>
           </div>
         </aside>
-        {view === "create" && (
+        {view === "create" && !visualCreation && (
           <nav className="smp-stepper" aria-label="Network creation steps">
             {flowSteps.map((s, i) => (
               <button
@@ -923,7 +929,13 @@ export default function SmpApp() {
               </button>
             </div>
           )}
-          {view === "create" ? (
+          {view === "create" && visualCreation ? (
+            <CustomNetworks
+              key={workspaceKey() + "-create"}
+              capabilities={meta?.dynamicLocal}
+              readOnly={meta?.deploymentMode === "history-only"}
+            />
+          ) : view === "create" ? (
             <>
               <div className="smp-page-heading">
                 <div>
@@ -1289,6 +1301,7 @@ export default function SmpApp() {
                   key={workspaceKey()}
                   initialId={customNetworkId}
                   capabilities={meta?.dynamicLocal}
+                  readOnly={meta?.deploymentMode === "history-only"}
                 />
               )}
               {(view === "networks" || view === "operations") && (

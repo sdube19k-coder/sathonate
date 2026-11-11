@@ -67,7 +67,7 @@ type ColdReceipt struct {
 func (r SecureRunner) ColdBackup(ctx context.Context, pool *pgxpool.Pool, o ColdOptions) (ColdReceipt, error) {
 	denied := errors.New("cold maintenance refused; verify offline executor, exact binding, checkpoint, storage and private artifact")
 	receipt := ColdReceipt{Schema: "sathonate.local-cold-backup/v1", Action: o.Action}
-	if pool == nil || !ColdDatabaseAllowed(pool.Config().ConnConfig.Host, pool.Config().ConnConfig.Database) || r.binding == nil || r.binding.remote != nil || len(o.Key) != 32 || (o.Action != "capture" && o.Action != "restore" && o.Action != "resume") {
+	if pool == nil || !ColdDatabaseAllowed(pool.Config().ConnConfig.Host, pool.Config().ConnConfig.Database) || r.binding == nil || r.binding.remote != nil || len(o.Key) != 32 || (o.Action != "capture" && o.Action != "restore" && o.Action != "resume" && o.Action != "capture-resume") {
 		return receipt, denied
 	}
 	lease, e := pool.Acquire(ctx)
@@ -80,6 +80,27 @@ func (r SecureRunner) ColdBackup(ctx context.Context, pool *pgxpool.Pool, o Cold
 		return receipt, errors.New("stop the local API/executor before cold maintenance")
 	}
 	defer lease.Exec(context.Background(), "SELECT pg_advisory_unlock(718481029)")
+	if o.Action == "capture-resume" {
+		o.Action = "capture"
+		captured, err := r.coldBackupWithLease(ctx, lease, o)
+		if err != nil {
+			return captured, err
+		}
+		o.Action = "resume"
+		resumed, err := r.coldBackupWithLease(ctx, lease, o)
+		if err != nil {
+			return captured, err
+		}
+		resumed.Action = "capture-resume"
+		resumed.ArtifactSHA256 = captured.ArtifactSHA256
+		return resumed, nil
+	}
+	return r.coldBackupWithLease(ctx, lease, o)
+}
+
+func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Conn, o ColdOptions) (ColdReceipt, error) {
+	denied := errors.New("cold maintenance refused; verify offline executor, exact binding, checkpoint, storage and private artifact")
+	receipt := ColdReceipt{Schema: "sathonate.local-cold-backup/v1", Action: o.Action}
 	tx, e := lease.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead})
 	if e != nil {
 		return receipt, denied

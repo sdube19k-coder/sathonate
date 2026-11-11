@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { api, type WorkloadSnapshot } from "./api";
 import type { Operation } from "./api";
 import NodeRecovery from "./NodeRecovery";
+import { Status } from "./SmpScreens";
+import { formatDate } from "./components";
 
 export default function WorkloadStatus({
   operationId,
@@ -71,16 +73,28 @@ export default function WorkloadStatus({
       {error && <p role="alert">{error}</p>}
       {snapshot && (
         <div aria-live="polite">
-          <p>
-            {snapshot.workloadsReady
-              ? "Required workloads ready"
-              : "Workloads need attention"}{" "}
-            · observed {snapshot.checkedAt} · saved revision {snapshot.revision}
-          </p>
+          <div className="smp-inline-actions">
+            <Status tone={snapshot.workloadsReady ? "green" : "amber"}>
+              {snapshot.workloadsReady
+                ? "Required workloads ready"
+                : "Workloads need attention"}
+            </Status>
+            <small>
+              Observed {formatDate(snapshot.checkedAt)} · saved revision{" "}
+              {snapshot.revision}
+            </small>
+          </div>
           <p>Ledger consistency was not checked by this refresh.</p>
           {snapshot.alerts?.map((a) => (
-            <p role="status" key={a.component + a.code}>
-              {a.component}: {a.code}. {a.action}
+            <p
+              role="status"
+              className="smp-note amber"
+              key={a.component + a.code}
+            >
+              <strong>
+                {a.component} · {a.code}
+              </strong>{" "}
+              {a.action}
             </p>
           ))}
           <div className="smp-workload-scroll">

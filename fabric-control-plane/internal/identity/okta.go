@@ -13,7 +13,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const ProductionACR = "urn:okta:loa:2fa:any"
+
 type Config struct {
+	RequiredACR        string           `json:"requiredACR,omitempty"`
 	MembershipSource   MembershipSource `json:"-"`
 	Mode               string           `json:"mode"`
 	Issuer             string           `json:"issuer,omitempty"`
@@ -95,6 +98,16 @@ func New(ctx context.Context, c Config) (*Authenticator, error) {
 	if c.Environment != "production" && c.Environment != "local-development" {
 		return nil, errors.New("explicit supported OIDC environment required")
 	}
+	if c.Environment == "production" {
+		if c.RequiredACR == "" {
+			c.RequiredACR = ProductionACR
+		}
+		if c.RequiredACR != ProductionACR {
+			return nil, errors.New("production requires the approved two-factor assurance policy")
+		}
+	} else if c.RequiredACR != "" && c.RequiredACR != ProductionACR {
+		return nil, errors.New("unsupported authentication assurance policy")
+	}
 	parsed, e := url.Parse(c.Issuer)
 	if e != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" || !strings.Contains(parsed.Path, "/oauth2/") || c.ClientID == "" || c.Audience == "" || c.Audience == c.ClientID {
 		return nil, errors.New("Okta requires a HTTPS custom authorization-server issuer, SPA client ID and a distinct API audience")
@@ -158,6 +171,12 @@ func (a *Authenticator) verifiedToken(ctx context.Context, raw string) (*oidc.ID
 	var claims map[string]any
 	if e = token.Claims(&claims); e != nil {
 		return nil, nil, errors.New("invalid claims")
+	}
+	if a.config.RequiredACR != "" {
+		acr, ok := claims["acr"].(string)
+		if !ok || acr != a.config.RequiredACR {
+			return nil, nil, errors.New("required authentication assurance not satisfied")
+		}
 	}
 	client, _ := claims["cid"].(string)
 	if token.Subject == "" || client != a.config.ClientID {

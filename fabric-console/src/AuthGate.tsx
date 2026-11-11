@@ -11,6 +11,7 @@ type AuthConfig = {
   issuer?: string;
   clientId?: string;
   audience?: string;
+  requiredACR?: string;
 };
 let activeClient: OktaAuth | null = null;
 export function SignOut() {
@@ -90,6 +91,9 @@ export default function AuthGate({ children }: { children: ReactNode }) {
         redirectUri: window.location.origin + "/login/callback",
         scopes: ["openid", "profile", "email", "fabric.read"],
         pkce: true,
+        ...(configuration.requiredACR
+          ? { acrValues: configuration.requiredACR }
+          : {}),
         tokenManager: { storage: "memory" },
         storageManager: { transaction: { storageType: "sessionStorage" } },
         restoreOriginalUri: async (_client, originalUri) => {

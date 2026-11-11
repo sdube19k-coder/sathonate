@@ -26,14 +26,14 @@ func TestAccessTokenVerificationAndAuthorization(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(jose.JSONWebKeySet{Keys: []jose.JSONWebKey{{Key: &key.PublicKey, Use: "sig", Algorithm: "RS256", KeyID: "test"}}})
 	}))
 	defer keys.Close()
-	config := Config{Mode: "okta", Environment: "production", Issuer: "https://company.okta.example/oauth2/default", ClientID: "spa-client", Audience: "api://sathonate", TenantClaim: "sathonate_tenant", ProjectClaim: "sathonate_project"}
+	config := Config{Mode: "okta", Environment: "production", Issuer: "https://company.okta.example/oauth2/default", ClientID: "spa-client", Audience: "api://sathonate", RequiredACR: ProductionACR, TenantClaim: "sathonate_tenant", ProjectClaim: "sathonate_project"}
 	auth := &Authenticator{memberships: []Membership{{Environment: "production", Issuer: config.Issuer, Subject: "person", Tenant: "business-a", Project: "project-a", Role: "operator", Permissions: []string{"read", "write"}, NotBefore: time.Now().Add(-time.Hour), ExpiresAt: time.Now().Add(time.Hour)}, {Environment: "production", Issuer: config.Issuer, Subject: "viewer", Tenant: "business-a", Project: "project-a", Role: "viewer", Permissions: []string{"read"}, NotBefore: time.Now().Add(-time.Hour), ExpiresAt: time.Now().Add(time.Hour)}}, config: config, verifier: oidc.NewVerifier(config.Issuer, oidc.NewRemoteKeySet(context.Background(), keys.URL), &oidc.Config{ClientID: config.Audience, SupportedSigningAlgs: []string{"RS256"}})}
 	signer, e := jose.NewSigner(jose.SigningKey{Algorithm: jose.RS256, Key: key}, (&jose.SignerOptions{}).WithHeader("kid", "test"))
 	if e != nil {
 		t.Fatal(e)
 	}
 	makeToken := func(change func(map[string]any)) string {
-		claims := map[string]any{"iss": config.Issuer, "sub": "person", "aud": config.Audience, "cid": config.ClientID, "exp": time.Now().Add(time.Hour).Unix(), "iat": time.Now().Unix(), "sathonate_tenant": "business-a", "sathonate_project": "project-a", "groups": []string{"sathonate-admin"}, "scp": []string{"fabric.read", "fabric.write"}}
+		claims := map[string]any{"iss": config.Issuer, "sub": "person", "aud": config.Audience, "cid": config.ClientID, "exp": time.Now().Add(time.Hour).Unix(), "iat": time.Now().Unix(), "acr": ProductionACR, "sathonate_tenant": "business-a", "sathonate_project": "project-a", "groups": []string{"sathonate-admin"}, "scp": []string{"fabric.read", "fabric.write"}}
 		if change != nil {
 			change(claims)
 		}
@@ -57,6 +57,10 @@ func TestAccessTokenVerificationAndAuthorization(t *testing.T) {
 		name   string
 		change func(map[string]any)
 	}{
+		{"missing MFA", func(c map[string]any) { delete(c, "acr") }},
+		{"password only", func(c map[string]any) { c["acr"] = "urn:okta:loa:1fa:pwd" }},
+		{"optional MFA fallback", func(c map[string]any) { c["acr"] = "urn:okta:loa:2fa:any:ifpossible" }},
+		{"malformed assurance", func(c map[string]any) { c["acr"] = []string{ProductionACR} }},
 		{"ID token audience", func(c map[string]any) { c["aud"] = config.ClientID }},
 		{"wrong issuer", func(c map[string]any) { c["iss"] = "https://other.example" }},
 		{"expired token", func(c map[string]any) { c["exp"] = time.Now().Add(-time.Hour).Unix() }},
@@ -144,7 +148,7 @@ func TestConfiguredOIDCDiscoveryAndServerMembership(t *testing.T) {
 	}
 	signer, _ := jose.NewSigner(jose.SigningKey{Algorithm: jose.RS256, Key: key}, (&jose.SignerOptions{}).WithHeader("kid", "fixture"))
 	token := func(change func(map[string]any)) string {
-		c := map[string]any{"iss": issuer, "sub": "person", "aud": "api://fabric", "cid": "spa", "iat": now.Unix(), "exp": now.Add(30 * time.Minute).Unix(), "sathonate_tenant": "tenant", "sathonate_project": "project", "scp": []string{"fabric.read", "fabric.write"}, "groups": []string{"sathonate-admin"}}
+		c := map[string]any{"iss": issuer, "sub": "person", "aud": "api://fabric", "cid": "spa", "iat": now.Unix(), "acr": ProductionACR, "exp": now.Add(30 * time.Minute).Unix(), "sathonate_tenant": "tenant", "sathonate_project": "project", "scp": []string{"fabric.read", "fabric.write"}, "groups": []string{"sathonate-admin"}}
 		if change != nil {
 			change(c)
 		}
@@ -165,6 +169,8 @@ func TestConfiguredOIDCDiscoveryAndServerMembership(t *testing.T) {
 		change             func(map[string]any)
 		status             int
 	}{
+		{"missing MFA", "GET", "/api/v1/networks", func(c map[string]any) { delete(c, "acr") }, 401},
+		{"weak MFA", "GET", "/api/v1/networks", func(c map[string]any) { c["acr"] = "urn:okta:loa:1fa:any" }, 401},
 		{"allowed deploy", "POST", "/api/v1/networks/n/deploy", nil, 204},
 		{"status", "GET", "/api/v1/deployments/op", nil, 204},
 		{"retry denied", "POST", "/api/v1/deployments/op/retry", nil, 403},

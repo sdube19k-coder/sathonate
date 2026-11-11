@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"sathonate.local/fabric-control-plane/internal/audit"
 	"sathonate.local/fabric-control-plane/internal/cloud"
 	"sathonate.local/fabric-control-plane/internal/deployment"
 	"sathonate.local/fabric-control-plane/internal/drafts"
@@ -103,7 +104,7 @@ func main() {
 	}
 	configuration := identity.Config{Mode: "local-development"}
 	if production || *localOIDC {
-		configuration = identity.Config{Mode: "okta", Environment: *mode, Issuer: os.Getenv("OKTA_ISSUER"), ClientID: os.Getenv("OKTA_CLIENT_ID"), Audience: os.Getenv("OKTA_AUDIENCE"), TenantClaim: os.Getenv("OKTA_TENANT_CLAIM"), ProjectClaim: os.Getenv("OKTA_PROJECT_CLAIM")}
+		configuration = identity.Config{Mode: "okta", Environment: *mode, Issuer: os.Getenv("OKTA_ISSUER"), ClientID: os.Getenv("OKTA_CLIENT_ID"), Audience: os.Getenv("OKTA_AUDIENCE"), RequiredACR: os.Getenv("OKTA_REQUIRED_ACR"), TenantClaim: os.Getenv("OKTA_TENANT_CLAIM"), ProjectClaim: os.Getenv("OKTA_PROJECT_CLAIM")}
 	}
 	if *localOIDC {
 		configuration.ServerBoundProject = true
@@ -268,7 +269,15 @@ func main() {
 		}
 	}
 	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
-	server := &http.Server{Addr: *addr, Handler: middleware(handler), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10}
+	journal := audit.New(os.Stderr)
+	audited := journal.Wrap(middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := identity.FromContext(r.Context())
+		if identity.IsProjectAuthenticated(r.Context()) {
+			audit.Bind(r.Context(), p.Subject, p.TenantID, p.ProjectID)
+		}
+		handler.ServeHTTP(w, r)
+	})))
+	server := &http.Server{Addr: *addr, Handler: audited, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	go func() {

@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "checks": [
+    "encrypted custom archive",
+    "overwrite refused",
+    "wrong key rejected",
+    "fresh database restore",
+    "source divergence preserved",
+    "RLS flags and policy restored",
+    "new write on restored database",
+    "both disposable databases removed"
+  ],
+  "capture": {
+    "schema": "sathonate.backup/v1",
+    "bindingSHA256": "c4915992c7f7b31adbf77a8f2af6ae9b5d3df6d1a8bdd33b50206a7a207cc9e3",
+    "ciphertextSHA256": "5d1e36ec6424cceab722acb499c1a7a825519440a707b242003e212ff65ef5f1",
+    "createdAt": "2026-11-11T11:34:34.703680823Z"
+  },
+  "restore": {
+    "database": "sathonate_dr_f4702ca436a87ceedac4b1b8",
+    "backup": {
+      "schema": "sathonate.backup/v1",
+      "bindingSHA256": "c4915992c7f7b31adbf77a8f2af6ae9b5d3df6d1a8bdd33b50206a7a207cc9e3",
+      "ciphertextSHA256": "5d1e36ec6424cceab722acb499c1a7a825519440a707b242003e212ff65ef5f1",
+      "createdAt": "2026-11-11T11:34:34.703680823Z"
+    }
+  }
+}
