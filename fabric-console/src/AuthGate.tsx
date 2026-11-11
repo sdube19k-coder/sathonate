@@ -14,6 +14,13 @@ type AuthConfig = {
   requiredACR?: string;
 };
 let activeClient: OktaAuth | null = null;
+export async function authorizeCustomerChanges() {
+  if (!activeClient) throw new Error("An Okta session is required.");
+  await activeClient.signInWithRedirect({
+    scopes: ["openid", "profile", "email", "fabric.read", "fabric.write"],
+    originalUri: window.location.origin + "/#/customer",
+  });
+}
 export function SignOut() {
   return activeClient ? (
     <button

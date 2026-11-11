@@ -63,6 +63,8 @@ import { useDialog } from "./use-dialog";
 import { readWithRecovery } from "./read-recovery";
 import { CloudReadiness } from "./LaunchReadiness";
 import CustomNetworks from "./CustomNetworks";
+import CustomerAccount from "./CustomerAccount";
+import "./customer-account.css";
 import "./smp.css";
 import "./reference-design.css";
 import "./console-theme.css";
@@ -74,7 +76,8 @@ type View =
   | "chaincode"
   | "operations"
   | "settings"
-  | "custom";
+  | "custom"
+  | "customer";
 const titles = [
   "Connect Your Cloud Account",
   "Kubernetes Configuration",
@@ -109,7 +112,9 @@ export default function SmpApp() {
       ? n - 1
       : 0;
   });
-  const [view, setView] = useState<View>("create");
+  const [view, setView] = useState<View>(() =>
+    location.hash === "#/customer" ? "customer" : "create",
+  );
   const [customNetworkId, setCustomNetworkId] = useState("");
   const [selectedOperation, setSelectedOperation] = useState(
     draft.deploymentOperationId ?? "",
@@ -356,6 +361,9 @@ export default function SmpApp() {
     setError("");
   };
   const navigate = (v: View) => {
+    if (location.hash === "#/customer" && v !== "customer") {
+      window.history.replaceState(null, "", location.pathname + location.search);
+    }
     setView(v);
     setMenu(false);
     setError("");
@@ -849,6 +857,16 @@ export default function SmpApp() {
                 {view === id && <span className="smp-nav-dot" />}
               </button>
             ))}
+            {meta?.customerPilot && (
+              <button
+                className={view === "customer" ? "active" : ""}
+                aria-current={view === "customer" ? "page" : undefined}
+                onClick={() => navigate("customer")}
+              >
+                <Settings size={19} />
+                <span>Customer account</span>
+              </button>
+            )}
           </nav>
           <div className="smp-nav-context">
             <ShieldCheck size={21} />
@@ -1273,9 +1291,11 @@ export default function SmpApp() {
                   <h1>
                     {view === "custom"
                       ? "Customer configurations"
-                      : view === "settings"
-                        ? "Cloud readiness"
-                        : view.charAt(0).toUpperCase() + view.slice(1)}
+                      : view === "customer"
+                        ? "Customer account"
+                        : view === "settings"
+                          ? "Cloud readiness"
+                          : view.charAt(0).toUpperCase() + view.slice(1)}
                   </h1>
                   <p>
                     {view === "networks"
@@ -1288,7 +1308,9 @@ export default function SmpApp() {
                             ? "Peers, orderers and certificate authorities in the selected deployment."
                             : view === "chaincode"
                               ? "Committed contracts, definitions and transaction verification."
-                              : "Review deployment requirements and the security gates still to resolve."}
+                              : view === "customer"
+                                ? "Manage organization access, projects and billing."
+                                : "Review deployment requirements and the security gates still to resolve."}
                   </p>
                 </div>
                 <button className="smp-btn primary" onClick={newFlow}>
@@ -1666,6 +1688,9 @@ export default function SmpApp() {
                     </Note>
                   )}
                 </Card>
+              )}
+              {view === "customer" && meta?.customerPilot && (
+                <CustomerAccount />
               )}
               {view === "settings" && <CloudReadiness />}
               {view === "settings" && (

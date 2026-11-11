@@ -1,0 +1,36 @@
+.customer-account {
+  display: grid;
+  gap: 1rem;
+}
+
+.customer-panel {
+  padding: 1.25rem;
+}
+
+.customer-panel h2 {
+  margin: 0 0 0.75rem;
+}
+
+.customer-panel form {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+
+.customer-panel label {
+  flex-basis: 100%;
+}
+
+.customer-panel input {
+  width: min(100%, 24rem);
+  padding: 0.65rem;
+  border: 1px solid #8b9ab1;
+  border-radius: 0.5rem;
+}
+
+.customer-panel li {
+  overflow-wrap: anywhere;
+  margin-block: 0.35rem;
+}

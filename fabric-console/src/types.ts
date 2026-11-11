@@ -97,6 +97,7 @@ export type Network = {
   archived: boolean;
 };
 export type Meta = {
+  customerPilot?: boolean;
   dynamicLocal?: DynamicCapabilities;
   deploymentMode?:
     "disabled" | "mock" | "local-kubernetes" | "secure-local" | "history-only";
