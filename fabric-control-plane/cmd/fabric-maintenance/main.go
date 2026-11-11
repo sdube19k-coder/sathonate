@@ -26,17 +26,24 @@ func read(path string, limit int64) ([]byte, error) {
 	return raw, e
 }
 func main() {
-	action := flag.String("action", "", "backup, restore or inspect-certificate (local files only)")
+	action := flag.String("action", "", "backup, restore, inspect-certificate or verify-certificate (local files only)")
 	input := flag.String("input", "", "private input file")
 	output := flag.String("output", "", "new private output file")
 	bindingFile := flag.String("binding", "", "non-secret exact binding JSON")
 	keyFile := flag.String("key-file", "", "protected 32-byte key file; never inline")
+	rootsFile := flag.String("trust-roots", "", "public PEM trust anchors for verify-certificate")
+	endpoint := flag.String("endpoint", "", "DNS name or IP address of the TLS endpoint")
+	warnBefore := flag.Duration("warn-before", 30*24*time.Hour, "certificate renewal warning window")
 	flag.Parse()
 	fail := func() {
 		fmt.Fprintln(os.Stderr, "Local maintenance operation failed; check private paths, key, binding and input type. No credentials are printed.")
 		os.Exit(1)
 	}
-	raw, e := read(*input, maintenance.MaxBackupBytes*2)
+	limit := int64(maintenance.MaxBackupBytes * 2)
+	if *action == "verify-certificate" {
+		limit = 1 << 20
+	}
+	raw, e := read(*input, limit)
 	if e != nil {
 		fail()
 	}
@@ -47,6 +54,21 @@ func main() {
 			fail()
 		}
 		json.NewEncoder(os.Stdout).Encode(observation)
+		return
+	}
+	if *action == "verify-certificate" {
+		roots, err := read(*rootsFile, limit)
+		if err != nil {
+			fail()
+		}
+		health, err := maintenance.VerifyServerCertificate(raw, roots, *endpoint, time.Now(), *warnBefore)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Server certificate trust verification failed.")
+			os.Exit(1)
+		}
+		if json.NewEncoder(os.Stdout).Encode(health) != nil {
+			fail()
+		}
 		return
 	}
 	if *action != "backup" && *action != "restore" {
