@@ -62,13 +62,13 @@ func TestProductionPostgresTLSAndRoleOnDocker(t *testing.T) {
 	name := "smp-db-tls-" + hex.EncodeToString(random[:6])
 	docker := func(args ...string) ([]byte, error) { return exec.CommandContext(ctx, "docker", args...).Output() }
 	script := "install -o postgres -g postgres -m 600 /fixtures/server.key /tmp/server.key; install -o postgres -g postgres -m 644 /fixtures/server.pem /tmp/server.pem; exec docker-entrypoint.sh postgres -c ssl=on -c ssl_cert_file=/tmp/server.pem -c ssl_key_file=/tmp/server.key"
-	if _, err := docker("run", "-d", "--name", name, "--mount", "type=bind,source="+private+",target=/fixtures,readonly", "-e", "POSTGRES_USER=fixture_admin", "-e", "POSTGRES_DB=fabric_tls_tests", "-e", "POSTGRES_PASSWORD_FILE=/fixtures/password", "-p", "127.0.0.1::5432", "postgres:17.6", "sh", "-ec", script); err != nil {
+	if _, err := docker("run", "-d", "--pull", "never", "--name", name, "--mount", "type=bind,source="+private+",target=/fixtures,readonly", "-e", "POSTGRES_USER=fixture_admin", "-e", "POSTGRES_DB=fabric_tls_tests", "-e", "POSTGRES_PASSWORD_FILE=/fixtures/password", "-p", "127.0.0.1::5432", "postgres:17.6", "sh", "-ec", script); err != nil {
 		t.Fatal("disposable TLS database start failed; diagnostics withheld")
 	}
 	defer func() {
 		cleanup, c := context.WithTimeout(context.Background(), 30*time.Second)
 		defer c()
-		if exec.CommandContext(cleanup, "docker", "rm", "-f", name).Run() != nil {
+		if exec.CommandContext(cleanup, "docker", "rm", "-f", "-v", name).Run() != nil {
 			t.Error("disposable TLS database cleanup failed")
 		}
 	}()
@@ -132,6 +132,7 @@ func TestProductionPostgresTLSAndRoleOnDocker(t *testing.T) {
 		t.Fatal("RLS update query")
 	}
 	_ = tx.Rollback(ctx)
+	t.Run("customer", func(t *testing.T) { customerPostgresFixture(t, ctx, admin, service) })
 	service.Close()
 	if db, err := Open(ctx, connection("fixture_admin", "verify-full"), true); err == nil {
 		db.Close()

@@ -37,6 +37,9 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 		a.allowedOrigins[v] = true
 	}
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /api/v1/customer", a.customerAccount)
+	mux.HandleFunc("POST /api/v1/customer/actions", a.customerAction)
+	mux.HandleFunc("POST "+identity.CustomerInvitationAcceptance, a.customerAction)
 	mux.HandleFunc("GET /api/v1/audit", func(w http.ResponseWriter, r *http.Request) {
 		p := identity.FromContext(r.Context())
 		if !identity.IsProjectAuthenticated(r.Context()) || p.ProjectID == "" || !p.CanAdminister() {
@@ -88,15 +91,27 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 	mux.HandleFunc("POST /api/v1/networks/{id}/cloud-preflight", a.cloudPreflight)
 	mux.HandleFunc("POST /api/v1/networks/{id}/cloud-bundle", a.cloudBundle)
 	mux.HandleFunc("POST /api/v1/networks/{id}/deployment-package", a.deploymentPackage)
-	mux.HandleFunc("POST /api/v1/networks/{id}/deploy", a.deployNetwork)
+	mux.HandleFunc("POST /api/v1/networks/{id}/deploy", func(w http.ResponseWriter, r *http.Request) {
+		if a.customerDeploymentAllowed(w, r) {
+			a.deployNetwork(w, r)
+		}
+	})
 	mux.HandleFunc("POST /api/v1/deployments/{operationId}/cancel", a.deploymentCancel)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/lifecycle/{action}/preview", a.lifecycle)
-	mux.HandleFunc("POST /api/v1/deployments/{operationId}/lifecycle/{action}/deploy", a.lifecycle)
+	mux.HandleFunc("POST /api/v1/deployments/{operationId}/lifecycle/{action}/deploy", func(w http.ResponseWriter, r *http.Request) {
+		if a.customerDeploymentAllowed(w, r) {
+			a.lifecycle(w, r)
+		}
+	})
 	mux.HandleFunc("GET /api/v1/networks/{id}/dynamic/preview", a.dynamicNetwork)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/workloads", a.deploymentWorkloads)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/recovery/preview", a.nodeRecovery)
 	mux.HandleFunc("POST /api/v1/deployments/{operationId}/recovery/deploy", a.nodeRecovery)
-	mux.HandleFunc("POST /api/v1/networks/{id}/dynamic/deploy", a.dynamicNetwork)
+	mux.HandleFunc("POST /api/v1/networks/{id}/dynamic/deploy", func(w http.ResponseWriter, r *http.Request) {
+		if a.customerDeploymentAllowed(w, r) {
+			a.dynamicNetwork(w, r)
+		}
+	})
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}", a.deploymentStatus)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/health", a.deploymentHealth)
 	mux.HandleFunc("GET /api/v1/deployments/{operationId}/logs/{node}", a.deploymentLogs)
@@ -112,7 +127,7 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 		if a.options.Deployments != nil {
 			deploymentMode = a.options.Deployments.Mode()
 		}
-		respond(w, 200, map[string]any{"name": "Fabric SMP", "company": "Sathonate", "mode": a.options.Auth.Mode, "deploymentMode": deploymentMode, "mockExecutionEnabled": deploymentMode == "mock", "executionEnabled": false, "localRuntimeEnabled": a.options.Local != nil && a.options.Auth.Mode == "local-development", "schemaVersion": domain.APIVersion, "storage": a.options.Storage, "engines": []string{"bevel", "native"}, "dynamicLocal": func() map[string]any {
+		respond(w, 200, map[string]any{"name": "Fabric SMP", "company": "Sathonate", "mode": a.options.Auth.Mode, "deploymentMode": deploymentMode, "mockExecutionEnabled": deploymentMode == "mock", "executionEnabled": false, "customerPilot": a.options.Customer != nil, "localRuntimeEnabled": a.options.Local != nil && a.options.Auth.Mode == "local-development", "schemaVersion": domain.APIVersion, "storage": a.options.Storage, "engines": []string{"bevel", "native"}, "dynamicLocal": func() map[string]any {
 			if a.options.Deployments == nil {
 				return map[string]any{"enabled": false}
 			}

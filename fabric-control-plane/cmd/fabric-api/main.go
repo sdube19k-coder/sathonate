@@ -16,6 +16,7 @@ import (
 
 	"sathonate.local/fabric-control-plane/internal/audit"
 	"sathonate.local/fabric-control-plane/internal/cloud"
+	"sathonate.local/fabric-control-plane/internal/customer"
 	"sathonate.local/fabric-control-plane/internal/deployment"
 	"sathonate.local/fabric-control-plane/internal/drafts"
 	"sathonate.local/fabric-control-plane/internal/httpapi"
@@ -44,6 +45,7 @@ func main() {
 	cloudExecution := flag.Bool("enable-cloud-execution", false, "explicit opt-in to qualified real AWS/EKS execution; unavailable until qualification")
 	deploymentRoot := flag.String("deployment-data", "data/deployments", "single-process development deployment journal")
 	opsAddr := flag.String("operations-addr", "", "optional separate address for health, readiness and Prometheus")
+	customerPilot := flag.Bool("customer-pilot", false, "enable authenticated customer pilot; payment and infrastructure execution stay disabled")
 	flag.Parse()
 	explicitMode := false
 	flag.Visit(func(f *flag.Flag) {
@@ -100,6 +102,9 @@ func main() {
 		}
 		log.Print("PostgreSQL schema migration complete")
 		return
+	}
+	if *customerPilot && (!production || database == nil || *deploymentMode != "disabled") {
+		log.Fatal("customer pilot requires production authentication, PostgreSQL and disabled deployment execution")
 	}
 	if production && database == nil {
 		log.Fatal("production mode requires PostgreSQL; local file storage is not allowed")
@@ -279,7 +284,15 @@ func main() {
 		}
 		recent = auditStore.Recent
 	}
-	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{AuditRecent: recent, ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
+	var customerService *customer.Service
+	if *customerPilot {
+		store := customer.Postgres{Pool: database.Pool()}
+		if store.Ready(startup) != nil {
+			log.Fatal("customer pilot schema or restricted runtime grants unavailable")
+		}
+		customerService = &customer.Service{Store: store}
+	}
+	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{Customer: customerService, AuditRecent: recent, ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
 	if database != nil {
 		handler = auditStore.Journal().WrapProject(handler, func(ctx context.Context) (string, string) {
 			p := identity.FromContext(ctx)

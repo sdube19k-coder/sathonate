@@ -46,7 +46,7 @@ func secureOIDCFixture(t *testing.T, grants []identity.LocalGrant, options ...fu
 			role = "viewer"
 		}
 		members = append(members, identity.Membership{Environment: "production", Issuer: issuer, Subject: subject, Tenant: g.Tenant, Project: g.Project, Role: role, Permissions: g.Permissions, NotBefore: now.Add(-time.Minute), ExpiresAt: now.Add(time.Hour)})
-		b, _ := json.Marshal(map[string]any{"iss": issuer, "sub": subject, "aud": "api://sathonate-test", "cid": "fixture-spa", "iat": now.Unix(), "exp": now.Add(time.Hour).Unix(), "sathonate_tenant": g.Tenant, "sathonate_project": g.Project, "scp": []string{"fabric.read", "fabric.write"}, "groups": []string{"sathonate-admin"}})
+		b, _ := json.Marshal(map[string]any{"iss": issuer, "sub": subject, "aud": "api://sathonate-test", "cid": "fixture-spa", "acr": identity.ProductionACR, "iat": now.Unix(), "exp": now.Add(time.Hour).Unix(), "sathonate_tenant": g.Tenant, "sathonate_project": g.Project, "scp": []string{"fabric.read", "fabric.write"}, "groups": []string{"sathonate-admin"}})
 		signed, _ := signer.Sign(b)
 		raw, _ := signed.CompactSerialize()
 		tokens = append(tokens, raw)

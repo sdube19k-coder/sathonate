@@ -13,6 +13,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const CustomerInvitationAcceptance = "/api/v1/customer/invitations/accept"
+
 const ProductionACR = "urn:okta:loa:2fa:any"
 
 type Config struct {
@@ -308,6 +310,9 @@ func (a *Authenticator) Middleware(next http.Handler) http.Handler {
 		if a.config.Mode == "okta" {
 			allowed := false
 			permission := localPermission(r)
+			if r.Method == http.MethodPost && r.URL.Path == CustomerInvitationAcceptance {
+				permission = "read"
+			}
 			for _, v := range p.permissions {
 				if v == permission {
 					allowed = true
@@ -319,7 +324,7 @@ func (a *Authenticator) Middleware(next http.Handler) http.Handler {
 			}
 		}
 		// Validation/unsaved plan generation are read-like POSTs. Persistent reviews are writes.
-		readOnly := r.Method == "GET" || r.Method == "HEAD" || r.URL.Path == "/api/v1/validate" || r.URL.Path == "/api/v1/plans" || strings.HasSuffix(r.URL.Path, "/cloud-preflight")
+		readOnly := (a.config.Mode == "okta" && r.Method == http.MethodPost && r.URL.Path == CustomerInvitationAcceptance) || r.Method == "GET" || r.Method == "HEAD" || r.URL.Path == "/api/v1/validate" || r.URL.Path == "/api/v1/plans" || strings.HasSuffix(r.URL.Path, "/cloud-preflight")
 		if !readOnly && !p.CanWrite() {
 			http.Error(w, "operator role required", http.StatusForbidden)
 			return
