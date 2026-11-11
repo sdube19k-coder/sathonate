@@ -1,0 +1,15 @@
+# Render fixture. Replace the placeholder immutable references and existing Secret names.
+apiImage: registry.example.test/sathonate/api@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+consoleImage: registry.example.test/sathonate/console@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+publicHost: fabric.example.test
+postgres:
+  existingSecret: sathonate-db-connection
+okta:
+  issuer: https://identity.example.test/oauth2/fabric
+  clientId: example-console-client
+  audience: api://fabric
+ingress:
+  className: nginx
+  tlsSecret: fabric-web-tls
+monitoring:
+  enabled: true

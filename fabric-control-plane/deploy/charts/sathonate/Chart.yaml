@@ -1,0 +1,5 @@
+apiVersion: v2
+name: sathonate
+version: 0.1.0
+description: Customer Kubernetes control plane and console with externally managed PostgreSQL and TLS.
+type: application

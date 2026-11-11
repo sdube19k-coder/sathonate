@@ -1,0 +1,87 @@
+{{- include "sathonate.validate" . -}}
+{{- $root := . -}}
+{{- $name := include "sathonate.name" . -}}
+{{- range $component, $image := dict "api" .Values.apiImage "console" .Values.consoleImage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}-{{ $component }}
+  labels: &labels
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/component: {{ $component }}
+    app.kubernetes.io/name: sathonate
+spec:
+  replicas: {{ $root.Values.replicas }}
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      automountServiceAccountToken: false
+      {{- with $root.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: {{ $component }}
+          image: {{ $image | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          ports:
+            - {name: http, containerPort: 8080}
+          {{- if eq $component "api" }}
+            - {name: operations, containerPort: 9090}
+          args: ["-mode", "production", "-deployment-mode", "disabled", "-addr", "0.0.0.0:8080", "-operations-addr", "0.0.0.0:9090"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $root.Values.postgres.existingSecret | quote }}
+                  key: {{ $root.Values.postgres.dsnKey | quote }}
+            - {name: PGSSLROOTCERT, value: /etc/sathonate/postgres/ca.crt}
+            - {name: API_ALLOWED_HOSTS, value: {{ $root.Values.publicHost | quote }}}
+            - {name: CONSOLE_ALLOWED_ORIGINS, value: {{ printf "https://%s" $root.Values.publicHost | quote }}}
+            - {name: OKTA_ISSUER, value: {{ $root.Values.okta.issuer | quote }}}
+            - {name: OKTA_CLIENT_ID, value: {{ $root.Values.okta.clientId | quote }}}
+            - {name: OKTA_AUDIENCE, value: {{ $root.Values.okta.audience | quote }}}
+          volumeMounts:
+            - {name: postgres-ca, mountPath: /etc/sathonate/postgres, readOnly: true}
+          livenessProbe: {httpGet: {path: /healthz, port: operations}, timeoutSeconds: 3}
+          readinessProbe: {httpGet: {path: /readyz, port: operations}, timeoutSeconds: 3}
+          {{- else }}
+          readinessProbe: {httpGet: {path: /, port: http}, timeoutSeconds: 3}
+          {{- end }}
+          resources:
+            {{- index $root.Values.resources $component | toYaml | nindent 12 }}
+      {{- if eq $component "api" }}
+      volumes:
+        - name: postgres-ca
+          secret:
+            secretName: {{ $root.Values.postgres.existingSecret | quote }}
+            items:
+              - {key: {{ $root.Values.postgres.caKey | quote }}, path: ca.crt}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-{{ $component }}
+spec:
+  selector:
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/component: {{ $component }}
+    app.kubernetes.io/name: sathonate
+  ports:
+    - {name: http, port: 8080, targetPort: http}
+{{- end }}

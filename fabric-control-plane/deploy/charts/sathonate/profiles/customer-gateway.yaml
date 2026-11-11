@@ -1,0 +1,9 @@
+# Apply after customer-ingress.yaml to use an existing TLS-terminating gateway.
+ingress:
+  enabled: false
+traffic:
+  namespace: customer-gateway
+  podLabels:
+    app.kubernetes.io/name: customer-gateway
+monitoring:
+  enabled: false

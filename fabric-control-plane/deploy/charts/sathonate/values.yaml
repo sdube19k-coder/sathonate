@@ -1,0 +1,33 @@
+replicas: 1
+apiImage: ""
+consoleImage: ""
+imagePullSecrets: []
+publicHost: ""
+postgres:
+  existingSecret: ""
+  dsnKey: database-url
+  caKey: ca.crt
+okta:
+  issuer: ""
+  clientId: ""
+  audience: ""
+ingress:
+  enabled: true
+  className: ""
+  tlsSecret: ""
+traffic:
+  namespace: ingress-nginx
+  podLabels:
+    app.kubernetes.io/name: ingress-nginx
+monitoring:
+  enabled: false
+  namespace: monitoring
+  podLabels:
+    app.kubernetes.io/name: prometheus
+resources:
+  api:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "1", memory: 512Mi}
+  console:
+    requests: {cpu: 25m, memory: 32Mi}
+    limits: {cpu: 250m, memory: 128Mi}

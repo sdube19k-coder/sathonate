@@ -23,6 +23,7 @@ import (
 	"sathonate.local/fabric-control-plane/internal/localfabric"
 	"sathonate.local/fabric-control-plane/internal/persistence"
 	"sathonate.local/fabric-control-plane/internal/readiness"
+	"sathonate.local/fabric-control-plane/internal/telemetry"
 )
 
 func main() {
@@ -42,6 +43,7 @@ func main() {
 	workerImage := flag.String("local-worker-image", "sathonate/fabric-worker:local", "preloaded local worker image")
 	cloudExecution := flag.Bool("enable-cloud-execution", false, "explicit opt-in to qualified real AWS/EKS execution; unavailable until qualification")
 	deploymentRoot := flag.String("deployment-data", "data/deployments", "single-process development deployment journal")
+	opsAddr := flag.String("operations-addr", "", "optional separate address for health, readiness and Prometheus")
 	flag.Parse()
 	explicitMode := false
 	flag.Visit(func(f *flag.Flag) {
@@ -289,6 +291,26 @@ func main() {
 		})
 	}
 	audited := audit.New(os.Stderr).Wrap(middleware(handler))
+	metrics := new(telemetry.Metrics)
+	var operationsServer *http.Server
+	var operationsListener net.Listener
+	if *opsAddr != "" {
+		operationsHost, _, err := net.SplitHostPort(*opsAddr)
+		ip := net.ParseIP(operationsHost)
+		if err != nil || ip == nil || (!production && !ip.IsLoopback()) || *opsAddr == *addr {
+			log.Fatal("invalid separate operations listener")
+		}
+		operationsListener, err = net.Listen("tcp", *opsAddr)
+		if err != nil {
+			log.Fatal("cannot bind operations listener")
+		}
+		var ping func(context.Context) error
+		if database != nil {
+			ping = database.Pool().Ping
+		}
+		operationsServer = &http.Server{Handler: metrics.Handler(ping), ReadHeaderTimeout: 3 * time.Second, WriteTimeout: 5 * time.Second, IdleTimeout: 15 * time.Second, MaxHeaderBytes: 8192}
+		audited = metrics.Observe(audited)
+	}
 	server := &http.Server{Addr: *addr, Handler: audited, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -296,8 +318,18 @@ func main() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
+		if operationsServer != nil {
+			_ = operationsServer.Shutdown(shutdown)
+		}
 		_ = server.Shutdown(shutdown)
 	}()
+	if operationsServer != nil {
+		go func() {
+			if err := operationsServer.Serve(operationsListener); err != nil && err != http.ErrServerClosed {
+				log.Fatal("operations listener failed")
+			}
+		}()
+	}
 	log.Printf("Fabric SMP API listening at %s (mode=%s; production cloud release gate remains closed)", *addr, *mode)
 	if e = server.ListenAndServe(); e != nil && e != http.ErrServerClosed {
 		log.Fatal(e)

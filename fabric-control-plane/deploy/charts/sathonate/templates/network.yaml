@@ -1,0 +1,120 @@
+{{- $name := include "sathonate.name" . -}}
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $name }}
+spec:
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  tls:
+    - hosts: [{{ .Values.publicHost | quote }}]
+      secretName: {{ .Values.ingress.tlsSecret | quote }}
+  rules:
+    - host: {{ .Values.publicHost | quote }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: {name: {{ $name }}-api, port: {name: http}}
+          - path: /
+            pathType: Prefix
+            backend:
+              service: {name: {{ $name }}-console, port: {name: http}}
+---
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}-web
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/name: sathonate
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.traffic.namespace | quote }}}
+          podSelector:
+            matchLabels: {{- .Values.traffic.podLabels | toYaml | nindent 14 }}
+      ports: [{protocol: TCP, port: 8080}]
+{{- if .Values.monitoring.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}-metrics
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/component: api
+      app.kubernetes.io/name: sathonate
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.monitoring.namespace | quote }}}
+          podSelector:
+            matchLabels: {{- .Values.monitoring.podLabels | toYaml | nindent 14 }}
+      ports: [{protocol: TCP, port: 9090}]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-metrics
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/component: metrics
+spec:
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/component: api
+    app.kubernetes.io/name: sathonate
+  ports: [{name: operations, port: 9090, targetPort: operations}]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $name }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/component: metrics
+  endpoints:
+    - port: operations
+      interval: 30s
+      path: /metrics
+      relabelings:
+        - {targetLabel: sathonate_release, replacement: {{ printf "%s/%s" .Release.Namespace .Release.Name | quote }}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $name }}
+spec:
+  groups:
+    - name: {{ $name }}.slo
+      rules:
+        - alert: SathonateAPIMetricsUnavailable
+          expr: absent(up{sathonate_release={{ printf "%s/%s" .Release.Namespace .Release.Name | quote }}} == 1)
+          for: 5m
+          labels: {severity: critical}
+          annotations: {summary: "No Sathonate API targets are being scraped"}
+        - alert: SathonateAPIErrorBudgetBurn
+          expr: |
+            sum(rate(sathonate_http_requests_total{sathonate_release={{ printf "%s/%s" .Release.Namespace .Release.Name | quote }},status_class="5xx"}[5m]))
+            / clamp_min(sum(rate(sathonate_http_requests_total{sathonate_release={{ printf "%s/%s" .Release.Namespace .Release.Name | quote }}}[5m])), 0.001) > 0.01
+          for: 10m
+          labels: {severity: warning}
+          annotations: {summary: "Sathonate API server error rate exceeds 1 percent"}
+        - alert: SathonateAPIHighLatency
+          expr: |
+            histogram_quantile(0.95, sum by (le) (rate(sathonate_http_request_duration_seconds_bucket{sathonate_release={{ printf "%s/%s" .Release.Namespace .Release.Name | quote }}}[5m]))) > 0.5
+          for: 10m
+          labels: {severity: warning}
+          annotations: {summary: "Sathonate API p95 handler latency exceeds 500 milliseconds"}
+{{- end }}
