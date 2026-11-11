@@ -4,8 +4,24 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"testing"
 )
+
+func TestColdSnapshotExcludesOnlyTransientCheckpoint(t *testing.T) {
+	raw := []byte(`{"items":[
+		{"kind":"ConfigMap","metadata":{"name":"sathonate-cold-checkpoint"}},
+		{"kind":"Secret","metadata":{"name":"sathonate-cold-checkpoint"}},
+		{"kind":"ConfigMap","metadata":{"name":"channel-config"}}
+	]}`)
+	got, err := coldSnapshotResources(raw)
+	var snapshot struct{ Items []json.RawMessage }
+	if err != nil || json.Unmarshal(got, &snapshot) != nil || len(snapshot.Items) != 2 ||
+		!bytes.Contains(snapshot.Items[0], []byte(`"Secret"`)) ||
+		!bytes.Contains(snapshot.Items[1], []byte(`"channel-config"`)) {
+		t.Fatal("snapshot did not preserve the original application inventory")
+	}
+}
 
 func coldTestArchive(t *testing.T, headers ...*tar.Header) []byte {
 	t.Helper()

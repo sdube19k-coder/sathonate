@@ -285,6 +285,14 @@ try {
     page.getByRole("button", { name: "Review running-network change" }),
   ).toBeEnabled();
   await page.getByRole("tab", { name: /Peers & orderers/ }).click();
+  await page.getByLabel("Import network JSON").setInputFiles({
+    name: "expanded-desired.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(saved)),
+  });
+  await page
+    .getByLabel("peer placement", { exact: true })
+    .selectOption("fixture-worker");
   await add("peer", "retailer-peer-two");
   await page
     .getByRole("button", { name: "Save desired configuration" })

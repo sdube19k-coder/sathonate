@@ -23,6 +23,10 @@ LIFECYCLE=os.environ.get('SMP_UI_LIFECYCLE')=='1'
 DYNAMIC=os.environ.get('SMP_UI_DYNAMIC')=='1'
 SPRINT5=os.environ.get('SMP_UI_SPRINT5')=='1'
 CALICO=os.environ.get('SMP_UI_CALICO')=='1'
+SPRINT7=os.environ.get('SMP_UI_SPRINT7')=='1'
+cluster_attempted=False
+db_scoped=False
+kind_config=CACHE/(NAME+'-kind.json')
 WORKER='sathonate/fabric-worker:sprint5-recovery' if SPRINT5 and os.environ.get('SMP_UI_SPRINT5_WORKER')=='1' else 'sathonate/fabric-worker:sprint4-dynamic' if DYNAMIC else ('sathonate/fabric-worker:sprint4-lifecycle' if LIFECYCLE else 'sathonate/fabric-worker:sprint3')
 
 def run(args,data=None,timeout=240):
@@ -168,16 +172,31 @@ try:
   with socket.socket() as probe:
    probe.settimeout(0.5)
    if probe.connect_ex(('127.0.0.1',port))==0:raise RuntimeError('Required local fixture port '+str(port)+' is already in use; no existing process was stopped')
+ if SPRINT7:
+  sys.path.insert(0,str(ROOT/'tools/sprint7'))
+  from qualify import preflight
+  report['resourcePreflight']=preflight()
+  if report['resourcePreflight']['status']!='PASS_PREFLIGHT_ONLY':raise RuntimeError('Sprint 7 capacity preflight blocked before Docker or Kubernetes mutation')
+  if not (DYNAMIC and SPRINT5 and CALICO and os.environ.get('SMP_UI_SPRINT5_OPERATIONS')=='1' and not any(os.environ.get(name)=='1' for name in ('SMP_UI_SPRINT5_MINIMAL','SMP_UI_SPRINT5_OPERATIONS_ONLY','SMP_UI_SPRINT5_COLD_MINIMAL','SMP_UI_SPRINT5_DELETION_ONLY'))):raise RuntimeError('Sprint 7 requires the full dynamic and recovery fixture')
  run(['docker','info','--format','{{.ServerVersion}}'])
  metadata=json.loads(run(['docker','inspect','smp-postgres']))[0];values=dict(x.split('=',1) for x in metadata['Config']['Env'] if '=' in x)
  password=run(['docker','exec','smp-postgres','cat','/run/secrets/postgres-password']).strip()
  from urllib.parse import quote
  database='postgres://'+quote(values['POSTGRES_USER'],safe='')+':'+quote(password,safe='')+'@127.0.0.1:'+metadata['NetworkSettings']['Ports']['5432/tcp'][0]['HostPort']+'/fabric_smp_tests?sslmode=disable'
+ if SPRINT7:
+  api_binary=Path(os.environ['SMP_UI_API_BINARY']).resolve()
+  expected_api=os.environ.get('SMP_UI_API_SHA256','')
+  if api_binary.parent!=LOG.resolve() or not re.fullmatch('[a-f0-9]{64}',expected_api) or hashlib.sha256(api_binary.read_bytes()).hexdigest()!=expected_api:raise RuntimeError('Current-source API fixture identity mismatch')
+  migration=subprocess.run([api_binary,'-mode','local-development','-migrate'],env=dict(os.environ,DATABASE_URL=database),capture_output=True,timeout=90)
+  if migration.returncode:raise RuntimeError('Dedicated PostgreSQL test schema migration failed')
+  if run(['docker','ps','-aq','--filter','label=io.x-k8s.kind.cluster='+NAME]).strip():raise RuntimeError('Disposable name already exists')
+  report['resourcePreflight']=preflight()
+  if report['resourcePreflight']['status']!='PASS_PREFLIGHT_ONLY':raise RuntimeError('Sprint 7 capacity changed before kind creation')
  print('UI qualification: creating fresh disposable kind cluster',flush=True)
  cluster_args=[KIND,'create','cluster','--name',NAME,'--image','kindest/node:v1.34.0','--kubeconfig',CONFIG,'--wait','0s' if CALICO else '180s']
- kind_config=CACHE/(NAME+'-kind.json')
  if CALICO:
   kind_config.write_text(json.dumps({'kind':'Cluster','apiVersion':'kind.x-k8s.io/v1alpha4','networking':{'disableDefaultCNI':True,'podSubnet':'192.168.0.0/16'},'nodes':[{'role':'control-plane'}]}));cluster_args+=['--config',kind_config]
+ cluster_attempted=True
  run(cluster_args);created=True;guard()
  if CALICO:
   sys.path.insert(0,str(ROOT/'tools/sprint2'));import isolation
@@ -195,6 +214,7 @@ try:
  if controller!='sathonate/controller-candidate@sha256:427b352b20576258efdb59c9fc266ec01fe7b7f1419ce1e5d7ead488b10cba6c':raise RuntimeError('Controller differs from verified profile')
  runtime={'storageClass':'standard','capacity':'1Gi','smokeImage':images['sathonate/smp-smoke:local'][0],'images':{kind:images[image][1] for kind,image in [('FabricCA','hyperledger/fabric-ca:1.5.15'),('FabricPeer','hyperledger/fabric-peer:2.5.15'),('FabricOrdererNode','hyperledger/fabric-orderer:2.5.15')]},'brokerChannels':True,'nodeSelectors':{name:{'kubernetes.io/hostname':NAME+'-control-plane'} for name in ('orderer-1','orderer-2','orderer-3','org1-peer-1','org2-peer-1')}}
  if DYNAMIC:
+  if SPRINT7:runtime['nodeSelectors']['approved-local']={'kubernetes.io/hostname':NAME+'-control-plane'}
   approved={}
   for version in ('1','2'):
    image='sathonate/smp-smoke:dynamic-v'+version
@@ -208,7 +228,7 @@ try:
  # binary with its SHA supplied by the local verification command.
  baseline=json.loads((ROOT/('.logs/sprint5-worker-build.json' if WORKER.endswith(':sprint5-recovery') else '.logs/sprint4-dynamic-build.json' if DYNAMIC else ('.logs/sprint4-lifecycle-worker-build.json' if LIFECYCLE else '.logs/sprint3-worker-build.json'))).read_text())
  if run(['docker','image','inspect','--format','{{.Id}}',WORKER]).strip()!=baseline['workerImageID']:raise RuntimeError('Qualified worker image differs')
- api_binary=ROOT/('bin/fabric-api-sprint5.exe' if SPRINT5 else ('bin/fabric-api-sprint4-dynamic.exe' if DYNAMIC else ('bin/fabric-api-sprint4-lifecycle.exe' if LIFECYCLE else 'bin/fabric-api-sprint4.exe')))
+ api_binary=api_binary if SPRINT7 else ROOT/('bin/fabric-api-sprint5.exe' if SPRINT5 else ('bin/fabric-api-sprint4-dynamic.exe' if DYNAMIC else ('bin/fabric-api-sprint4-lifecycle.exe' if LIFECYCLE else 'bin/fabric-api-sprint4.exe')))
  expected_api=os.environ.get('SMP_UI_API_SHA256','')
  if not re.fullmatch('[a-f0-9]{64}',expected_api):raise RuntimeError('Fresh API binary SHA256 required')
  if hashlib.sha256(api_binary.read_bytes()).hexdigest()!=expected_api:raise RuntimeError('Verified API binary differs')
@@ -220,6 +240,7 @@ try:
  grants_path.write_text(json.dumps(grants))
  if os.name=='nt':run(['icacls',grants_path,'/inheritance:r','/grant:r',run(['whoami']).strip()+':F'])
  env=dict(os.environ,DATABASE_URL=database,VITE_LOCAL_AUTH_ENABLED='true',VITE_APP_ENV='local-development',DEBUG='',PWDEBUG='0')
+ db_scoped=SPRINT7
  api_process=start([api_binary,'-mode','local-development','-deployment-mode','secure-local','-local-token-grants',grants_path,'-secure-local-config',RUNTIME,'-addr','127.0.0.1:8080'],env,'api-server.log')
  vite=CONSOLE/'node_modules/vite/bin/vite.js'
  frontend_env={key:value for key,value in env.items() if key!='DATABASE_URL'}
@@ -228,7 +249,7 @@ try:
  wait_url('http://127.0.0.1:8080/api/v1/auth/config');wait_url('http://127.0.0.1:5173/');wait_url('http://127.0.0.1:5174/')
  print('UI qualification: actual browser authentication, deployment, refresh, fault/retry and transactions',flush=True)
  with (LOG/'browser.log').open('w') as log:
-  test=subprocess.run(['node','tools/browser-dynamic.mjs' if DYNAMIC else 'tools/browser-acceptance.mjs'],cwd=CONSOLE,input=json.dumps({'tokens':tokens,'tenant':NAME,'project':'project-a','cluster':NAME,'kubeconfig':str(CONFIG),'result':str(RESULT),'logDirectory':str(LOG),'lifecycle':LIFECYCLE,'sprint5':SPRINT5,'sprint5Minimal':os.environ.get('SMP_UI_SPRINT5_MINIMAL')=='1','sprint5OperationsOnly':os.environ.get('SMP_UI_SPRINT5_OPERATIONS_ONLY')=='1','runtime':runtime,'design':json.loads((ROOT/'examples/dynamic/a.json').read_text()) if DYNAMIC else None}),text=True,encoding='utf-8',stdout=log,stderr=subprocess.STDOUT,timeout=1800)
+  test=subprocess.run(['node','tools/browser-dynamic.mjs' if DYNAMIC else 'tools/browser-acceptance.mjs'],cwd=CONSOLE,input=json.dumps({'tokens':tokens,'tenant':NAME,'project':'project-a','cluster':NAME,'kubeconfig':str(CONFIG),'result':str(RESULT),'logDirectory':str(LOG),'lifecycle':LIFECYCLE,'sprint7':SPRINT7,'sprint5':SPRINT5,'sprint5Minimal':os.environ.get('SMP_UI_SPRINT5_MINIMAL')=='1','sprint5OperationsOnly':os.environ.get('SMP_UI_SPRINT5_OPERATIONS_ONLY')=='1','runtime':runtime,'design':json.loads((ROOT/'examples/dynamic/a.json').read_text()) if DYNAMIC else None}),text=True,encoding='utf-8',stdout=log,stderr=subprocess.STDOUT,timeout=2700 if SPRINT7 else 1800)
  report['browserExitCode']=test.returncode
  if test.returncode:raise RuntimeError('Browser acceptance failed; see redacted browser log')
  result=json.loads(RESULT.read_text());report['uiToFabric']='PASS';report['apiToFabric']='PASS';report['browser']=result;report['images']={k:v[0] for k,v in images.items()}
@@ -252,6 +273,7 @@ try:
  if not ready:raise RuntimeError('Retained network did not meet 8/8 read-only readiness')
  report['status']='PASS'
 except Exception as error:
+ if SPRINT7 and cluster_attempted:report['status']='FAIL'
  report['failureCategory']=str(error) if isinstance(error,RuntimeError) else type(error).__name__
  raise
 finally:
@@ -261,6 +283,32 @@ finally:
   except subprocess.TimeoutExpired:process.kill();process.wait()
  for handle in handles:handle.close()
  grants_path.unlink(missing_ok=True)
- if created:
-  guard();run([KIND,'delete','cluster','--name',NAME]);CONFIG.unlink(missing_ok=True);RUNTIME.unlink(missing_ok=True);report['disposableClusterRemoved']=True
+ cleanup_failed=False
+ try:
+  if SPRINT7 and cluster_attempted:
+   ids=run(['docker','ps','-aq','--filter','label=io.x-k8s.kind.cluster='+NAME]).split()
+   if len(ids)>1:raise RuntimeError('Unexpected disposable node inventory; cleanup refused')
+   if ids:
+    fields=run(['docker','inspect','--format','{{.Name}}|{{index .Config.Labels "io.x-k8s.kind.cluster"}}',ids[0]]).strip()
+    if fields!='/'+NAME+'-control-plane|'+NAME:raise RuntimeError('Disposable Docker ownership mismatch; cleanup refused')
+    run(['docker','rm','-f','-v',ids[0]])
+   if run(['docker','ps','-aq','--filter','label=io.x-k8s.kind.cluster='+NAME]).strip():raise RuntimeError('Disposable cleanup not verified')
+   report['disposableClusterRemoved']=True
+  elif created:
+   guard();run([KIND,'delete','cluster','--name',NAME]);report['disposableClusterRemoved']=True
+  if report.get('disposableClusterRemoved'):
+   CONFIG.unlink(missing_ok=True);RUNTIME.unlink(missing_ok=True);kind_config.unlink(missing_ok=True)
+ except Exception:
+  report['clusterCleanup']='FAIL';cleanup_failed=True
+ try:
+  if db_scoped:
+   scopes=["'lp-"+hashlib.sha256(json.dumps([tenant,project],separators=(',',':')).encode()).hexdigest()[:48]+"'" for tenant,project in ((NAME,'project-a'),(NAME+'-other','project-a'),(NAME,'project-b'))]
+   ids=','.join(scopes)
+   tables=['sathonate_deployments','sathonate_operations','sathonate_network_revisions','sathonate_networks','sathonate_maintenance']
+   sql='BEGIN;'+''.join(f'DELETE FROM {table} WHERE tenant_id IN ({ids});' for table in tables)+f'DELETE FROM public.sathonate_audit_events WHERE scope IN ({ids});COMMIT;'
+   run(['docker','exec','-i','smp-postgres','psql','-X','-q','-v','ON_ERROR_STOP=1','-U',values['POSTGRES_USER'],'-d','fabric_smp_tests'],data=sql)
+   report['fixtureDatabaseScopeRemoved']=True
+ except Exception:
+  report['fixtureDatabaseScopeRemoved']=False;cleanup_failed=True
+ if cleanup_failed:report['status']='FAIL'
  report['finishedAt']=time.time();REPORT.write_text(json.dumps(report,indent=2)+'\n')

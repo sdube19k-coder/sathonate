@@ -118,7 +118,7 @@ try {
     }
     throw new Error("Recorded deployment did not finish before the deadline");
   }
-  async function saveSpec(spec, expectedStatus) {
+  async function saveSpec(spec, expectedStatus, visualEdit) {
     const response = page.waitForResponse(
       (r) =>
         new URL(r.url()).pathname.startsWith("/api/v1/networks") &&
@@ -130,7 +130,19 @@ try {
       await page
         .getByText("Edit desired configuration", { exact: true })
         .click();
-    await editor.fill(JSON.stringify(spec, null, 2));
+    if (visualEdit) {
+      await page.getByLabel("Import network JSON").setInputFiles({
+        name: "customer-topology.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(JSON.stringify(spec)),
+      });
+      await expect(
+        page.getByRole("region", { name: "Visual network builder" }),
+      ).toBeVisible();
+      await visualEdit();
+    } else {
+      await editor.fill(JSON.stringify(spec, null, 2));
+    }
     await page
       .getByRole("button", { name: "Save desired configuration", exact: true })
       .click();
@@ -160,7 +172,27 @@ try {
     cc.runtimeImage = first[0];
     cc.packageSHA256 = first[1].sha256;
   }
-  const draft = await saveSpec(design, 201);
+  const draft = await saveSpec(
+    design,
+    201,
+    config.sprint7
+      ? async () => {
+          await page.getByRole("tab", { name: /Network$/ }).click();
+          await page
+            .getByLabel("Network name", { exact: true })
+            .fill("Sprint 7 visual Fabric network");
+          await page.getByRole("tab", { name: /Review/ }).click();
+        }
+      : undefined,
+  );
+  if (config.sprint7) {
+    assert(
+      draft.desired.metadata.name === "Sprint 7 visual Fabric network",
+      "Visual builder initial change was not saved",
+    );
+    design.metadata.name = draft.desired.metadata.name;
+    checks.visualBuilderInitialSave = "PASS";
+  }
   checks.customerConfigurationSaved = "PASS";
   const deployPath = "/networks/" + draft.id + "/deploy",
     headers = { "If-Match": '"1"', "Idempotency-Key": "browser-denied-deploy" };
@@ -275,7 +307,48 @@ try {
       channelRef: extra.id,
       sequence: 1,
     });
-    const updated = await saveSpec(expanded, 200);
+    // Keep the full reviewed membership/chaincode fixture and set the new
+    // peer through the builder so that the live save consumes visual edits.
+    const visualPeer = peers[1];
+    if (config.sprint7) {
+      s.nodes = s.nodes.filter((n) => n.id !== visualPeer.id);
+      delete cfg.nodes[visualPeer.id];
+    }
+    const updated = await saveSpec(
+      expanded,
+      200,
+      config.sprint7
+        ? async () => {
+            await page.getByRole("tab", { name: /Peers & orderers/ }).click();
+            await page
+              .getByLabel("peer organization", { exact: true })
+              .selectOption(visualPeer.organizationRef);
+            await page
+              .getByLabel("peer placement", { exact: true })
+              .selectOption(visualPeer.placementRef);
+            await page
+              .getByLabel("New peer identifier", { exact: true })
+              .fill(visualPeer.id);
+            await page
+              .getByRole("button", { name: "Add peer", exact: true })
+              .click();
+            await page.getByRole("tab", { name: /Review/ }).click();
+          }
+        : undefined,
+    );
+    if (config.sprint7) {
+      assert(
+        updated.desired.spec.nodes.some(
+          (n) =>
+            n.id === visualPeer.id &&
+            n.organizationRef === visualPeer.organizationRef,
+        ),
+        "Visual peer addition was not saved",
+      );
+      s.nodes = updated.desired.spec.nodes;
+      cfg.nodes = updated.desired.spec.configuration.nodes;
+      checks.visualBuilderExpansionSave = "PASS";
+    }
     assert(updated.revision === 2, "Revision guard lost");
     await page
       .getByRole("button", {

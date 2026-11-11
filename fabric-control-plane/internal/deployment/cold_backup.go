@@ -67,7 +67,7 @@ type ColdReceipt struct {
 func (r SecureRunner) ColdBackup(ctx context.Context, pool *pgxpool.Pool, o ColdOptions) (ColdReceipt, error) {
 	denied := errors.New("cold maintenance refused; verify offline executor, exact binding, checkpoint, storage and private artifact")
 	receipt := ColdReceipt{Schema: "sathonate.local-cold-backup/v1", Action: o.Action}
-	if pool == nil || !ColdDatabaseAllowed(pool.Config().ConnConfig.Host, pool.Config().ConnConfig.Database) || r.binding == nil || r.binding.remote != nil || len(o.Key) != 32 || (o.Action != "capture" && o.Action != "restore" && o.Action != "resume" && o.Action != "capture-resume") {
+	if pool == nil || !ColdDatabaseAllowed(pool.Config().ConnConfig.Host, pool.Config().ConnConfig.Database) || r.binding == nil || r.binding.remote != nil || len(o.Key) != 32 || (o.Action != "capture" && o.Action != "restore" && o.Action != "resume" && o.Action != "capture-resume" && o.Action != "prepare-restore") {
 		return receipt, denied
 	}
 	lease, e := pool.Acquire(ctx)
@@ -181,19 +181,8 @@ func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Co
 		if e != nil {
 			return receipt, e
 		}
-		journal, _ := json.Marshal(plan)
-		if b.apply(ctx, map[string]any{"apiVersion": "v1", "kind": "ConfigMap", "immutable": true, "metadata": map[string]any{"name": coldJournal, "namespace": ns, "labels": map[string]string{"fabric.sathonate.io/tenant": q.TenantID, "fabric.sathonate.io/network": record}}, "data": map[string]string{"plan.json": string(journal)}}) != nil {
-			return receipt, denied
-		}
-		namespace.Metadata.Labels[coldLabel] = plan.Digest[:60]
-		if r.coldNamespacePatch(ctx, ns, namespace.Metadata.UID, namespace.Metadata.ResourceVersion, namespace.Metadata.Labels) != nil {
-			return receipt, denied
-		}
-		if r.coldScale(ctx, plan, false) != nil {
-			return receipt, errors.New("quiescence incomplete; leave API stopped and recover the recorded checkpoint")
-		}
-		if r.coldAllStopped(ctx, plan) != nil {
-			return receipt, denied
+		if e := r.coldFence(ctx, plan, namespace.Metadata.ResourceVersion, namespace.Metadata.Labels); e != nil {
+			return receipt, e
 		}
 		bundle = coldBundle{Schema: "sathonate.cold-bundle/v1", Plan: plan, Control: map[string]json.RawMessage{}, Archives: map[string][]byte{}}
 		tables := []struct{ name, where string }{{"sathonate_networks", "id=$2"}, {"sathonate_network_revisions", "network_id=$2"}, {"sathonate_operations", "network_id=$2"}, {"sathonate_deployments", "operation_id IN(SELECT id FROM sathonate_operations WHERE tenant_id=$1 AND network_id=$2)"}}
@@ -209,7 +198,10 @@ func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Co
 		if e != nil {
 			return receipt, denied
 		}
-		bundle.Resources = raw
+		bundle.Resources, e = coldSnapshotResources(raw)
+		if e != nil {
+			return receipt, denied
+		}
 		privateBytes := len(bundle.Resources)
 		for _, data := range bundle.Control {
 			privateBytes += len(data)
@@ -253,7 +245,18 @@ func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Co
 			return receipt, denied
 		}
 		defer clear(plain)
-		if json.Unmarshal(plain, &bundle) != nil || bundle.Schema != "sathonate.cold-bundle/v1" || bundle.Plan.NamespaceUID != namespace.Metadata.UID || bundle.Plan.Namespace != ns || bundle.Plan.Tenant != q.TenantID || bundle.Plan.Operation != o.Operation || bundle.Plan.TargetSHA256 != binding.TargetSHA256 || bundle.Plan.NetworkSHA256 != binding.NetworkSHA256 || coldPlanDigest(bundle.Plan) != bundle.Plan.Digest || namespace.Metadata.Labels[coldLabel] != bundle.Plan.Digest[:60] {
+		if json.Unmarshal(plain, &bundle) != nil || bundle.Schema != "sathonate.cold-bundle/v1" || bundle.Plan.NamespaceUID != namespace.Metadata.UID || bundle.Plan.Namespace != ns || bundle.Plan.Tenant != q.TenantID || bundle.Plan.Operation != o.Operation || bundle.Plan.TargetSHA256 != binding.TargetSHA256 || bundle.Plan.NetworkSHA256 != binding.NetworkSHA256 || coldPlanDigest(bundle.Plan) != bundle.Plan.Digest {
+			return receipt, denied
+		}
+		if o.Action == "prepare-restore" {
+			if namespace.Metadata.Labels[coldLabel] != "" {
+				return receipt, denied
+			}
+			live, err := r.coldInventory(ctx, q, namespace.Metadata.UID)
+			if err != nil || live.Digest != bundle.Plan.Digest {
+				return receipt, errors.New("backup does not match the exact current deployment and volume inventory")
+			}
+		} else if namespace.Metadata.Labels[coldLabel] != bundle.Plan.Digest[:60] || r.coldCheckFence(ctx, bundle.Plan) != nil {
 			return receipt, denied
 		}
 		for _, v := range bundle.Plan.Volumes {
@@ -269,9 +272,7 @@ func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Co
 		if o.Action == "restore" && r.coldAllStopped(ctx, bundle.Plan) != nil {
 			return receipt, denied
 		}
-		if r.coldCompareResources(ctx, bundle.Plan, bundle.Resources, o.Action == "restore") != nil {
-			return receipt, errors.New("identity or configuration drift prevents cold recovery")
-		}
+
 		// Control-plane rows are compared, not silently rolled back over newer
 		// authorization/history. Full PostgreSQL loss requires a separate DB restore.
 		if len(bundle.Control) != 4 {
@@ -294,15 +295,23 @@ func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Co
 				return receipt, errors.New("control-plane snapshot changed; database rollback is not authorized")
 			}
 		}
-		if o.Action == "restore" {
-			if len(bundle.Archives) != len(bundle.Plan.Volumes) {
+		if len(bundle.Archives) != len(bundle.Plan.Volumes) {
+			return receipt, denied
+		}
+		for _, volume := range bundle.Plan.Volumes {
+			if validateColdArchive(bundle.Archives[volume.Name]) != nil {
 				return receipt, denied
 			}
-			for _, v := range bundle.Plan.Volumes {
-				if validateColdArchive(bundle.Archives[v.Name]) != nil {
-					return receipt, denied
-				}
+		}
+		if r.coldCompareResources(ctx, bundle.Plan, bundle.Resources, o.Action == "restore") != nil {
+			return receipt, errors.New("identity or configuration drift prevents cold recovery")
+		}
+		if o.Action == "prepare-restore" {
+			if e := r.coldFence(ctx, bundle.Plan, namespace.Metadata.ResourceVersion, namespace.Metadata.Labels); e != nil {
+				return receipt, e
 			}
+			receipt.ArtifactSHA256 = maintenance.HashBytes(f)
+		} else if o.Action == "restore" {
 			for _, v := range bundle.Plan.Volumes {
 				archive, ok := bundle.Archives[v.Name]
 				if !ok {
@@ -346,14 +355,8 @@ func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Co
 			if r.coldAllStopped(ctx, bundle.Plan) != nil {
 				return receipt, errors.New("resume requires the exact checkpoint's writers stopped; no automatic mixed-state restart")
 			}
-			if len(bundle.Archives) != len(bundle.Plan.Volumes) {
-				return receipt, denied
-			}
 			for _, v := range bundle.Plan.Volumes {
 				archive := bundle.Archives[v.Name]
-				if validateColdArchive(archive) != nil {
-					return receipt, denied
-				}
 				if _, e = r.coldVolume(ctx, bundle.Plan, v, archive, "verify"); e != nil {
 					return receipt, errors.New("cold data verification failed before resume")
 				}
@@ -391,6 +394,69 @@ func (r SecureRunner) coldBackupWithLease(ctx context.Context, lease *pgxpool.Co
 	receipt.Notice = "Local cold volume recovery only; encrypted bundle includes frozen control rows and identity resources. No production, clone activation, database rollback or full disaster recovery is qualified. Resume requires fresh API transaction verification."
 	return receipt, nil
 }
+
+// Snapshot application resources only. The fence journal belongs to an
+// individual maintenance session and is recreated when the artifact is prepared.
+func coldSnapshotResources(raw []byte) ([]byte, error) {
+	var list struct {
+		Items []json.RawMessage `json:"items"`
+	}
+	if err := json.Unmarshal(raw, &list); err != nil {
+		return nil, err
+	}
+	kept := list.Items[:0]
+	for _, item := range list.Items {
+		var meta struct {
+			Kind     string
+			Metadata struct{ Name string }
+		}
+		if err := json.Unmarshal(item, &meta); err != nil {
+			return nil, err
+		}
+		if meta.Kind == "ConfigMap" && meta.Metadata.Name == coldJournal {
+			continue
+		}
+		kept = append(kept, item)
+	}
+	list.Items = kept
+	return json.Marshal(list)
+}
+
+func (r SecureRunner) coldFence(ctx context.Context, plan coldPlan, version string, labels map[string]string) error {
+	journal, _ := json.Marshal(plan)
+	manifest, _ := json.Marshal(map[string]any{"apiVersion": "v1", "kind": "ConfigMap", "immutable": true, "metadata": map[string]any{"name": coldJournal, "namespace": plan.Namespace, "labels": map[string]string{"fabric.sathonate.io/tenant": plan.Tenant, "fabric.sathonate.io/network": plan.Network}}, "data": map[string]string{"plan.json": string(journal)}})
+	cmd := r.base().command(ctx, "create", "-f", "-")
+	cmd.Stdin = bytes.NewReader(manifest)
+	if cmd.Run() != nil {
+		return errors.New("cold journal could not be created; inspect any existing checkpoint")
+	}
+	labels[coldLabel] = plan.Digest[:60]
+	if r.coldNamespacePatch(ctx, plan.Namespace, plan.NamespaceUID, version, labels) != nil {
+		return errors.New("cold fence was not acknowledged; inspect the checkpoint")
+	}
+	if r.coldScale(ctx, plan, false) != nil || r.coldAllStopped(ctx, plan) != nil {
+		return errors.New("quiescence incomplete; leave API stopped and recover the recorded checkpoint")
+	}
+	return nil
+}
+
+func (r SecureRunner) coldCheckFence(ctx context.Context, plan coldPlan) error {
+	raw, err := r.base().run(ctx, "-n", plan.Namespace, "get", "configmap", coldJournal, "-o", "json")
+	var journal struct {
+		Metadata struct {
+			Namespace, UID string
+			Labels         map[string]string
+		}
+		Immutable bool
+		Data      map[string]string
+	}
+	expected, _ := json.Marshal(plan)
+	if err != nil || json.Unmarshal(raw, &journal) != nil || journal.Metadata.Namespace != plan.Namespace || journal.Metadata.UID == "" || !journal.Immutable || journal.Metadata.Labels["fabric.sathonate.io/tenant"] != plan.Tenant || journal.Metadata.Labels["fabric.sathonate.io/network"] != plan.Network || !coldJSONEqual([]byte(journal.Data["plan.json"]), expected) {
+		return errors.New("cold journal binding changed")
+	}
+	return nil
+}
+
 func coldPlanDigest(p coldPlan) string {
 	p.Digest = ""
 	raw, _ := json.Marshal(p)

@@ -1,0 +1,41 @@
+{
+  "status": "BLOCKED_CAPACITY",
+  "failures": [
+    {
+      "metric": "dockerMemoryTotal",
+      "observed": 6210363392,
+      "required": 8589934592
+    },
+    {
+      "metric": "dockerMemoryAvailable",
+      "observed": 3965853696,
+      "required": 6442450944
+    },
+    {
+      "metric": "hostMemoryAvailable",
+      "observed": 6172442624,
+      "required": 8589934592
+    },
+    {
+      "metric": "backingDiskFree",
+      "observed": 39712399360,
+      "required": 42949672960
+    }
+  ],
+  "policy": {
+    "estimatedNewFixtureMemoryBytes": 6442450944,
+    "minimumDockerMemoryBytes": 8589934592,
+    "minimumBackingDiskFreeBytes": 42949672960,
+    "minimumHostAvailableBytes": 8589934592,
+    "estimatesAreNotRuntimeEvidence": true
+  },
+  "metrics": {
+    "dockerCPUs": 20,
+    "dockerMemoryTotal": 6210363392,
+    "dockerMemoryAvailable": 3965853696,
+    "hostMemoryAvailable": 6172442624,
+    "backingDiskFree": 39712399360
+  },
+  "liveAcceptance": "NOT_TESTED",
+  "fixtureInvoked": false
+}

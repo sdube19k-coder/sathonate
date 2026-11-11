@@ -36,7 +36,7 @@ func TestPostgresColdBackupRequiresStoppedExecutorAndExactScope(t *testing.T) {
 	}
 	runner := SecureRunner{binding: &secureBinding{}}
 	artifact := filepath.Join(t.TempDir(), "never-created.encrypted")
-	_, e = runner.ColdBackup(ctx, db.Pool(), ColdOptions{Tenant: "foreign", Operation: "unowned", Action: "capture", Artifact: artifact, Key: make([]byte, 32)})
+	_, e = runner.ColdBackup(ctx, db.Pool(), ColdOptions{Tenant: "foreign", Operation: "unowned", Action: "prepare-restore", Artifact: artifact, Key: make([]byte, 32)})
 	lease.Exec(ctx, "SELECT pg_advisory_unlock(718481029)")
 	lease.Release()
 	if e == nil || !strings.Contains(e.Error(), "stop the local API/executor") {

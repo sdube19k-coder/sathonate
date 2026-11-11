@@ -18,7 +18,7 @@ import (
 
 func main() {
 	config := flag.String("secure-local-config", "", "protected disposable target config")
-	action := flag.String("action", "", "capture, restore, resume or scheduled-capture")
+	action := flag.String("action", "", "capture, prepare-restore, restore, resume or scheduled-capture")
 	tenant := flag.String("tenant", "", "verified server storage tenant")
 	operation := flag.String("operation", "", "latest verified operation")
 	artifact := flag.String("artifact", "", "new encrypted artifact for capture, existing artifact for restore/resume")

@@ -4,6 +4,7 @@ checked before each destructive fixture operation. No private payload is logged.
 """
 import base64,gzip,hashlib,json,os,re,secrets,subprocess,time,urllib.request
 from urllib.parse import urlsplit,unquote
+from datetime import datetime,timezone
 
 def qualify(run,kub,apply,guard,report,result,backend,cache,runtime_path,env,tokens,tenant,api_process,restart_api,log):
  guard();namespace=result['namespace'];operation=result['final']['operationId'];network=result['networkId']
@@ -12,6 +13,9 @@ def qualify(run,kub,apply,guard,report,result,backend,cache,runtime_path,env,tok
   qualify_deletion(run,kub,apply,guard,report,result,backend,runtime_path,env,tokens,tenant,log,result['final'],volumes)
   return
  scope='lp-'+hashlib.sha256(json.dumps([tenant,'project-a'],separators=(',',':')).encode()).hexdigest()[:48]
+ if os.environ.get('SMP_UI_SPRINT7')=='1':
+  expected_namespace='smp-s-'+hashlib.sha256(json.dumps([scope,'token-bound-project',network],separators=(',',':')).encode()).hexdigest()[:32]
+  if namespace!=expected_namespace or tenant!=report['cluster']:raise RuntimeError('Browser result does not bind the disposable recovery target')
  private=cache/(report['cluster']+'-cold-private');private.mkdir(exist_ok=False)
  try:
   if os.name=='nt':run(['icacls',private,'/inheritance:r','/grant:r',run(['whoami']).strip()+':(OI)(CI)F'])
@@ -20,19 +24,29 @@ def qualify(run,kub,apply,guard,report,result,backend,cache,runtime_path,env,tok
   wrong=private/'wrong-key.bin';wrong.write_bytes(secrets.token_bytes(32))
   artifact=private/'cold.encrypted.json'
   binding_file=private/'binding.json'
-  tool=backend/'bin/fabric-cold-backup.exe'
+  scheduled=os.environ.get('SMP_UI_SPRINT7')=='1'
+  tool=private/('cold-tool.exe' if os.name=='nt' else 'cold-tool') if scheduled else backend/'bin/fabric-cold-backup.exe'
+  build_env=dict(env,GOCACHE=str(cache/'go-build'),GOPATH=str(cache/'go'),GOPROXY='off',GOOS='windows' if os.name=='nt' else 'linux',GOARCH='amd64')
+  if scheduled:
+   build=subprocess.run(['go','build','-o',str(tool),'./cmd/fabric-cold-backup'],cwd=backend,env=build_env,capture_output=True,timeout=180)
+   if build.returncode:raise RuntimeError('Cold helper final-source build failed')
+   report['coldToolBinarySHA256']=hashlib.sha256(tool.read_bytes()).hexdigest()
   receipts=[]
   minimal=os.environ.get('SMP_UI_SPRINT5_COLD_MINIMAL')=='1'
 
-  def cold(action,key_path=key,file=artifact,expected=True):
-   if action in ('restore','resume'):
+  def cold(action,key_path=key,file=None,expected=True):
+   guard()
+   file=artifact if file is None else file
+   if not scheduled and action in ('restore','resume'):
     build_env=dict(env,GOCACHE=str(cache/'go-build'),GOPATH=str(cache/'go'),GOPROXY='off',GOOS='windows' if os.name=='nt' else 'linux',GOARCH='amd64')
     build=subprocess.run(['go','build','-o',str(tool),'./cmd/fabric-cold-backup'],cwd=backend,env=build_env,capture_output=True,timeout=180)
     if build.returncode:raise RuntimeError('Cold helper final-source build failed')
     report['coldToolBinarySHA256']=hashlib.sha256(tool.read_bytes()).hexdigest()
-   args=[str(tool),'-secure-local-config',str(runtime_path),'-action',action,'-tenant',scope,'-operation',operation,'-artifact',str(file),'-key-file',str(key_path)]
+   args=[str(tool),'-secure-local-config',str(runtime_path),'-action',action,'-tenant',scope,'-operation',operation,'-key-file',str(key_path)]
+   if action=='scheduled-capture':args+=['-schedule-directory',str(private),'-schedule-hour-utc',str(schedule_hour),'-schedule-keep','2']
+   else:args+=['-artifact',str(file)]
    if action=='restore' and binding_file.exists():args+=['-binding',str(binding_file)]
-   p=subprocess.run(args,env=dict(env,SATHONATE_APP_ENV='local-development'),capture_output=True,text=True,timeout=1200)
+   p=subprocess.run(args,env=dict(env,SATHONATE_APP_ENV='local-development'),capture_output=True,text=True,timeout=1560)
    if expected:
     if p.returncode:raise RuntimeError('Cold '+action+' acceptance failed: '+(p.stderr.strip()[:512] if p.stderr.startswith('Cold maintenance refused:') else 'private diagnostics withheld'))
     value=json.loads(p.stdout);receipts.append(value);return value
@@ -48,13 +62,27 @@ def qualify(run,kub,apply,guard,report,result,backend,cache,runtime_path,env,tok
   # The offline boundary permits replacing the stopped Windows executable.
   # Build both tools from the final workspace before restore/deletion acceptance.
   build_env=dict(env,GOCACHE=str(cache/'go-build'),GOPATH=str(cache/'go'),GOPROXY='off',GOOS='windows' if os.name=='nt' else 'linux',GOARCH='amd64')
-  for executable,package in [('fabric-api-sprint5.exe','./cmd/fabric-api'),('fabric-cold-backup.exe','./cmd/fabric-cold-backup')]:
+  for executable,package in ([] if scheduled else [('fabric-api-sprint5.exe','./cmd/fabric-api'),('fabric-cold-backup.exe','./cmd/fabric-cold-backup')]):
    p=subprocess.run(['go','build','-o',str(backend/'bin'/executable),package],cwd=backend,env=build_env,capture_output=True,timeout=180)
    if p.returncode:raise RuntimeError('Final-source offline executable build failed; diagnostics withheld')
-  report['postColdAPIBinarySHA256']=hashlib.sha256((backend/'bin/fabric-api-sprint5.exe').read_bytes()).hexdigest()
+  report['postColdAPIBinarySHA256']=report['provenance']['apiBinarySHA256'] if scheduled else hashlib.sha256((backend/'bin/fabric-api-sprint5.exe').read_bytes()).hexdigest()
   report['coldToolBinarySHA256']=hashlib.sha256(tool.read_bytes()).hexdigest()
   report['finalMaintenanceSourceFiles']={path.relative_to(backend).as_posix():hashlib.sha256(path.read_bytes().replace(b'\r\n',b'\n')).hexdigest() for path in list((backend/'internal').rglob('*.go'))+list((backend/'cmd').rglob('*.go')) if not path.name.endswith('_test.go')}
-  captured=cold('capture')
+  if scheduled:
+   schedule_hour=datetime.now(timezone.utc).hour
+   captured=cold('scheduled-capture')
+   files=list(private.glob('????-??-??-*.encrypted.json'))
+   if len(files)!=1 or captured.get('action')!='capture-resume' or captured.get('workloadsQuiesced') or hashlib.sha256(files[0].read_bytes()).hexdigest()!=captured.get('artifactSHA256'):raise RuntimeError('Scheduled capture/resume receipt or artifact mismatch')
+   artifact=files[0]
+   if datetime.now(timezone.utc).hour!=schedule_hour:raise RuntimeError('UTC schedule window changed before duplicate acknowledgement')
+   if cold('scheduled-capture')!={'status':'skipped'}:raise RuntimeError('Scheduled slot was not idempotent')
+   cold('prepare-restore',key_path=wrong,expected=False)
+   if json.loads(kub('get','namespace',namespace,'-o','json'))['metadata'].get('labels',{}).get('fabric.sathonate.io/cold-maintenance'):raise RuntimeError('Invalid scheduled artifact created a fence')
+   prepared=cold('prepare-restore')
+   if not prepared.get('workloadsQuiesced') or prepared.get('artifactSHA256')!=captured['artifactSHA256']:raise RuntimeError('Scheduled restore preparation did not bind the exact captured artifact')
+   report['checks']['scheduledCaptureAndExactRestorePreparation']='PASS'
+  else:
+   captured=cold('capture')
   (log/'cold-progress.json').write_text(json.dumps({'status':'IN_PROGRESS','capture':captured,'stage':'CAPTURED'},indent=2))
   binding_file.write_text(json.dumps(captured['binding']))
   plan=json.loads(json.loads(kub('-n',namespace,'get','configmap','sathonate-cold-checkpoint','-o','json'))['data']['plan.json'])
@@ -162,16 +190,22 @@ def qualify(run,kub,apply,guard,report,result,backend,cache,runtime_path,env,tok
   else:raise RuntimeError('Post-restore Fabric verification timeout')
   status,current=api('/deployments/'+op['operationId'])
   if status!=200 or not current['verified'] or current['transactionId']==result['final']['transactionId']:raise RuntimeError('Post-restore fresh transaction missing')
+  expected_channels={v['health']['channel'] for v in result['final']['verifications']}
+  if not expected_channels or {v['health']['channel'] for v in current['verifications']}!=expected_channels or len(current['verifications'])!=len(result['final']['verifications']):raise RuntimeError('Post-restore channel coverage differs')
   for verification in current['verifications']:
    peers=verification['health']['peers'];prior=next(x for x in result['final']['verifications'] if x['health']['channel']==verification['health']['channel'])
-   if not verification['health']['ready'] or not all(x['height']==peers[0]['height'] and x['currentBlockHash']==peers[0]['currentBlockHash'] and x['height']>prior['health']['peers'][0]['height'] for x in peers):raise RuntimeError('Post-restore ledger continuity unverified')
+   if not peers or {x['peer'] for x in peers}!={x['peer'] for x in prior['health']['peers']} or not verification.get('transactionId') or verification['transactionId']==prior['transactionId'] or not verification['health']['ready'] or not all(x['height']==peers[0]['height'] and x['currentBlockHash']==peers[0]['currentBlockHash'] and x['height']>prior['health']['peers'][0]['height'] for x in peers):raise RuntimeError('Post-restore ledger continuity unverified')
   evidence={'status':'PASS_LOCAL_COLD_VOLUME_RECOVERY','capture':captured,'restore':restored,'resume':resumed,'volumesRestored':wiped,'pvcUIDsPreserved':True,'priorTransactionsPreserved':preserved,'identitySecretsRecovered':identity_loss,'scopedControlRowsRecovered':True,'negativeChecks':'REUSED_FROM_20261107_130435' if minimal else 'PASS_EXECUTED_IN_THIS_RUN','activeExecutorRejected':None if minimal else True,'wrongKeyRejected':None if minimal else True,'tamperRejected':None if minimal else True,'nonemptyVolumeRejected':None if minimal else True,'postRestore':current,'limits':['Only missing scoped network control rows and missing captured Secrets are recreated; existing divergent data, authentication memberships, database roles and schema are never overwritten.','Same-namespace, original-PVC cold recovery only; physical multi-server/disaster recovery remains unqualified.']}
+  if scheduled:
+   evidence['scheduledArtifactSHA256']=captured['artifactSHA256']
+   evidence['prepared']=prepared
   (log/'cold-volume-recovery.json').write_text(json.dumps(evidence,indent=2)+'\n')
   report['checks']['offlineColdVolumeRecovery']='PASS';report['coldVolumeRecovery']=evidence
   qualify_deletion(run,kub,apply,guard,report,result,backend,runtime_path,env,tokens,tenant,log,current,volume_uids)
  finally:
   clean=True
-  for name in ('key.bin','wrong-key.bin','cold.encrypted.json','tampered.encrypted.json','binding.json'):
+  scheduled_names=[p.name for p in private.iterdir() if re.fullmatch(r'\d{4}-\d{2}-\d{2}-[a-f0-9]{64}\.(started|complete|encrypted\.json)',p.name)]
+  for name in ('key.bin','wrong-key.bin','cold.encrypted.json','tampered.encrypted.json','binding.json','cold-tool.exe','cold-tool',*scheduled_names):
    try:(private/name).unlink(missing_ok=True)
    except OSError:clean=False
   try:private.rmdir()

@@ -72,6 +72,7 @@ function Add({
           <label>
             Placement
             <select
+              aria-label={`${kind} placement`}
               value={placement}
               onChange={(e) => setPlacement(e.target.value)}
             >
