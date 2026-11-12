@@ -16,6 +16,9 @@
 {{- if not (and (regexMatch `^https://[^/]+/oauth2/[^/?#]+$` .Values.okta.issuer) .Values.okta.clientId .Values.okta.audience (ne .Values.okta.clientId .Values.okta.audience)) -}}
 {{- fail "custom HTTPS Okta issuer, SPA client ID and distinct API audience are required" -}}
 {{- end -}}
+{{- if and .Values.customerPilot.existingTargetInventoryConfigMap (not .Values.customerPilot.enabled) -}}
+{{- fail "customer target inventory requires the enabled customer pilot" -}}
+{{- end -}}
 {{- if and .Values.ingress.enabled (not (and .Values.ingress.className .Values.ingress.tlsSecret)) -}}
 {{- fail "ingress requires a class and existing TLS Secret" -}}
 {{- end -}}

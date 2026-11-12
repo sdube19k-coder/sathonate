@@ -12,11 +12,25 @@ import (
 var bounds = [...]float64{0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 15}
 
 type Metrics struct {
-	mu        sync.Mutex
-	classes   [6]uint64
-	histogram [len(bounds)]uint64
-	count     uint64
-	sum       float64
+	entitlements [3]uint64
+	mu           sync.Mutex
+	classes      [6]uint64
+	histogram    [len(bounds)]uint64
+	count        uint64
+	sum          float64
+}
+
+var entitlementLabels = [...]string{"allowed", "denied", "unavailable"}
+
+func (m *Metrics) ObserveEntitlement(outcome string) {
+	for i, label := range entitlementLabels {
+		if outcome == label {
+			m.mu.Lock()
+			m.entitlements[i]++
+			m.mu.Unlock()
+			return
+		}
+	}
 }
 
 func (m *Metrics) Observe(next http.Handler) http.Handler {
@@ -98,7 +112,7 @@ func (m *Metrics) Handler(ready func(context.Context) error) http.Handler {
 }
 func (m *Metrics) scrape(w http.ResponseWriter, _ *http.Request) {
 	m.mu.Lock()
-	classes, buckets, count, sum := m.classes, m.histogram, m.count, m.sum
+	classes, buckets, count, sum, entitlements := m.classes, m.histogram, m.count, m.sum, m.entitlements
 	m.mu.Unlock()
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
 	fmt.Fprintln(w, "# HELP sathonate_http_requests_total Completed API responses by status class.\n# TYPE sathonate_http_requests_total counter")
@@ -108,6 +122,10 @@ func (m *Metrics) scrape(w http.ResponseWriter, _ *http.Request) {
 			continue
 		}
 		fmt.Fprintf(w, "sathonate_http_requests_total{status_class=\"%dxx\"} %d\n", class, value)
+	}
+	fmt.Fprintln(w, "# HELP sathonate_customer_entitlement_checks_total Customer deployment entitlement decisions.\n# TYPE sathonate_customer_entitlement_checks_total counter")
+	for i, label := range entitlementLabels {
+		fmt.Fprintf(w, "sathonate_customer_entitlement_checks_total{result=%q} %d\n", label, entitlements[i])
 	}
 	fmt.Fprintln(w, "# HELP sathonate_http_request_duration_seconds API handler latency.\n# TYPE sathonate_http_request_duration_seconds histogram")
 	for i, bound := range bounds {

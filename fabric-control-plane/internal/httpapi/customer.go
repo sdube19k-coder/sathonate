@@ -65,13 +65,53 @@ func (a *API) customerDeploymentAllowed(w http.ResponseWriter, r *http.Request) 
 	}
 	actor, ok := a.customerActor(r)
 	if !ok {
+		a.observeCustomerDecision("denied")
 		problem(w, 403, "customer_entitlement", "Active project entitlement required", nil)
 		return false
 	}
 	err := a.options.Customer.AllowProject(r.Context(), actor)
 	if err != nil {
+		outcome := "denied"
+		if customer.Status(err) == 503 {
+			outcome = "unavailable"
+		}
+		a.observeCustomerDecision(outcome)
 		problem(w, customer.Status(err), "customer_entitlement", "Active project entitlement required", nil)
 		return false
 	}
+	a.observeCustomerDecision("allowed")
 	return true
+}
+
+func (a *API) observeCustomerDecision(outcome string) {
+	if a.options.CustomerDecision != nil {
+		a.options.CustomerDecision(outcome)
+	}
+}
+
+func (a *API) customerProvisionPreview(w http.ResponseWriter, r *http.Request) {
+	actor, ok := a.customerActor(r)
+	if !ok || len(a.options.CustomerTargets) == 0 {
+		problem(w, 404, "unavailable", "Customer target preview unavailable", nil)
+		return
+	}
+	revision, ok := revision(w, r)
+	if !ok {
+		return
+	}
+	draft, err := a.repository(r).Get(r.PathValue("id"))
+	if err != nil {
+		storeError(w, err)
+		return
+	}
+	if draft.Revision != revision {
+		problem(w, 409, "revision_conflict", "Save and reload the current design before preview", nil)
+		return
+	}
+	preview, err := a.options.Customer.PreviewProvision(r.Context(), actor, a.options.CustomerTargets, draft.ID, draft.Revision, draft.Desired)
+	if err != nil {
+		problem(w, customer.Status(err), "customer_preflight", "Customer target preflight refused", nil)
+		return
+	}
+	respond(w, 200, preview)
 }

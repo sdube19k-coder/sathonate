@@ -69,6 +69,17 @@ func (a *API) localOperationEvents(w http.ResponseWriter, r *http.Request) {
 func (a *API) localRetry(w http.ResponseWriter, r *http.Request) {
 	if a.options.Deployments != nil {
 		if previous, err := a.options.Deployments.Operations().Get(tenant(r), r.PathValue("operationId")); err == nil {
+			if a.options.Customer != nil {
+				snapshot, err := a.options.Deployments.Status(tenant(r), previous.ID)
+				if err != nil {
+					problem(w, 503, "retry_unavailable", "Deployment retry unavailable", nil)
+					return
+				}
+				// Restoring an existing workload remains independent of billing state.
+				if snapshot.Recovery == nil && !a.customerDeploymentAllowed(w, r) {
+					return
+				}
+			}
 			key := r.Header.Get("Idempotency-Key")
 			if key == "" || !operations.ValidKey(key) {
 				problem(w, 400, "idempotency_key", "Provide an idempotency key", nil)

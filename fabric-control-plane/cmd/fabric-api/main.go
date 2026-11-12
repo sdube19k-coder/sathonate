@@ -46,6 +46,7 @@ func main() {
 	deploymentRoot := flag.String("deployment-data", "data/deployments", "single-process development deployment journal")
 	opsAddr := flag.String("operations-addr", "", "optional separate address for health, readiness and Prometheus")
 	customerPilot := flag.Bool("customer-pilot", false, "enable authenticated customer pilot; payment and infrastructure execution stay disabled")
+	customerTargetsFile := flag.String("customer-targets", "", "protected customer target inventory for planning only")
 	flag.Parse()
 	explicitMode := false
 	flag.Visit(func(f *flag.Flag) {
@@ -284,7 +285,23 @@ func main() {
 		}
 		recent = auditStore.Recent
 	}
+	metrics := new(telemetry.Metrics)
 	var customerService *customer.Service
+	var customerTargets customer.Targets
+	if *customerTargetsFile != "" {
+		if !*customerPilot {
+			log.Fatal("customer target inventory requires the enabled pilot")
+		}
+		file, err := os.Open(*customerTargetsFile)
+		if err != nil {
+			log.Fatal("customer target inventory unavailable")
+		}
+		customerTargets, err = customer.LoadTargets(file)
+		_ = file.Close()
+		if err != nil {
+			log.Fatal("customer target inventory invalid")
+		}
+	}
 	if *customerPilot {
 		store := customer.Postgres{Pool: database.Pool()}
 		if store.Ready(startup) != nil {
@@ -292,7 +309,7 @@ func main() {
 		}
 		customerService = &customer.Service{Store: store}
 	}
-	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{Customer: customerService, AuditRecent: recent, ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
+	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{Customer: customerService, CustomerTargets: customerTargets, CustomerDecision: metrics.ObserveEntitlement, AuditRecent: recent, ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
 	if database != nil {
 		handler = auditStore.Journal().WrapProject(handler, func(ctx context.Context) (string, string) {
 			p := identity.FromContext(ctx)
@@ -304,7 +321,6 @@ func main() {
 		})
 	}
 	audited := audit.New(os.Stderr).Wrap(middleware(handler))
-	metrics := new(telemetry.Metrics)
 	var operationsServer *http.Server
 	var operationsListener net.Listener
 	if *opsAddr != "" {

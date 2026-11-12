@@ -58,6 +58,23 @@ def check(helm):
                 "postgres.existingSecret=", "traffic.namespace=", "monitoring.namespace="):
         run("template", "fixture", chart, *ingress, "--set-string", key, passed=False)
     print("Unsafe/missing configuration rejected (5 cases)")
+    pilot = ["--set", "customerPilot.enabled=true", "--set-string",
+             "customerPilot.existingTargetInventoryConfigMap=approved-targets"]
+    rendered = run("template", "fixture", chart, *ingress, *pilot)
+    documents = list(filter(None, yaml.safe_load_all(rendered)))
+    api = next(doc for doc in documents if doc["kind"] == "Deployment" and
+               doc["metadata"]["name"].endswith("-api"))
+    pod = api["spec"]["template"]["spec"]
+    args = pod["containers"][0]["args"]
+    assert "-customer-pilot" in args and "-customer-targets" in args
+    assert args[args.index("-deployment-mode") + 1] == "disabled"
+    assert any(volume.get("configMap", {}).get("name") == "approved-targets"
+               for volume in pod["volumes"])
+    rules = next(doc for doc in documents if doc["kind"] == "PrometheusRule")
+    assert any(rule["alert"] == "SathonateCustomerEntitlementUnavailable"
+               for rule in rules["spec"]["groups"][0]["rules"])
+    run("template", "fixture", chart, *ingress, *pilot[2:], passed=False)
+    print("RC1 opt-in pilot and target inventory PASS; execution still disabled")
 
 
 if __name__ == "__main__":

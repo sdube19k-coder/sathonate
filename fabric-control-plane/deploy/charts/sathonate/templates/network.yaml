@@ -117,4 +117,12 @@ spec:
           for: 10m
           labels: {severity: warning}
           annotations: {summary: "Sathonate API p95 handler latency exceeds 500 milliseconds"}
+        {{- if .Values.customerPilot.enabled }}
+        - alert: SathonateCustomerEntitlementUnavailable
+          expr: |
+            sum(increase(sathonate_customer_entitlement_checks_total{sathonate_release={{ printf "%s/%s" .Release.Namespace .Release.Name | quote }},result="unavailable"}[5m])) > 0
+          for: 2m
+          labels: {severity: warning}
+          annotations: {summary: "Customer entitlement checks are unavailable"}
+        {{- end }}
 {{- end }}

@@ -28,6 +28,8 @@ func HasErrors(issues []Issue) bool {
 }
 
 // Validate performs offline topology checks. It cannot verify credentials, hosts, or live Fabric state.
+const CustomerKubernetesProvider = "customer-kubernetes"
+
 func Validate(s NetworkSpec) []Issue {
 	s = WithDefaults(s)
 	issues := []Issue{}
@@ -96,8 +98,11 @@ func Validate(s NetworkSpec) []Issue {
 		if d.Runtime != "kubernetes" {
 			add("error", "spec.deployment.runtime", "Bevel requires kubernetes")
 		}
-		if d.Provider != "aws" && d.Provider != "azure" && d.Provider != "local" {
-			add("error", "spec.deployment.provider", "Bevel target must be aws, azure or local")
+		if d.Provider != "aws" && d.Provider != "azure" && d.Provider != "local" && d.Provider != CustomerKubernetesProvider {
+			add("error", "spec.deployment.provider", "Bevel target must be aws, azure, local or customer-kubernetes")
+		}
+		if d.Provider == CustomerKubernetesProvider && (d.Cloud != nil || t.Configuration == nil) {
+			add("error", "spec.deployment", "customer Kubernetes requires explicit topology and a registered target reference")
 		}
 		if d.Provider == "local" && (t.Environment != "development" || (d.TargetRef != "smp-qualification" && d.TargetRef != SecureLocalProfile && d.TargetRef != DynamicLocalProfile)) {
 			add("error", "spec.deployment", "local Kubernetes execution requires the development environment and smp-qualification target")

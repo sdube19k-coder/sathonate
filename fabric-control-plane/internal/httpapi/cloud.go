@@ -15,16 +15,18 @@ import (
 )
 
 type Options struct {
-	Customer    *customer.Service
-	AuditRecent func(context.Context, string) ([]audit.Event, error)
-	ReadHistory func(context.Context, string) (*deployment.Manager, error)
-	Auth        identity.Config
-	Registry    cloud.Registry
-	Commander   cloud.Commander
-	Storage     string
-	Local       *localfabric.Manager
-	Deployments *deployment.Manager
-	Readiness   readiness.Config
+	Customer         *customer.Service
+	CustomerTargets  customer.Targets
+	CustomerDecision func(string)
+	AuditRecent      func(context.Context, string) ([]audit.Event, error)
+	ReadHistory      func(context.Context, string) (*deployment.Manager, error)
+	Auth             identity.Config
+	Registry         cloud.Registry
+	Commander        cloud.Commander
+	Storage          string
+	Local            *localfabric.Manager
+	Deployments      *deployment.Manager
+	Readiness        readiness.Config
 }
 
 func (a *API) deploymentPackage(w http.ResponseWriter, r *http.Request) {

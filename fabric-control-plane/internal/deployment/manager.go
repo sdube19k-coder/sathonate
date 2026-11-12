@@ -99,6 +99,9 @@ func (m *Manager) Start(tenant, actor, record string, s domain.NetworkSpec, revi
 	return m.start(tenant, actor, record, s, revision, key, fail, retryOf, nil, "", "", "", "")
 }
 func (m *Manager) start(tenant, actor, record string, s domain.NetworkSpec, revision int, key, fail, retryOf string, lifecycle *kubernetesfabric.LifecycleState, parent, action, expectedParent, approval string, inputs ...transitionInput) (operations.Operation, error) {
+	if s.Spec.Deployment.Provider == domain.CustomerKubernetesProvider {
+		return operations.Operation{}, errors.New("customer Kubernetes execution is disabled")
+	}
 	intent, e := json.Marshal(s)
 	if e != nil {
 		return operations.Operation{}, errors.New("invalid desired configuration")

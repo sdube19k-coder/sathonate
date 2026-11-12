@@ -38,6 +38,7 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/v1/customer", a.customerAccount)
+	mux.HandleFunc("POST /api/v1/networks/{id}/customer-preflight", a.customerProvisionPreview)
 	mux.HandleFunc("POST /api/v1/customer/actions", a.customerAction)
 	mux.HandleFunc("POST "+identity.CustomerInvitationAcceptance, a.customerAction)
 	mux.HandleFunc("GET /api/v1/audit", func(w http.ResponseWriter, r *http.Request) {

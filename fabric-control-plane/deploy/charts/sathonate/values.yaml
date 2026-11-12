@@ -2,6 +2,9 @@ replicas: 1
 apiImage: ""
 consoleImage: ""
 imagePullSecrets: []
+customerPilot:
+  enabled: false
+  existingTargetInventoryConfigMap: ""
 publicHost: ""
 postgres:
   existingSecret: ""

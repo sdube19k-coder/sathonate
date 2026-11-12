@@ -11,6 +11,8 @@ import (
 
 func TestMetricsAndReadiness(t *testing.T) {
 	var m Metrics
+	m.ObserveEntitlement("denied")
+	m.ObserveEntitlement("sensitive-tenant-id")
 	api := m.Observe(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			w.WriteHeader(503)
@@ -42,6 +44,9 @@ func TestMetricsAndReadiness(t *testing.T) {
 		if !strings.Contains(body, want) {
 			t.Fatalf("missing %s", want)
 		}
+	}
+	if !strings.Contains(body, `sathonate_customer_entitlement_checks_total{result="denied"} 1`) || strings.Contains(body, "sensitive-tenant-id") {
+		t.Fatal("unbounded or missing entitlement labels")
 	}
 	if strings.Contains(body, "tenant-private") {
 		t.Fatal("metrics disclose request path")
