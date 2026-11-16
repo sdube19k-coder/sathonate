@@ -118,13 +118,47 @@ Kubernetes service discovery, PVCs, security policies or recovery behavior.
    namespace and cluster cleanup before reporting PASS. Customer-facing
    integration requires a separate approval after qualification.
 
-**Current blocker:** Docker Desktop’s Linux engine was unreachable.
+**Initial blocker:** Docker Desktop’s Linux engine was unreachable.
 `docker info` returned
 `open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified`.
 Windows reported 6.52 GiB available and the workspace reported 326.45 GiB
 free. Docker capacity and backing disk remain unverified. No cluster,
 manifests, credentials or Kubernetes objects were created. There is no
 Sathonate deployment command until the isolated prototype is qualified.
+
+### Resume preflight · 16 November 2026
+
+Pushed `f63d92ac6288ebe9b733831ca658c4320e4ccfa0` to
+`origin/feature/drunix-deployment` after checking its ancestry from the
+foundation. Verified the remote ref. Docker Desktop now responds as Linux
+x86_64 with 20 CPUs. The existing read-only
+[`preflight.py`](../tools/sprint6/preflight.py) returned
+`BLOCKED_CAPACITY` at 10:08 IST.
+
+| Metric | Observed | Existing safety gate |
+| --- | ---: | ---: |
+| Docker CPUs | 20 | 4 |
+| Docker total memory | 5.78 GiB | 8 GiB |
+| Docker available memory | 3.80 GiB | 6 GiB |
+| Windows available memory | 0.85 GiB | 8 GiB |
+| Windows system-drive free space, used by the gate | 39.49 GiB | 40 GiB |
+
+Workspace drive E: had about 326 GiB free. The direct WSL check could not
+resolve `/var/lib/docker` to a mount, so actual Docker data-volume capacity
+still needs confirmation if its location differs from the system drive.
+These are existing host safety thresholds, not measured Drunix sizing.
+Even the reference topology adds two YugabyteDB instances and two KeyDB
+instances, on top of the peers, validators, orderer and Kubernetes.
+YugabyteDB needs a specific CPU, memory and durable storage plan. KeyDB
+memory must cover its data and the chosen persistence behavior. The sample
+does not supply a qualified Kubernetes resource budget or a storage recovery
+receipt. [YugabyteDB hardware requirements](https://docs.yugabyte.com/stable/yugabyte-platform/prepare/server-nodes-hardware/) ·
+[Pinned storage reference](https://github.com/npci/drunix/blob/v1.0.0/drunix-network/test-network/scripts/yugabyte/compose.yaml).
+
+Stopped before image pulls or building the prototype. No local resources need
+cleanup. The previous regression baseline below was preserved. No fresh
+regressions were started while Windows had less than 1 GiB available. The
+compatibility matrix remains source-backed with no new runtime evidence.
 
 ## Evidence and file inventory
 
