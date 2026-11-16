@@ -1,5 +1,8 @@
 # Drunix discovery and architecture review
 
+Phase 2 implements the [read-only foundation](drunix-foundation.md). The
+original proposal and Phase 1 evidence below are retained for comparison.
+
 **Decision proposed, 16 November 2026.** Baseline Sathonate
 `1fcff204a8db081ea82271c2a272ac1832903079`. Upstream Drunix `v1.0.0`,
 `3fb2b135a5b2adf7e1071d9b1624052a1bbb1772`. This is a source review and

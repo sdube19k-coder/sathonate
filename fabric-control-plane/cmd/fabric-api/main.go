@@ -47,6 +47,7 @@ func main() {
 	opsAddr := flag.String("operations-addr", "", "optional separate address for health, readiness and Prometheus")
 	customerPilot := flag.Bool("customer-pilot", false, "enable authenticated customer pilot; payment and infrastructure execution stay disabled")
 	customerTargetsFile := flag.String("customer-targets", "", "protected customer target inventory for planning only")
+	compatibilityCatalog := flag.Bool("compatibility-catalog", false, "expose authenticated read-only protocol compatibility metadata")
 	flag.Parse()
 	explicitMode := false
 	flag.Visit(func(f *flag.Flag) {
@@ -309,7 +310,7 @@ func main() {
 		}
 		customerService = &customer.Service{Store: store}
 	}
-	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{Customer: customerService, CustomerTargets: customerTargets, CustomerDecision: metrics.ObserveEntitlement, AuditRecent: recent, ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
+	handler := httpapi.NewConfigured(resolve, allowedHosts, origins, httpapi.Options{CompatibilityCatalog: *compatibilityCatalog, Customer: customerService, CustomerTargets: customerTargets, CustomerDecision: metrics.ObserveEntitlement, AuditRecent: recent, ReadHistory: history, Auth: authConfig, Registry: registry, Storage: storage, Local: local, Deployments: deployments, Readiness: readiness.Environment()})
 	if database != nil {
 		handler = auditStore.Journal().WrapProject(handler, func(ctx context.Context) (string, string) {
 			p := identity.FromContext(ctx)

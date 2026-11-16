@@ -37,6 +37,9 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 		a.allowedOrigins[v] = true
 	}
 	mux := http.NewServeMux()
+	if options.CompatibilityCatalog {
+		mux.HandleFunc("GET /api/v1/compatibility", compatibilityCatalog)
+	}
 	mux.HandleFunc("GET /api/v1/customer", a.customerAccount)
 	mux.HandleFunc("POST /api/v1/networks/{id}/customer-preflight", a.customerProvisionPreview)
 	mux.HandleFunc("POST /api/v1/customer/actions", a.customerAction)
