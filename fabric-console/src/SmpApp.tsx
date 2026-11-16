@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import OperationDiagnosticsButton from "./OperationDiagnostics";
 import {
   Activity,
@@ -7,7 +7,6 @@ import {
   Boxes,
   Check,
   CheckCircle2,
-  ChevronDown,
   Cloud,
   Download,
   Code2,
@@ -57,12 +56,12 @@ import {
 } from "./SmpScreens";
 import { DashboardScreen, ProgressScreen } from "./SmpRuntime";
 import { formatDate } from "./components";
-import { useWorkspace, workspaceKey } from "./workspace";
-import { SignOut } from "./AuthGate";
+import { useWorkspace, workspaceKey, WorkspaceSignOut } from "./workspace";
 import { useDialog } from "./use-dialog";
 import { readWithRecovery } from "./read-recovery";
 import { CloudReadiness } from "./LaunchReadiness";
 import CustomNetworks from "./CustomNetworks";
+import { authorizeEKSDeployment, hasOktaDeploymentScope } from "./AuthGate";
 import CustomerAccount from "./CustomerAccount";
 import "./customer-account.css";
 import "./smp.css";
@@ -96,6 +95,7 @@ const subtitles = [
 ];
 
 export default function SmpApp() {
+  const signOut = useContext(WorkspaceSignOut);
   const project = useWorkspace(),
     secure = project !== null;
   const submitting = useRef(false),
@@ -163,8 +163,12 @@ export default function SmpApp() {
     step < 4 &&
     !saved &&
     !selectedOperation;
+  const secureEKS =
+    secure && saved?.desired.spec.deployment.targetRef === "smp-secure-eks-v1";
+  const eksExecutionEnabled =
+    secureEKS && !saved?.archived && meta?.deploymentMode === "secure-eks";
   const local = draft.provider === "local",
-    kube = draft.provider === "kubernetes",
+    kube = draft.provider === "kubernetes" || secureEKS,
     running =
       runtime?.phase === "starting" ||
       runtime?.phase === "stopping" ||
@@ -198,7 +202,11 @@ export default function SmpApp() {
                     .filter(
                       (op) =>
                         op.networkId === resumed.id &&
-                        op.kind === "secure-local-deploy",
+                        op.kind ===
+                          (resumed.desired.spec.deployment.targetRef ===
+                          "smp-secure-eks-v1"
+                            ? "secure-eks-deploy"
+                            : "secure-local-deploy"),
                     )
                     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
                   if (latest) {
@@ -362,13 +370,18 @@ export default function SmpApp() {
   };
   const navigate = (v: View) => {
     if (location.hash === "#/customer" && v !== "customer") {
-      window.history.replaceState(null, "", location.pathname + location.search);
+      window.history.replaceState(
+        null,
+        "",
+        location.pathname + location.search,
+      );
     }
     setView(v);
     setMenu(false);
     setError("");
   };
   const go = (n: number) => {
+    if (secureEKS && n < 3) return;
     if (n === 5 && (!runtime?.verified || runtime.phase !== "running")) return;
     if (n > 3 && ((!local && !kube) || (!operation && !runtime?.verified)))
       return;
@@ -580,7 +593,8 @@ export default function SmpApp() {
   };
   const createNetwork = async () => {
     if (!local && !kube) return;
-    const network = kube ? await save() : null;
+    if (secureEKS && (!eksExecutionEnabled || !saved)) return;
+    const network = secureEKS ? saved : kube ? await save() : null;
     if (kube && !network) return;
     setBusy(true);
     setError("");
@@ -724,19 +738,22 @@ export default function SmpApp() {
       targetRef: n.desired.spec.deployment.targetRef,
     });
     setView("create");
-    setStep(2);
+    const isEKS = n.desired.spec.deployment.targetRef === "smp-secure-eks-v1";
+    setStep(isEKS ? 3 : 2);
     setValid(false);
     setIssues(n.issues);
-    if (n.desired.spec.deployment.provider === "local") {
+    if (n.desired.spec.deployment.provider === "local" || isEKS) {
       void api
         .operations()
         .then((ops) => {
           const latest = ops.items.find(
             (op) =>
               op.networkId === n.id &&
-              ["local-kubernetes-deploy", "secure-local-deploy"].includes(
-                op.kind,
-              ),
+              [
+                "local-kubernetes-deploy",
+                "secure-local-deploy",
+                "secure-eks-deploy",
+              ].includes(op.kind),
           );
           if (!latest) return;
           setSelectedOperation(latest.operationId);
@@ -818,8 +835,7 @@ export default function SmpApp() {
                   : "Local development"}
               </small>
             </div>
-            <SignOut />
-            <ChevronDown size={15} />
+            {signOut}
           </div>
         </header>
         {menu && (
@@ -894,6 +910,7 @@ export default function SmpApp() {
                   setMenu(false);
                 }}
                 disabled={
+                  (secureEKS && i < 3) ||
                   (i > 3 &&
                     ((!local && !kube) ||
                       (!operation && !runtime?.verified))) ||
@@ -1080,7 +1097,7 @@ export default function SmpApp() {
                       />
                     </fieldset>
                   )}
-                  {step === 3 && (
+                  {step === 3 && !secureEKS && (
                     <Review
                       draft={draft}
                       onEdit={go}
@@ -1156,6 +1173,66 @@ export default function SmpApp() {
                     </Card>
                   )}
                 </div>
+                {step === 3 && secureEKS && (
+                  <Note>
+                    This saved EKS design is locked for qualification.
+                    Deployment requires the secure EKS runner and project write
+                    access.
+                    {meta?.mode === "okta" &&
+                      (hasOktaDeploymentScope() ? (
+                        <>
+                          <span> Okta write scope received.</span>
+                          <button
+                            className="smp-btn secondary"
+                            type="button"
+                            disabled={busy}
+                            onClick={async () => {
+                              if (!saved) return;
+                              setBusy(true);
+                              setError("");
+                              setToast("");
+                              try {
+                                const result =
+                                  await api.deploymentAuthorization(saved);
+                                if (
+                                  !result.authorized ||
+                                  result.revision !== saved.revision
+                                )
+                                  throw new Error(
+                                    "Deployment authorization could not be confirmed.",
+                                  );
+                                setToast(
+                                  "Server confirmed deployment permission for this saved revision.",
+                                );
+                              } catch (error) {
+                                setError(
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Authorization check failed.",
+                                );
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            Verify deployment access
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="smp-btn secondary"
+                          type="button"
+                          onClick={() => {
+                            void authorizeEKSDeployment().catch(
+                              (error: Error) => setError(error.message),
+                            );
+                          }}
+                        >
+                          Authorize deployment with Okta
+                        </button>
+                      ))}
+                  </Note>
+                )}
                 {step === 3 && (
                   <details className="smp-summary-details" open>
                     <summary>Detailed network summary</summary>
@@ -1174,7 +1251,7 @@ export default function SmpApp() {
               </div>
               <footer className="smp-flow-footer">
                 <div>
-                  {step > 0 && (
+                  {step > 0 && !secureEKS && (
                     <button
                       className="smp-btn secondary"
                       disabled={busy || running}
@@ -1217,7 +1294,7 @@ export default function SmpApp() {
                       Prepare Deployment JSON
                     </button>
                   )}
-                  {step >= 2 && step < 4 && !local && (
+                  {step >= 2 && step < 4 && !local && !secureEKS && (
                     <button
                       className="smp-btn secondary"
                       disabled={busy}
@@ -1243,8 +1320,9 @@ export default function SmpApp() {
                       disabled={
                         busy ||
                         (secure && !!draft.deploymentOperationId) ||
-                        !valid ||
-                        (!local &&
+                        (secureEKS ? !eksExecutionEnabled : !valid) ||
+                        (!secureEKS &&
+                          !local &&
                           !(
                             kube &&
                             (secure
@@ -1255,7 +1333,9 @@ export default function SmpApp() {
                       }
                       onClick={() => void create()}
                     >
-                      Create Network
+                      {secureEKS
+                        ? "Deploy approved EKS network"
+                        : "Create Network"}
                       <ArrowRight size={16} />
                     </button>
                   ) : step === 4 ? (
@@ -1434,6 +1514,7 @@ export default function SmpApp() {
                                     [
                                       "local-kubernetes-deploy",
                                       "secure-local-deploy",
+                                      "secure-eks-deploy",
                                     ].includes(op.kind),
                                 )
                                   ? "blue"
@@ -1446,6 +1527,7 @@ export default function SmpApp() {
                                   [
                                     "local-kubernetes-deploy",
                                     "secure-local-deploy",
+                                    "secure-eks-deploy",
                                   ].includes(op.kind),
                               )?.status ?? "Design draft"}
                             </Status>
@@ -1532,6 +1614,7 @@ export default function SmpApp() {
                                       [
                                         "local-kubernetes-deploy",
                                         "secure-local-deploy",
+                                        "secure-eks-deploy",
                                       ].includes(op.kind)
                                         ? "kubernetes"
                                         : "local",
@@ -1545,6 +1628,7 @@ export default function SmpApp() {
                                     deploymentOperationId: [
                                       "local-kubernetes-deploy",
                                       "secure-local-deploy",
+                                      "secure-eks-deploy",
                                     ].includes(op.kind)
                                       ? op.operationId
                                       : undefined,

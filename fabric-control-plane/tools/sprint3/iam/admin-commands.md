@@ -1,4 +1,9 @@
-# Administrator commands — prepared only, not executed
+# Administrator command reference
+
+Start with the [current manual setup and AWS runbook](../../../docs/manual-setup-and-aws-runbook.md).
+The role and empty-repository bootstrap completed previously. Live issuer
+binding and cloud teardown remain open. The commands below use an example
+administrator profile. For the current run use `sathonate-bootstrap`.
 
 Use PowerShell 7 and a separately approved **non-root administrator SSO profile**. The ordinary deployer deliberately cannot create IAM roles or ECR repositories. Replace `approved-admin-sso` with that administrator profile.
 

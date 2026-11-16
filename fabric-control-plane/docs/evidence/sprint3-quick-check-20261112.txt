@@ -1,0 +1,148 @@
+Sathonate Sprint 3 quick check
+Recorded on 12 November 2026 (IST)
+Live AWS EKS: BLOCKED. The approved SSO profile reports an expired or invalid session.
+AWS resources created: none. These local tests do not deploy Fabric.
+
+=== RUN   TestEKSDeniesUnregisteredTenantAndMissingApproval
+--- PASS: TestEKSDeniesUnregisteredTenantAndMissingApproval (0.01s)
+=== RUN   TestEKSApprovedBindingCannotCrossTenantOrDrift
+--- PASS: TestEKSApprovedBindingCannotCrossTenantOrDrift (0.02s)
+=== RUN   TestEKSManifestHasNoClusterAdminOrInlineCloudCredentials
+--- PASS: TestEKSManifestHasNoClusterAdminOrInlineCloudCredentials (0.00s)
+=== RUN   TestSecureEKSProtectedTranslationAndManifest
+--- PASS: TestSecureEKSProtectedTranslationAndManifest (0.02s)
+=== RUN   TestSecureEKSConfigAndScopeDenials
+=== RUN   TestSecureEKSConfigAndScopeDenials/root-role
+=== RUN   TestSecureEKSConfigAndScopeDenials/root-profile
+=== RUN   TestSecureEKSConfigAndScopeDenials/mutable-worker
+=== RUN   TestSecureEKSConfigAndScopeDenials/original-controller
+=== RUN   TestSecureEKSConfigAndScopeDenials/expired-approval
+=== RUN   TestSecureEKSConfigAndScopeDenials/unbounded-window
+=== RUN   TestSecureEKSConfigAndScopeDenials/foreign-tenant
+=== RUN   TestSecureEKSConfigAndScopeDenials/foreign-record
+=== RUN   TestSecureEKSConfigAndScopeDenials/design-drift
+=== RUN   TestSecureEKSConfigAndScopeDenials/target-drift
+=== RUN   TestSecureEKSConfigAndScopeDenials/inline-failure
+--- PASS: TestSecureEKSConfigAndScopeDenials (0.03s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/root-role (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/root-profile (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/mutable-worker (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/original-controller (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/expired-approval (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/unbounded-window (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/foreign-tenant (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/foreign-record (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/design-drift (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/target-drift (0.00s)
+    --- PASS: TestSecureEKSConfigAndScopeDenials/inline-failure (0.00s)
+=== RUN   TestSecureEKSPreflightDenialsBeforeMutation
+=== RUN   TestSecureEKSPreflightDenialsBeforeMutation/root
+=== RUN   TestSecureEKSPreflightDenialsBeforeMutation/endpoint
+=== RUN   TestSecureEKSPreflightDenialsBeforeMutation/storage
+=== RUN   TestSecureEKSPreflightDenialsBeforeMutation/cni
+=== RUN   TestSecureEKSPreflightDenialsBeforeMutation/missing-zone
+=== RUN   TestSecureEKSPreflightDenialsBeforeMutation/foreign-namespace
+--- PASS: TestSecureEKSPreflightDenialsBeforeMutation (0.02s)
+    --- PASS: TestSecureEKSPreflightDenialsBeforeMutation/root (0.00s)
+    --- PASS: TestSecureEKSPreflightDenialsBeforeMutation/endpoint (0.00s)
+    --- PASS: TestSecureEKSPreflightDenialsBeforeMutation/storage (0.00s)
+    --- PASS: TestSecureEKSPreflightDenialsBeforeMutation/cni (0.00s)
+    --- PASS: TestSecureEKSPreflightDenialsBeforeMutation/missing-zone (0.00s)
+    --- PASS: TestSecureEKSPreflightDenialsBeforeMutation/foreign-namespace (0.00s)
+=== RUN   TestSecureEKSPositivePreflightAndCleanupApproval
+--- PASS: TestSecureEKSPositivePreflightAndCleanupApproval (0.01s)
+=== RUN   TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift
+=== RUN   TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift/static-token
+=== RUN   TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift/exec-command
+=== RUN   TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift/proxy
+--- PASS: TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift (0.04s)
+    --- PASS: TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift/static-token (0.01s)
+    --- PASS: TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift/exec-command (0.01s)
+    --- PASS: TestSecureEKSKubeconfigRejectsCredentialsAndFileDrift/proxy (0.01s)
+PASS
+ok  	sathonate.local/fabric-control-plane/internal/deployment	0.496s
+test_default_creates_no_nodes_or_addons (test_admin_owned.AdminOwnedPlan.test_default_creates_no_nodes_or_addons) ... ok
+test_exact_sso_binding_and_standard_support (test_admin_owned.AdminOwnedPlan.test_exact_sso_binding_and_standard_support) ... ok
+test_no_inline_iam_and_exact_roles (test_admin_owned.AdminOwnedPlan.test_no_inline_iam_and_exact_roles) ... ok
+test_references_and_dependencies_exist (test_admin_owned.AdminOwnedPlan.test_references_and_dependencies_exist) ... ok
+test_all_resource_references_exist (test_prepare.PlanSafety.test_all_resource_references_exist) ... ok
+test_full_fabric_requires_three_fixed_distinct_zone_groups (test_prepare.PlanSafety.test_full_fabric_requires_three_fixed_distinct_zone_groups) ... ok
+test_no_retained_vpc_or_costly_extra_service (test_prepare.PlanSafety.test_no_retained_vpc_or_costly_extra_service) ... ok
+test_root_wrong_account_shared_name_and_broad_network_rejected (test_prepare.PlanSafety.test_root_wrong_account_shared_name_and_broad_network_rejected) ... ok
+test_storage_and_enforcing_network_policy (test_prepare.PlanSafety.test_storage_and_enforcing_network_policy) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+OK
+Go exit code: 0. Python exit code: 0.
+
+Follow-up AWS preflight on 12 November 2026 (IST)
+STS: PASS. Account 429488690613, AWSReservedSSO_Sprint3-permissions assumed role, region ap-south-1.
+EKS ListClusters: empty.
+CloudFormation DescribeStacks: run stack sathonate-s3-20261027 does not exist.
+ECR DescribeRepositories: RepositoryNotFoundException for sathonate-s3-20261027.
+IAM GetRole: NoSuchEntity for sathonate-s3-20261027-clusterrole, -noderole, -cnirole and -ebsrole.
+Live deployment: BLOCKED on administrator bootstrap. No infrastructure was started and no teardown was needed for this attempt. Existing KMS resources were not changed.
+
+Administrator bootstrap follow-up
+Bootstrap: PASS using the Sprint3-Bootstrap SSO assumed role (exit 0).
+Independent Sprint3 deployer read: all four exact run roles exist.
+ECR: run repository exists, IMMUTABLE and AES256, zero image IDs.
+EKS: Mumbai cluster inventory empty. No EKS or EC2 resources were created by bootstrap.
+Live test: BLOCKED pending verified applicable credit coverage under the zero-budget constraint. Exact issuer binding and remaining deployment/teardown preflight are still required.
+
+Billing stop gate
+User-provided AWS Credits screenshot for account 429488690613: USD 0.00 remaining, USD 0.00 estimated remaining, zero active credits.
+Read-only follow-up in ap-south-1: EKS inventory empty; CloudFormation run stack sathonate-s3-20261027 absent.
+Live AWS test BLOCKED under zero-budget constraint. No services started and no run teardown needed.
+
+Paid test preflight, new USD 4 ceiling
+Both approved SSO profiles authenticated. EC2 Standard On-Demand quota 8 vCPUs (plan needs 6). EKS 1.34 STANDARD_SUPPORT in Mumbai. AWS CloudFormation ValidateTemplate accepted the administrator-owned template.
+BLOCKED before infrastructure creation: no approved issuer-binding permissions in either current permission set, no verified runtime image/API binding, and no verified timed end-to-end teardown. No chargeable resources started by this preflight.
+
+Issuer-policy follow-up
+Exact EKS DescribeCluster and Mumbai IAM GetOpenIDConnectProvider reads reached AWS resource-not-found responses under Sprint3-Bootstrap. Provider creation and trust writes remain unexercised.
+Local linux/amd64 worker image ID and controller manifest digest match the recorded Sprint 3 evidence. ECR remains empty. Local PostgreSQL container running and loopback API reports Okta mode. Secure EKS writer binding and end-to-end teardown remain unverified.
+GetEbsDefaultKmsKeyId denied to Sprint3-permissions. Mumbai EBS default key not verified. Live test BLOCKED before provisioning; no test resources started by this check.
+
+Browser preflight, deferred live run
+PASS: actual local console rendered Continue with Okta in Microsoft Edge, no new sign-in attempted.
+PASS: four Playwright controlled-fixture cases (owner retry/project request, invitee restriction, pilot-off visibility, six workspace destinations and six-step wizard shell). Initial run on the existing Okta server correctly rejected local token mode; isolated local fixture server used for final run. Corrected fixture readiness response to include checkedAt and checks.
+PASS: 31 frontend unit tests and production build.
+BLOCKED: main wizard deploy enablement excludes secure-eks; Kubernetes secure drafts select smp-secure-local-v1. Protected Transaction Check reads server-recorded deployment verification. Live EKS dashboard and fresh post-deploy UI transaction were not exercised.
+Remaining: wire approved EKS target into UI, verify authorized writer and exact saved network/runtime binding, exercise timed teardown and approve cleanup permissions. Bootstrap permission set lacks run-role detach/delete and list-instance-profile permissions required by Cleanup. Preserve shared AWS service-linked roles and unrelated IAM/KMS. Delete test-only PVCs while CSI is running, then stack and verify EKS, instances, volumes, interfaces, IPs and repository; remove run-specific provider and roles, then revoke the temporary permission-set assignment. Use fresh SSO and Okta on test day. Require explicit yes before billable launch.
+No AWS actions in browser preflight. Fixture Vite listeners stopped; existing console/API kept available.
+
+13 November 2026 (IST) resumption
+Secure EKS Go regression exit: 0. Offline Python template regression exit: 0.
+EKS and CloudFormation read-only status refresh blocked by expired or invalid deployer SSO. Previous inventory remains the last confirmed cloud state.
+Live browser EKS test blocked: console still excludes secure-eks launch, project/runtime binding and teardown unverified. No AWS resources started by this session.
+
+13 November UI-only prerequisite work
+Saved protected EKS design can now be opened from Networks and submitted from the browser against its saved revision, only with the secure-eks runner. Six Edge controlled fixture tests passed, including disabled runner and surfaced 403 on attempted read-only deployment. No live writer or ledger was exercised.
+Prepared local IAM policy additions for run-scoped role teardown. JSON syntax only; account policy was not changed or validated live. Timed infrastructure teardown and real Okta writer/runtime binding still pending. No AWS calls during this work.
+
+14 November 2026 (IST) local preparation
+User reported saving the Sprint3-Bootstrap cleanup policy. Account provisioning and enforcement were not queried.
+Prepared examples/sprint3-protected-eks-network.json for the exact protected runner and three Mumbai availability zones. TestSecureEKSPreparedDesign and targeted TestSecureEKS suite PASS using fixtures. Example remains offline and has not been saved to a live project.
+Existing development membership administrative command deliberately provisions viewer-only access. Disposable server-owned writer workflow and browser write-scope verification are outstanding. Exact cluster CA, issuer, kubeconfig and ECR digests depend on the approved live setup. Timed end-to-end teardown remains unverified. No AWS calls or resources started in this pass.
+
+14 November browser authorization follow-up
+User screenshot from the disposable project confirms the console displayed Okta write scope received. Added a read-only, exact-revision API permission check and corresponding console button. Identity and HTTP API suites, 14 offline Sprint 3 tests, 31 console unit tests, and production build passed. Live authenticated endpoint response remains pending.
+Stack teardown now checks regional inventory for the named EKS cluster and tagged EC2 instances, volumes, ENIs, addresses, VPCs and NAT gateways. Full PVC/ECR/IAM cleanup and end-to-end timing remain unverified. No AWS calls or changes in this pass.
+
+14 November 2026 (IST) real Okta authorization
+PASS: user reported "Server confirmed deployment permission for this saved revision" from the browser after the local API was rebuilt and restarted with deployment disabled. This covers live Okta write scope, server-owned deploy permission in the disposable project, and exact saved EKS revision authorization. No deploy was submitted. AWS runtime binding and full timed teardown remain pending. No AWS calls or changes were made.
+
+14 November 2026 IST AWS read-only preflight
+Both scoped SSO role identities verified in account 429488690613. Mumbai EKS cluster list empty, test ECR empty and exact ownership tag present. EKS 1.34 STANDARD_SUPPORT and EC2 standard quota 8. Bootstrap can read instance profiles for all four test roles (none attached). IAM SimulatePrincipalPolicy denied to bootstrap, so effective mutation permissions were not confirmed by simulation. End-to-end timed teardown, live runner/runtime binding and launch remain pending. No resources created or modified.
+Follow-up: live read-only regional teardown inventory passed. Bootstrap/deployer ECR cleanup mismatch corrected locally. Offline Plan and 15 Python tests passed. No AWS mutations.
+
+15 November 2026 IST launch preflight after user approval
+Both scoped SSO roles authenticated. Mumbai had no EKS clusters or pending/running EC2 instances; exact stack absent and ECR empty. User confirmed browser deployment authorization following local project grant renewal. Pinned Bevel CRD checkout matched cd236ccc61d1d159b3dadb4625d08bb5682a8451. Seventeen offline tests passed.
+Paid test not launched. Existing teardown helper covers stack and regional inventory after an operator attests workload/PVC cleanup. Independent deadline-triggered cleanup of the entire run, including PVC/CSI and final ECR/IAM sequence, is not ready. No images pushed or AWS resources started.
+Independent deadline cleanup helper added. 22 local tests passed, including PVC failure and ordered retry. Actual kubectl DELETE sent the UID precondition to a loopback HTTP fixture. Live API/CSI, fencing, SSO longevity and final IAM teardown remain unverified. This pass made no AWS calls.
+Cleanup deadline fence and bounded stalled-PVC fallback implemented. Secure EKS Go regression PASS, including admission and execution rejection after fence. 24 offline Sprint 3 tests PASS, including detached run-volume deletion and rejection of attached/unverified volumes. No AWS calls. Real AWS cleanup and active in-cluster worker termination remain unqualified.
+Conditional launch preflight: both scoped SSO roles valid; console/API Okta endpoints and disposable grant active. Three requested EC2 AZ offerings present, ECR immutable, Mumbai EKS inventory empty; current default VPC CNI add-on schema accepts strict and enableNetworkPolicy. Offline cleanup now cancels UPDATE_IN_PROGRESS before deleting; 25 Python tests passed. Registry digest publication and integrated provisioning-to-teardown rehearsal still incomplete. Read-only AWS calls only; no images or cloud services started.
+Launch held per user pending fresh approval after prerequisites. Cleanup timer supports completion signal and elapsed deadline through the same path; 27 local tests passed. No AWS calls or mutations.

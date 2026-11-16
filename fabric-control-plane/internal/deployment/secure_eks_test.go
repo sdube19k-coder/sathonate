@@ -173,6 +173,51 @@ func (f *secureEKSCommands) Run(_ context.Context, binary string, args []string)
 	return nil, errors.New("unplanned fixture command")
 }
 
+func TestSecureEKSCleanupFenceRejectsValidationAndRun(t *testing.T) {
+	c, q := secureEKSFixture(t)
+	runner, err := NewSecureEKSRunner(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(c.Kubeconfig+".cleanup-fence", nil, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(runner.Validate(q), errSecureEKS) {
+		t.Fatal("cleanup fence must reject new operations")
+	}
+	if _, err = runner.Run(context.Background(), q, func(string, string) error {
+		t.Fatal("fenced operation emitted progress")
+		return nil
+	}); !errors.Is(err, errSecureEKS) {
+		t.Fatal("cleanup fence must reject worker execution before preflight")
+	}
+}
+
+func TestSecureEKSPreparedDesign(t *testing.T) {
+	c, q := secureEKSFixture(t)
+	raw, err := os.ReadFile("../../examples/sprint3-protected-eks-network.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &q.Network); err != nil {
+		t.Fatal(err)
+	}
+	c.RoleARN = q.Network.Spec.Deployment.Cloud.RoleARN
+	canonical, err := json.Marshal(q.Network)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sum := sha256.Sum256(canonical)
+	c.NetworkSHA256 = hex.EncodeToString(sum[:])
+	runner, err := NewSecureEKSRunner(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := runner.Validate(q); err != nil {
+		t.Fatalf("prepared EKS design rejected: %v", err)
+	}
+}
+
 func TestSecureEKSProtectedTranslationAndManifest(t *testing.T) {
 	c, q := secureEKSFixture(t)
 	r, e := NewSecureEKSRunner(c)

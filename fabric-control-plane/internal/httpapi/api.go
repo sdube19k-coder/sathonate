@@ -92,6 +92,7 @@ func NewConfigured(resolve RepositoryResolver, hosts, origins []string, options 
 	mux.HandleFunc("POST /api/v1/networks/{id}/cloud-preflight", a.cloudPreflight)
 	mux.HandleFunc("POST /api/v1/networks/{id}/cloud-bundle", a.cloudBundle)
 	mux.HandleFunc("POST /api/v1/networks/{id}/deployment-package", a.deploymentPackage)
+	mux.HandleFunc("GET /api/v1/networks/{id}/deployment-authorization", a.deploymentAuthorization)
 	mux.HandleFunc("POST /api/v1/networks/{id}/deploy", func(w http.ResponseWriter, r *http.Request) {
 		if a.customerDeploymentAllowed(w, r) {
 			a.deployNetwork(w, r)

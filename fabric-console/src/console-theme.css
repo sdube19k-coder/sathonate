@@ -800,28 +800,6 @@
 .smp-reference .smp-summary {
   border-radius: 10px;
 }
-.local-sign-out {
-  position: fixed !important;
-  z-index: 90 !important;
-  left: 26px !important;
-  bottom: 26px !important;
-  right: auto !important;
-  top: auto !important;
-  background: transparent !important;
-  border: 0 !important;
-  color: #c1c7df !important;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font:
-    12px "DM Sans Variable",
-    sans-serif !important;
-  padding: 9px !important;
-}
-.local-sign-out:hover {
-  color: white !important;
-  background: #ffffff0b !important;
-}
 .auth-screen {
   background:
     radial-gradient(ellipse at 15% 5%, #e7e3fc, transparent 55%), #f4f5fa;
@@ -908,19 +886,6 @@
     border: 0;
     z-index: 75;
     backdrop-filter: blur(2px);
-  }
-  .local-sign-out {
-    left: auto !important;
-    right: 18px !important;
-    top: 24px !important;
-    bottom: auto !important;
-    color: #626482 !important;
-    z-index: 65 !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-  .smp-reference .smp-user {
-    margin-right: 86px;
   }
   .smp-reference .smp-user > .smp-avatar {
     display: none;

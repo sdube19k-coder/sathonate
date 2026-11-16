@@ -1,6 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "./api";
-import { setWorkspace, WorkspaceContext, type Project } from "./workspace";
+import {
+  setWorkspace,
+  WorkspaceContext,
+  WorkspaceSignOut,
+  type Project,
+} from "./workspace";
 
 export default function ProjectGate({
   children,
@@ -47,7 +52,9 @@ export default function ProjectGate({
   if (project)
     return (
       <WorkspaceContext.Provider value={project}>
-        {children}
+        <WorkspaceSignOut.Provider value={signOut}>
+          {children}
+        </WorkspaceSignOut.Provider>
       </WorkspaceContext.Provider>
     );
   return (

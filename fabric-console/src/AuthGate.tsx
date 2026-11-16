@@ -14,6 +14,13 @@ type AuthConfig = {
   requiredACR?: string;
 };
 let activeClient: OktaAuth | null = null;
+export function hasOktaDeploymentScope() {
+  return (
+    activeClient?.authStateManager
+      .getAuthState()
+      ?.accessToken?.scopes.includes("fabric.write") ?? false
+  );
+}
 export async function authorizeCustomerChanges() {
   if (!activeClient) throw new Error("An Okta session is required.");
   await activeClient.signInWithRedirect({
@@ -21,22 +28,34 @@ export async function authorizeCustomerChanges() {
     originalUri: window.location.origin + "/#/customer",
   });
 }
+export async function authorizeEKSDeployment() {
+  if (!activeClient) throw new Error("An Okta session is required.");
+  await activeClient.signInWithRedirect({
+    scopes: ["openid", "profile", "email", "fabric.read", "fabric.write"],
+    originalUri: window.location.origin + "/#/create/4",
+  });
+}
 export function SignOut() {
+  const [busy, setBusy] = useState(false);
   return activeClient ? (
     <button
-      className="icon-button"
+      className="smp-icon-btn"
       aria-label="Sign out of Okta"
+      disabled={busy}
       onClick={async () => {
         const client = activeClient;
-        if (!client) return;
+        if (!client || busy) return;
+        setBusy(true);
         setTokenProvider(null);
         setWorkspace(null);
         try {
-          await client.revokeAccessToken();
-          await client.revokeRefreshToken();
-          await client.closeSession();
-          client.tokenManager.clear();
-          window.location.replace(window.location.origin);
+          const hasIDToken = Boolean(client.getIdToken());
+          await client.signOut({
+            postLogoutRedirectUri: window.location.origin,
+            clearTokensBeforeRedirect: true,
+          });
+          // The SDK returns without navigation when its session API fallback is used.
+          if (!hasIDToken) window.location.replace(window.location.origin);
         } catch {
           client.tokenManager.clear();
           window.dispatchEvent(new Event("okta-logout-error"));
@@ -116,9 +135,9 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       client.authStateManager.subscribe((next) => {
         if (!disposed) setState(next);
       });
-      await client.start();
-      if (disposed) return;
       if (client.isLoginRedirect()) await client.handleRedirect();
+      if (disposed) return;
+      await client.start();
       await client.authStateManager.updateAuthState();
       if (!disposed) setState(client.authStateManager.getAuthState());
     };

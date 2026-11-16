@@ -19,11 +19,15 @@ if($Action -eq 'Plan'){
  $roles.GetEnumerator() | ForEach-Object {Write-Output ("$run-$($_.Key): "+($_.Value -join ', '))}
  exit 0
 }
-function Invoke-Aws([string[]]$Arguments,[string]$Missing=''){
- $raw=& $aws @Arguments --profile $AdminProfile --region $region --output json --no-cli-pager 2>&1
+function Invoke-Aws([string[]]$Arguments,[string]$Missing='',[string]$Profile=$AdminProfile){
+ # Windows PowerShell reports redirected native stderr as PowerShell errors.
+ # Let the CLI return so expected missing resources can be handled by exit code.
+ $ErrorActionPreference='Continue'
+ $PSNativeCommandUseErrorActionPreference=$false
+ $raw=& $aws @Arguments --profile $Profile --region $region --output json --no-cli-pager 2>&1
  if($LASTEXITCODE -ne 0){
   if($Missing -and (($raw -join "`n") -match $Missing)){return $null}
-  throw ('AWS administrator operation failed: '+($Arguments[0..1] -join ' ')+'. Inspect permissions/state without broadening deployer IAM.')
+  throw ('AWS administrator operation failed: '+($Arguments[0..1] -join ' ')+". `n"+($raw -join "`n"))
  }
  if($raw){return (($raw -join "`n")|ConvertFrom-Json)}
 }
@@ -32,7 +36,11 @@ function Canonical($Value){
  if($Value -is [System.Collections.IDictionary]){
   $ordered=[ordered]@{};foreach($key in ($Value.Keys|Sort-Object)){$ordered[$key]=Canonical $Value[$key]};return ($ordered|ConvertTo-Json -Compress -Depth 30)
  }
- if($Value -is [pscustomobject]){return Canonical ($Value|ConvertTo-Json -Depth 30|ConvertFrom-Json -AsHashtable)}
+ if($Value -is [pscustomobject]){
+  $properties=@{}
+  foreach($property in $Value.PSObject.Properties){$properties[$property.Name]=$property.Value}
+  return Canonical $properties
+ }
  if($Value -is [array]){return '['+(($Value|ForEach-Object {Canonical $_}) -join ',')+']'}
  return ($Value|ConvertTo-Json -Compress -Depth 30)
 }
@@ -52,7 +60,8 @@ function Assert-RolePolicies([string]$Name,[string[]]$Expected){
 }
 $who=Invoke-Aws @('sts','get-caller-identity')
 if($who.Account -ne $account -or $who.Arn -notmatch '^arn:aws:sts::429488690613:assumed-role/'){throw 'Approved account assumed-role administrator identity required; root is forbidden'}
-$deny=@{Version='2012-10-17';Statement=@(@{Effect='Deny';Principal='*';Action='sts:AssumeRole'})}
+# A deny-only policy with a concrete account principal grants no trust.
+$deny=@{Version='2012-10-17';Statement=@(@{Effect='Deny';Principal=@{AWS="arn:aws:iam::${account}:root"};Action='sts:AssumeRole'})}
 if($Action -eq 'Bootstrap'){
  foreach($kind in $roles.Keys){
   $name="$run-$kind"
@@ -112,6 +121,15 @@ if($Action -eq 'BindIssuer'){
 # Cleanup is administrator-invoked only, after separate billable-resource teardown.
 $cluster=Invoke-Aws @('eks','describe-cluster','--name',$run) 'ResourceNotFoundException'
 if($cluster){throw 'Cluster still exists: stop and complete billable-resource teardown before IAM/OIDC cleanup'}
+$repo=Invoke-Aws @('ecr','describe-repositories','--repository-names',$run) 'RepositoryNotFoundException'
+if($repo){
+ $tags=Invoke-Aws @('ecr','list-tags-for-resource','--resource-arn',"arn:aws:ecr:${region}:${account}:repository/$run")
+ Assert-RunTag $tags.tags
+ $deployer=Invoke-Aws @('sts','get-caller-identity') '' 'sathonate-sprint3'
+ if($deployer.Account -ne $account -or $deployer.Arn -notmatch '^arn:aws:sts::429488690613:assumed-role/AWSReservedSSO_Sprint3-permissions_[a-fA-F0-9]{16}/sathonate-sprint3$'){throw 'Approved deployer identity required for ECR cleanup'}
+ $null=Invoke-Aws @('ecr','delete-repository','--repository-name',$run,'--force') 'RepositoryNotFoundException' 'sathonate-sprint3'
+ if(Invoke-Aws @('ecr','describe-repositories','--repository-names',$run) 'RepositoryNotFoundException'){throw 'ECR cleanup not verified'}
+}
 foreach($kind in $roles.Keys){
  $name="$run-$kind";$role=Invoke-Aws @('iam','get-role','--role-name',$name) 'NoSuchEntity'
  if(-not $role){continue};Assert-RunTag $role.Role.Tags;$attached=Assert-RolePolicies $name $roles[$kind]
@@ -124,6 +142,4 @@ if($providerArn){
  $oidc=Invoke-Aws @('iam','get-open-id-connect-provider','--open-id-connect-provider-arn',$providerArn) 'NoSuchEntity'
  if($oidc){Assert-RunTag $oidc.Tags;$null=Invoke-Aws @('iam','delete-open-id-connect-provider','--open-id-connect-provider-arn',$providerArn)}
 }else{Write-Output 'No issuer supplied: OIDC inventory/cleanup NOT VERIFIED. Supply the recorded exact issuer if BindIssuer was ever executed.'}
-$repo=Invoke-Aws @('ecr','describe-repositories','--repository-names',$run) 'RepositoryNotFoundException'
-if($repo){$tags=Invoke-Aws @('ecr','list-tags-for-resource','--resource-arn',"arn:aws:ecr:${region}:${account}:repository/$run");Assert-RunTag $tags.tags;$null=Invoke-Aws @('ecr','delete-repository','--repository-name',$run,'--force')}
 Write-Output 'Run-owned IAM/OIDC/ECR cleanup commands completed. Shared service-linked roles preserved. Independently verify billable-resource inventory.'

@@ -186,7 +186,18 @@ func (r SecureEKSRunner) execution(q Request, requireCurrent bool) (Request, err
 	return q, nil
 }
 
-func (r SecureEKSRunner) Validate(q Request) error { _, err := r.execution(q, true); return err }
+func (r SecureEKSRunner) fenced() bool {
+	_, err := os.Lstat(r.secure.binding.remote.config.Kubeconfig + ".cleanup-fence")
+	return !os.IsNotExist(err)
+}
+
+func (r SecureEKSRunner) Validate(q Request) error {
+	if r.fenced() {
+		return errSecureEKS
+	}
+	_, err := r.execution(q, true)
+	return err
+}
 func (r SecureEKSRunner) Run(ctx context.Context, q Request, emit func(string, string) error) (Outcome, error) {
 	input, err := r.execution(q, true)
 	if err != nil {
@@ -194,6 +205,24 @@ func (r SecureEKSRunner) Run(ctx context.Context, q Request, emit func(string, s
 	}
 	ctx, cancel := context.WithDeadline(ctx, r.secure.binding.remote.config.ExpiresAt)
 	defer cancel()
+	if r.fenced() {
+		return Outcome{}, errSecureEKS
+	}
+	go func() {
+		ticker := time.NewTicker(250 * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if r.fenced() {
+					cancel()
+					return
+				}
+			}
+		}
+	}()
 	if err = r.preflight(ctx); err != nil {
 		return Outcome{}, err
 	}

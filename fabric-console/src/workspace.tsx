@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 export type Project = { id: string; tenantId: string; developer: string };
 let workspace: Project | null = null;
 export function setWorkspace(value: Project | null) {
@@ -27,3 +27,5 @@ export function localAuthAllowed(env: {
     env.VITE_APP_ENV === "local-development"
   );
 }
+
+export const WorkspaceSignOut = createContext<ReactNode>(null);

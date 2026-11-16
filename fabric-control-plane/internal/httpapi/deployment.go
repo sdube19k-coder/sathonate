@@ -14,6 +14,29 @@ import (
 	"sathonate.local/fabric-control-plane/internal/operations"
 )
 
+func (a *API) deploymentAuthorization(w http.ResponseWriter, r *http.Request) {
+	principal := identity.FromContext(r.Context())
+	if a.options.Auth.Mode != "okta" || !identity.IsProjectAuthenticated(r.Context()) || principal.ProjectID == "" || !principal.CanDeploy() {
+		problem(w, 403, "deploy_permission_required", "Okta write scope and project deployment permission are required", nil)
+		return
+	}
+	rev, ok := revision(w, r)
+	if !ok {
+		return
+	}
+	d, err := a.repository(r).Get(r.PathValue("id"))
+	if err != nil {
+		storeError(w, err)
+		return
+	}
+	if d.Archived || d.Revision != rev || d.Desired.Spec.Deployment.TargetRef != domain.SecureEKSProfile {
+		problem(w, 409, "deployment_design", "The saved EKS design is unavailable or its revision changed", nil)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	respond(w, 200, map[string]any{"authorized": true, "revision": d.Revision})
+}
+
 func (a *API) deployNetwork(w http.ResponseWriter, r *http.Request) {
 	if a.options.Deployments == nil {
 		problem(w, 503, "execution_disabled", "Deployment execution is disabled. Configure the documented local Kubernetes runner; AWS/EKS execution remains disabled.", nil)

@@ -100,7 +100,12 @@ export type Meta = {
   customerPilot?: boolean;
   dynamicLocal?: DynamicCapabilities;
   deploymentMode?:
-    "disabled" | "mock" | "local-kubernetes" | "secure-local" | "history-only";
+    | "disabled"
+    | "mock"
+    | "local-kubernetes"
+    | "secure-local"
+    | "secure-eks"
+    | "history-only";
   name: string;
   mode: string;
   executionEnabled: boolean;

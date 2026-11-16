@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { LogOut } from "lucide-react";
 import { api, setTokenProvider } from "./api";
-import { setWorkspace, WorkspaceContext, type Project } from "./workspace";
+import {
+  setWorkspace,
+  WorkspaceContext,
+  WorkspaceSignOut,
+  type Project,
+} from "./workspace";
 export default function LocalSignIn({ children }: { children: ReactNode }) {
   const token = useRef<string | undefined>(undefined);
   const [projects, setProjects] = useState<Project[]>([]),
@@ -35,14 +40,19 @@ export default function LocalSignIn({ children }: { children: ReactNode }) {
   if (project)
     return (
       <WorkspaceContext.Provider value={project}>
-        <button
-          className="smp-text-btn local-sign-out"
-          aria-label="Sign out of local workspace"
-          onClick={clear}
+        <WorkspaceSignOut.Provider
+          value={
+            <button
+              className="smp-icon-btn"
+              aria-label="Sign out of local workspace"
+              onClick={clear}
+            >
+              <LogOut size={17} />
+            </button>
+          }
         >
-          <LogOut size={17} /> Sign out
-        </button>
-        {children}
+          {children}
+        </WorkspaceSignOut.Provider>
       </WorkspaceContext.Provider>
     );
   return (

@@ -66,6 +66,19 @@ func (p Principal) CanWrite() bool {
 	return false
 }
 
+// CanDeploy requires both the access-token write scope and the project grant.
+func (p Principal) CanDeploy() bool {
+	if !p.CanWrite() {
+		return false
+	}
+	for _, permission := range p.permissions {
+		if permission == "deploy" {
+			return true
+		}
+	}
+	return false
+}
+
 func (p Principal) CanAdminister() bool {
 	if p.Subject == "" || p.TenantID == "" || !p.CanWrite() {
 		return false

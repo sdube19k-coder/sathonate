@@ -1,0 +1,152 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iam:GetRole",
+      "Resource": [
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-clusterrole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-noderole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-cnirole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-ebsrole",
+        "arn:aws:iam::429488690613:role/aws-service-role/eks.amazonaws.com/AWSServiceRoleForAmazonEKS",
+        "arn:aws:iam::429488690613:role/aws-service-role/eks-nodegroup.amazonaws.com/AWSServiceRoleForAmazonEKSNodegroup",
+        "arn:aws:iam::429488690613:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling",
+        "arn:aws:iam::429488690613:role/AWSServiceRoleForAmazonEKS",
+        "arn:aws:iam::429488690613:role/AWSServiceRoleForAmazonEKSNodegroup",
+        "arn:aws:iam::429488690613:role/AWSServiceRoleForAutoScaling"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:ListAttachedRolePolicies",
+        "iam:ListRolePolicies"
+      ],
+      "Resource": [
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-clusterrole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-noderole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-cnirole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-ebsrole"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:TagRole"
+      ],
+      "Resource": [
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-clusterrole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-noderole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-cnirole",
+        "arn:aws:iam::429488690613:role/sathonate-s3-20261027-ebsrole"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/SathonateRun": "sathonate-s3-20261027"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:AttachRolePolicy",
+      "Resource": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-clusterrole",
+      "Condition": {
+        "ArnEquals": {
+          "iam:PolicyARN": [
+            "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+          ]
+        },
+        "StringEquals": {
+          "iam:ResourceTag/SathonateRun": "sathonate-s3-20261027"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:AttachRolePolicy",
+      "Resource": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-noderole",
+      "Condition": {
+        "ArnEquals": {
+          "iam:PolicyARN": [
+            "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+            "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
+          ]
+        },
+        "StringEquals": {
+          "iam:ResourceTag/SathonateRun": "sathonate-s3-20261027"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:AttachRolePolicy",
+      "Resource": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-cnirole",
+      "Condition": {
+        "ArnEquals": {
+          "iam:PolicyARN": [
+            "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+          ]
+        },
+        "StringEquals": {
+          "iam:ResourceTag/SathonateRun": "sathonate-s3-20261027"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:AttachRolePolicy",
+      "Resource": "arn:aws:iam::429488690613:role/sathonate-s3-20261027-ebsrole",
+      "Condition": {
+        "ArnEquals": {
+          "iam:PolicyARN": [
+            "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+          ]
+        },
+        "StringEquals": {
+          "iam:ResourceTag/SathonateRun": "sathonate-s3-20261027"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:CreateServiceLinkedRole",
+      "Resource": [
+        "arn:aws:iam::429488690613:role/aws-service-role/eks.amazonaws.com/AWSServiceRoleForAmazonEKS",
+        "arn:aws:iam::429488690613:role/aws-service-role/eks-nodegroup.amazonaws.com/AWSServiceRoleForAmazonEKSNodegroup",
+        "arn:aws:iam::429488690613:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "iam:AWSServiceName": [
+            "eks.amazonaws.com",
+            "eks-nodegroup.amazonaws.com",
+            "autoscaling.amazonaws.com"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:DescribeRepositories",
+        "ecr:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:ecr:ap-south-1:429488690613:repository/sathonate-s3-20261027"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:CreateRepository",
+        "ecr:TagResource"
+      ],
+      "Resource": "arn:aws:ecr:ap-south-1:429488690613:repository/sathonate-s3-20261027",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/SathonateRun": "sathonate-s3-20261027"
+        }
+      }
+    }
+  ]
+}

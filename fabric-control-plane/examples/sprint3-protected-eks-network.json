@@ -1,0 +1,100 @@
+{
+  "apiVersion": "fabric.sathonate.io/v1alpha1",
+  "kind": "FabricNetwork",
+  "metadata": {
+    "id": "sprint3-protected-eks",
+    "name": "Sprint 3 protected EKS qualification"
+  },
+  "spec": {
+    "environment": "development",
+    "fabricVersion": "2.5.15",
+    "deployment": {
+      "engine": "bevel",
+      "runtime": "kubernetes",
+      "provider": "aws",
+      "targetRef": "smp-secure-eks-v1",
+      "cloud": {
+        "accountId": "429488690613",
+        "roleArn": "arn:aws:iam::429488690613:role/aws-reserved/sso.amazonaws.com/ap-south-1/AWSReservedSSO_Sprint3-permissions_78c9f829c372307c",
+        "region": "ap-south-1",
+        "clusterName": "sathonate-s3-20261027",
+        "clusterMode": "existing",
+        "vpcMode": "existing",
+        "minNodes": 3,
+        "desiredNodes": 3,
+        "maxNodes": 3
+      }
+    },
+    "ordering": {
+      "consensus": "raft",
+      "channelCapability": "V2_0"
+    },
+    "organizations": [
+      {
+        "id": "org1",
+        "mspId": "Org1MSP",
+        "identityProviderRef": "org1-ca"
+      },
+      {
+        "id": "org2",
+        "mspId": "Org2MSP",
+        "identityProviderRef": "org2-ca"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "orderer-1",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "ap-south-1a",
+        "failureDomain": "ap-south-1a"
+      },
+      {
+        "id": "orderer-2",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "ap-south-1b",
+        "failureDomain": "ap-south-1b"
+      },
+      {
+        "id": "orderer-3",
+        "role": "orderer",
+        "organizationRef": "org1",
+        "placementRef": "ap-south-1c",
+        "failureDomain": "ap-south-1c"
+      },
+      {
+        "id": "org1-peer-1",
+        "role": "peer",
+        "organizationRef": "org1",
+        "placementRef": "ap-south-1a",
+        "failureDomain": "ap-south-1a"
+      },
+      {
+        "id": "org2-peer-1",
+        "role": "peer",
+        "organizationRef": "org2",
+        "placementRef": "ap-south-1b",
+        "failureDomain": "ap-south-1b"
+      }
+    ],
+    "channels": [
+      {
+        "id": "smpchannel",
+        "organizationRefs": [
+          "org1",
+          "org2"
+        ],
+        "ordererRefs": [
+          "orderer-1",
+          "orderer-2",
+          "orderer-3"
+        ],
+        "peerRefs": [
+          "org1-peer-1",
+          "org2-peer-1"
+        ]
+      }
+    ]
+  }
+}

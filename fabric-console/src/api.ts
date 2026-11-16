@@ -121,6 +121,11 @@ export const api = {
       method: "POST",
       body: "{}",
     }),
+  deploymentAuthorization: (network: Network) =>
+    request<{ authorized: boolean; revision: number }>(
+      `/networks/${encodeURIComponent(network.id)}/deployment-authorization`,
+      { headers: { "If-Match": `"${network.revision}"` } },
+    ),
   deploy: (network: Network) =>
     request<Operation>(`/networks/${network.id}/deploy`, {
       method: "POST",
